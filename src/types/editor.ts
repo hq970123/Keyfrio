@@ -319,7 +319,8 @@ export interface Clip {
   lottie?: LottieSettings;
   gpuEffect?: GpuEffectSettings;
   audioWaveform?: number[]; // peak amplitudes 0-1 for waveform display
-  htmlMediaElement?: HTMLVideoElement | HTMLAudioElement | HTMLImageElement | null;
+  /** Runtime-only DOM handle; Immer treats the branded value as atomic. */
+  htmlMediaElement?: (HTMLVideoElement | HTMLAudioElement | HTMLImageElement) & { readonly __immer_atom?: never } | null;
   fileHandle?: any; // FileSystemFileHandle
   filePath?: string;
   isOffline?: boolean;
