@@ -2,15 +2,37 @@ import { Project, ExportSettings, ExportProgress } from '../types/editor';
 import { renderFrame } from './canvasRenderer';
 import { getAudioContext, getDecodedAudioBuffer } from './audio';
 
+type ExportFormat = ExportSettings['format'];
+
+const EXPORT_MIME_TYPES: Record<ExportFormat, string[]> = {
+  mp4: [
+    'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
+    'video/mp4;codecs=avc1.42E01E',
+    'video/mp4',
+  ],
+  webm: ['video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm'],
+};
+
+export function getSupportedExportMimeType(format: ExportFormat): string | null {
+  if (typeof MediaRecorder === 'undefined' || typeof MediaRecorder.isTypeSupported !== 'function') {
+    return null;
+  }
+  return EXPORT_MIME_TYPES[format].find((mimeType) => MediaRecorder.isTypeSupported(mimeType)) || null;
+}
+
 export async function exportVideo(
   project: Project,
   settings: ExportSettings,
   onProgress?: (progress: ExportProgress) => void,
   abortSignal?: AbortSignal
 ): Promise<Blob> {
-  const { resolution, fps, quality } = settings;
+  const { resolution, fps, quality, format } = settings;
+  const mimeType = getSupportedExportMimeType(format);
+  if (!mimeType) {
+    throw new Error(`当前浏览器不支持 ${format.toUpperCase()} 导出，请选择其他格式或更换浏览器。`);
+  }
   const timelineEnd = project.tracks.reduce(
-    (latest, track) => Math.max(latest, ...track.clips.map((clip) => clip.start + clip.duration)),
+    (latest, track) => track.clips.reduce((trackEnd, clip) => Math.max(trackEnd, clip.start + clip.duration), latest),
     0
   );
   const totalDuration = Math.max(project.duration || 0, timelineEnd, 1);
@@ -26,15 +48,28 @@ export async function exportVideo(
   const canvas = document.createElement('canvas');
   canvas.width = resolution.width;
   canvas.height = resolution.height;
-  const ctx = canvas.getContext('2d', { alpha: false })!;
+  const ctx = canvas.getContext('2d', { alpha: false });
+  if (!ctx) throw new Error('无法创建导出画布，请检查浏览器图形能力后重试。');
 
   // 2. Set up Web Audio destination for audio mixing
   const audioCtx = getAudioContext();
   const audioDest = audioCtx.createMediaStreamDestination();
   const scheduledSources: AudioBufferSourceNode[] = [];
+  let canvasStream: MediaStream | null = null;
+  let hasCleanedUp = false;
+
+  const cleanup = () => {
+    if (hasCleanedUp) return;
+    hasCleanedUp = true;
+    scheduledSources.forEach((source) => {
+      try { source.stop(); } catch { /* already stopped */ }
+    });
+    canvasStream?.getTracks().forEach((track) => track.stop());
+    audioDest.stream.getTracks().forEach((track) => track.stop());
+  };
 
   // Decode and schedule every audible timeline clip into the export stream.
-  const soloTracksExist = project.tracks.some((track) => track.type === 'audio' && track.isSolo && !track.isMuted);
+  const soloTracksExist = project.tracks.some((track) => track.isSolo);
   const audioClips = project.tracks
     .filter((track) => track.type === 'audio' && !track.isMuted && (!soloTracksExist || track.isSolo))
     .flatMap((track) => track.clips
@@ -54,7 +89,7 @@ export async function exportVideo(
     const { track, clip, buffer } = decoded;
 
     const sourceOffset = Math.max(0, clip.trimStart || 0);
-    const sourceLimit = Math.max(0, (clip.trimEnd || buffer.duration) - sourceOffset);
+    const sourceLimit = Math.max(0, (clip.trimEnd ?? buffer.duration) - sourceOffset);
     const sourceDuration = Math.min(sourceLimit, clip.duration * (clip.speed || 1), buffer.duration - sourceOffset);
     if (sourceDuration <= 0) return;
 
@@ -98,25 +133,33 @@ export async function exportVideo(
   });
 
   // 3. Create stream from canvas + audio stream
-  const canvasStream = canvas.captureStream(fps);
-  const combinedStream = new MediaStream([
-    ...canvasStream.getVideoTracks(),
-    ...audioDest.stream.getAudioTracks(),
-  ]);
-
-  // Pick supported mimeType
-  let mimeType = 'video/webm;codecs=vp9,opus';
-  if (!MediaRecorder.isTypeSupported(mimeType)) {
-    mimeType = 'video/webm;codecs=vp8,opus';
+  try {
+    canvasStream = canvas.captureStream(fps);
+  } catch (error) {
+    cleanup();
+    throw new Error(`无法启动画布录制：${error instanceof Error ? error.message : String(error)}`);
   }
-  if (!MediaRecorder.isTypeSupported(mimeType)) {
-    mimeType = 'video/webm';
+  let combinedStream: MediaStream;
+  try {
+    combinedStream = new MediaStream([
+      ...canvasStream.getVideoTracks(),
+      ...audioDest.stream.getAudioTracks(),
+    ]);
+  } catch (error) {
+    cleanup();
+    throw new Error(`无法组合导出音视频流：${error instanceof Error ? error.message : String(error)}`);
   }
 
-  const mediaRecorder = new MediaRecorder(combinedStream, {
-    mimeType,
-    videoBitsPerSecond: bitrate,
-  });
+  let mediaRecorder: MediaRecorder;
+  try {
+    mediaRecorder = new MediaRecorder(combinedStream, {
+      mimeType,
+      videoBitsPerSecond: bitrate,
+    });
+  } catch (error) {
+    cleanup();
+    throw new Error(`无法创建 ${format.toUpperCase()} 编码器：${error instanceof Error ? error.message : String(error)}`);
+  }
 
   const recordedChunks: Blob[] = [];
   mediaRecorder.ondataavailable = (e) => {
@@ -126,14 +169,6 @@ export async function exportVideo(
   };
 
   return new Promise((resolve, reject) => {
-    const cleanup = () => {
-      scheduledSources.forEach((source) => {
-        try { source.stop(); } catch { /* already stopped */ }
-      });
-      canvasStream.getTracks().forEach((track) => track.stop());
-      audioDest.stream.getTracks().forEach((track) => track.stop());
-    };
-
     mediaRecorder.onstop = () => {
       cleanup();
       const finalBlob = new Blob(recordedChunks, { type: mimeType });
@@ -145,7 +180,13 @@ export async function exportVideo(
       reject(err);
     };
 
-    mediaRecorder.start();
+    try {
+      mediaRecorder.start();
+    } catch (error) {
+      cleanup();
+      reject(error);
+      return;
+    }
 
     const startTime = performance.now();
     let currentFrame = 0;
