@@ -117,7 +117,7 @@ export const TransitionsPanel: React.FC = () => {
           </p>
         </div>
         <span className="px-1.5 py-0.5 rounded bg-pink-500/10 border border-pink-500/20 text-pink-300 font-mono text-[9px]">
-          8 种预设
+          {TRANSITIONS.length} 种预设
         </span>
       </div>
 
