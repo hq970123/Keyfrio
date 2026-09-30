@@ -5,6 +5,7 @@ import { getOrCreateVideoElement, getOrCreateImageElement } from './mediaPlaybac
 import { getClipActiveTransformAtTime, getClipActiveFilterAtTime } from './keyframeEngine';
 
 let offscreenCaptureCanvas: HTMLCanvasElement | null = null;
+let glitchCaptureCanvas: HTMLCanvasElement | null = null;
 
 export function getCachedMediaElement(clip: Clip): HTMLVideoElement | HTMLImageElement | null {
   if (clip.type === 'video') {
@@ -204,7 +205,7 @@ export function renderFrame(
       }
     }
 
-    // Glitch transitions add a deterministic frame shake and brief high-contrast color split feel.
+    // Glitch transitions add a deterministic frame shake and brief high-contrast treatment.
     if (transition?.type === 'glitch' && (entering || leaving)) {
       const frame = Math.floor(currentTime * 24);
       const jitterX = Math.sin(frame * 91.7) * (1 - transitionProgress) * 12;
@@ -429,6 +430,34 @@ export function renderFrame(
         height,
         offscreenCaptureCanvas || undefined
       );
+    }
+
+    if (transition?.type === 'glitch' && (entering || leaving)) {
+      if (!glitchCaptureCanvas) glitchCaptureCanvas = document.createElement('canvas');
+      if (glitchCaptureCanvas.width !== width || glitchCaptureCanvas.height !== height) {
+        glitchCaptureCanvas.width = width;
+        glitchCaptureCanvas.height = height;
+      }
+      const captureCtx = glitchCaptureCanvas.getContext('2d');
+      if (captureCtx) {
+        captureCtx.clearRect(0, 0, width, height);
+        captureCtx.drawImage(ctx.canvas, 0, 0);
+        ctx.save();
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalAlpha = 1;
+        ctx.filter = 'none';
+        const strength = (1 - transitionProgress) * Math.max(4, width * 0.035);
+        const frame = Math.floor(currentTime * 24);
+        for (let band = 0; band < 4; band++) {
+          const y = Math.floor((((frame * (band + 3) * 17) % 97) / 97) * height);
+          const bandHeight = Math.max(2, Math.round(height * (0.008 + (band % 2) * 0.006)));
+          const offset = Math.round(Math.sin(frame * 13 + band * 7) * strength);
+          ctx.drawImage(glitchCaptureCanvas, 0, y, width, bandHeight, offset, y, width, bandHeight);
+          ctx.fillStyle = band % 2 === 0 ? 'rgba(0, 220, 255, 0.22)' : 'rgba(255, 40, 150, 0.18)';
+          ctx.fillRect(offset, y, Math.max(2, Math.abs(offset)), bandHeight);
+        }
+        ctx.restore();
+      }
     }
 
     if ((transition?.type === 'fadeWhite' || transition?.type === 'fadeBlack') && (entering || leaving)) {
