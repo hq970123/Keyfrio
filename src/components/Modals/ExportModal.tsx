@@ -11,7 +11,7 @@ import {
   HardDrive,
 } from 'lucide-react';
 import { useEditor } from '../../context/EditorContext';
-import { exportVideo } from '../../utils/exporter';
+import { exportVideo, getSupportedExportMimeType } from '../../utils/exporter';
 import { ExportProgress, ExportSettings } from '../../types/editor';
 import { AppLogo } from '../common/AppLogo';
 
@@ -27,6 +27,7 @@ export const ExportModal: React.FC = () => {
   const [progress, setProgress] = useState<ExportProgress | null>(null);
   const [exportedBlobUrl, setExportedBlobUrl] = useState<string | null>(null);
   const [exportError, setExportError] = useState<string | null>(null);
+  const isMp4Supported = getSupportedExportMimeType('mp4') !== null;
 
   const abortControllerRef = useRef<AbortController | null>(null);
 
@@ -171,13 +172,17 @@ export const ExportModal: React.FC = () => {
                     </button>
                     <button
                       onClick={() => setFormat('mp4')}
+                      disabled={!isMp4Supported}
+                      title={isMp4Supported ? '导出为 MP4 (H.264)' : '当前浏览器不支持 MP4 编码'}
                       className={`p-1.5 rounded-lg border text-center transition-all text-[11px] ${
-                        format === 'mp4'
+                        !isMp4Supported
+                          ? 'bg-[#171822] border-[#242633] text-neutral-600 cursor-not-allowed'
+                          : format === 'mp4'
                           ? 'bg-blue-600/20 border-blue-500 text-white font-medium'
                           : 'bg-[#171822] border-[#242633] text-neutral-400'
                       }`}
                     >
-                      MP4 (H.264)
+                      {isMp4Supported ? 'MP4 (H.264)' : 'MP4 不可用'}
                     </button>
                   </div>
                 </div>

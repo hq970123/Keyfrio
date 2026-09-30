@@ -92,7 +92,7 @@ export const TimelineContainer: React.FC = () => {
   const outPx = outPoint !== null ? outPoint * zoom : null;
 
   return (
-    <div className="h-[42vh] min-h-[300px] bg-[#141418] border-t border-[#2a2a32] flex flex-col select-none shrink-0 z-20">
+    <div className="h-[clamp(280px,38vh,440px)] min-h-[280px] bg-[#14151a] border-t border-[#2a2c36] flex flex-col select-none shrink-0 z-20 shadow-[0_-12px_36px_rgba(0,0,0,0.14)]">
       <TimelineToolbar />
 
       {/* Ruler bar */}

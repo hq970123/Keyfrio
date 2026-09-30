@@ -1,4 +1,4 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect, useRef } from 'react';
 import { EditorProvider, useEditor } from './context/EditorContext';
 import { StoreBridge } from './components/StoreBridge';
 
@@ -26,7 +26,6 @@ const MediaRelinkBanner = lazy(() => import('./components/Header/MediaRelinkBann
 const AudioStudioModal = lazy(() => import('./components/Modals/AudioStudioModal').then((module) => ({ default: module.AudioStudioModal })));
 const AiCopilotDrawer = lazy(() => import('./components/AiCopilot/AiCopilotDrawer').then((module) => ({ default: module.AiCopilotDrawer })));
 const ProjectHome = lazy(() => import('./components/Home/ProjectHome').then((module) => ({ default: module.ProjectHome })));
-const LandingPage = lazy(() => import('./components/Landing/LandingPage').then((module) => ({ default: module.LandingPage })));
 
 const LoadingFallback: React.FC = () => (
   <div className="flex h-screen w-screen items-center justify-center bg-[#0e0e10] text-sm text-[#a0a0ab]">
@@ -48,17 +47,9 @@ const CommonOverlays: React.FC = () => (
 );
 
 const MainAppContent: React.FC = () => {
-  const { currentView, activeSidebarTab } = useEditor();
+  const { currentView, activeSidebarTab, isDatabaseReady } = useEditor();
 
-  if (currentView === 'landing') {
-    return (
-      <div className="w-full h-dvh bg-[#070912] overflow-y-auto overflow-x-hidden">
-        <LandingPage />
-        <CommonOverlays />
-        <StoreBridge />
-      </div>
-    );
-  }
+  if (!isDatabaseReady) return <LoadingFallback />;
 
   if (currentView === 'home') {
     return (
@@ -106,7 +97,7 @@ const MainAppContent: React.FC = () => {
         <SidebarTabs />
 
         {/* Media / tools panel */}
-        <div className="w-[22vw] min-w-[280px] max-w-[400px] bg-[#1a1a1f] border-r border-[#2a2a32] flex flex-col shrink-0 overflow-hidden">
+        <div className="kf-media-dock w-[clamp(280px,22vw,380px)] min-w-[280px] bg-[#17181e] border-r border-[#2a2c36] flex flex-col shrink-0 overflow-hidden">
           <Suspense
             fallback={
               <div className="flex flex-1 items-center justify-center text-xs text-[#6b6b78]">
@@ -120,10 +111,10 @@ const MainAppContent: React.FC = () => {
 
         {/* Preview + Inspector */}
         <div className="flex-1 flex min-w-0 overflow-hidden">
-          <div className="flex-1 min-w-0 bg-[#121216] flex flex-col">
+          <div className="kf-player-well flex-1 min-w-0 bg-[#101115] flex flex-col p-3">
             <PreviewPlayer />
           </div>
-          <div className="w-[20vw] min-w-[260px] max-w-[360px] bg-[#1a1a1f] border-l border-[#2a2a32] flex flex-col shrink-0 overflow-hidden">
+          <div className="kf-inspector-shell w-[clamp(280px,23vw,360px)] min-w-[280px] bg-[#17181e] border-l border-[#2a2c36] flex flex-col shrink-0 overflow-hidden">
             <InspectorPanel />
           </div>
         </div>
@@ -141,10 +132,57 @@ const MainAppContent: React.FC = () => {
   );
 };
 
+
+const EditorRouteBootstrap: React.FC = () => {
+  const { createNewProject, loadDemoProject, openShortcutsModal, isDatabaseReady } = useEditor();
+  const handled = useRef(false);
+
+  useEffect(() => {
+    if (!isDatabaseReady || handled.current) return;
+    handled.current = true;
+
+    const params = new URLSearchParams(window.location.search);
+    const demo = params.get('demo') === '1';
+    const shortcuts = params.get('shortcuts') === '1';
+    const templateJson = params.get('template');
+    if (!demo && !shortcuts && !templateJson) return;
+
+    const launch = async () => {
+      if (demo) {
+        loadDemoProject();
+      } else if (templateJson) {
+        try {
+          const template = JSON.parse(templateJson) as {
+            title?: string; desc?: string; aspect?: string; fps?: number; width?: number; height?: number;
+          };
+          const allowedAspects = ['16:9', '9:16', '1:1', '4:5', '21:9'];
+          if (template.title && allowedAspects.includes(template.aspect || '') &&
+              Number.isFinite(template.fps) && Number.isFinite(template.width) && Number.isFinite(template.height)) {
+            const aspect = template.aspect as import('./types/editor').AspectRatio;
+            await createNewProject(template.title, aspect, template.fps, {
+              width: template.width!, height: template.height!, aspectRatio: aspect, label: template.title,
+            }, template.desc);
+          }
+        } catch (error) {
+          console.warn('Could not open the selected template:', error);
+        }
+      }
+
+      window.history.replaceState({}, '', window.location.pathname);
+      if (shortcuts) openShortcutsModal();
+    };
+
+    void launch();
+  }, [createNewProject, loadDemoProject, openShortcutsModal, isDatabaseReady]);
+
+  return null;
+};
+
 export default function App() {
   return (
     <EditorProvider>
       <Suspense fallback={<LoadingFallback />}>
+        <EditorRouteBootstrap />
         <MainAppContent />
       </Suspense>
     </EditorProvider>

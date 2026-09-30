@@ -84,7 +84,7 @@ export const InspectorPanel: React.FC = () => {
   // If no clip is selected, render the rich Project Inspector
   if (!selectedClip) {
     return (
-      <aside className="w-[24vw] min-w-[300px] max-w-[430px] bg-white border border-[#dde1e7] rounded-lg flex flex-col p-3 text-slate-700 select-none overflow-y-auto shrink-0 z-20">
+      <aside className="w-full min-w-0 flex-1 bg-transparent flex flex-col p-3 text-neutral-200 select-none overflow-y-auto shrink-0">
         <ProjectInspectorTab project={project} />
       </aside>
     );
@@ -122,7 +122,7 @@ export const InspectorPanel: React.FC = () => {
   const TypeIcon = typeInfo.icon;
 
   return (
-    <aside className="w-[24vw] min-w-[300px] max-w-[430px] bg-white border border-[#dde1e7] rounded-lg flex flex-col text-slate-700 select-none overflow-hidden shrink-0 z-20">
+    <aside className="w-full min-w-0 flex-1 bg-transparent flex flex-col text-neutral-200 select-none overflow-hidden shrink-0">
       {/* 1. Header with Clip Name, Type Badge, and Quick Action Tools */}
       <div className="p-3 border-b border-[#20222a] flex flex-col gap-2 bg-[#101116]/80">
         <div className="flex items-center justify-between gap-2">
@@ -220,7 +220,7 @@ export const InspectorPanel: React.FC = () => {
               onClick={() => setActiveTab('text')}
               className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'text'
-                  ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                  ? 'bg-[#00c9bd] text-[#081011] font-semibold shadow-sm'
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
@@ -235,7 +235,7 @@ export const InspectorPanel: React.FC = () => {
               onClick={() => setActiveTab('transform')}
               className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'transform'
-                  ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                  ? 'bg-[#00c9bd] text-[#081011] font-semibold shadow-sm'
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
@@ -249,7 +249,7 @@ export const InspectorPanel: React.FC = () => {
             onClick={() => setActiveTab('keyframes')}
             className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'keyframes'
-                ? 'bg-sky-600 text-white font-semibold shadow-xs'
+                  ? 'bg-[#00a89e] text-[#f5ffff] font-semibold shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
+import { castDraft } from 'immer';
 import { subscribeWithSelector } from 'zustand/middleware';
 import {
   Project,
@@ -118,8 +119,8 @@ export const useProjectStore = create<ProjectState>()(
         };
 
         set((s) => {
-          s.project.tracks.push(track);
-          Object.assign(s, withDerived(s.project));
+          s.project.tracks.push(castDraft(track));
+          Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
         });
         return track;
       },
@@ -127,7 +128,7 @@ export const useProjectStore = create<ProjectState>()(
       removeTrack: (trackId) =>
         set((s) => {
           s.project.tracks = s.project.tracks.filter((t) => t.id !== trackId);
-          Object.assign(s, withDerived(s.project));
+          Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
         }),
 
       updateTrack: (trackId, updates) =>
@@ -186,30 +187,30 @@ export const useProjectStore = create<ProjectState>()(
         set((s) => {
           const track = s.project.tracks.find((t) => t.id === trackId);
           if (track) {
-            track.clips.push(clip);
+            track.clips.push(castDraft(clip));
             track.clips.sort((a, b) => a.start - b.start);
           }
-          Object.assign(s, withDerived(s.project));
+          Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
         });
         return clip;
       },
 
       updateClip: (clipId, updates) =>
         set((s) => {
-          s.project.tracks = updateClipInTracks(s.project.tracks, clipId, updates);
-          Object.assign(s, withDerived(s.project));
+          s.project.tracks = castDraft(updateClipInTracks(s.project.tracks as unknown as Track[], clipId, updates));
+          Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
         }),
 
       deleteClip: (clipId, ripple = false) =>
         set((s) => {
-          s.project.tracks = removeClipFromTracks(s.project.tracks, clipId, ripple);
-          Object.assign(s, withDerived(s.project));
+          s.project.tracks = castDraft(removeClipFromTracks(s.project.tracks as unknown as Track[], clipId, ripple));
+          Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
         }),
 
       moveClip: (clipId, targetTrackId, targetStart) =>
         set((s) => {
-          s.project.tracks = moveClipInTracks(s.project.tracks, clipId, targetTrackId, targetStart);
-          Object.assign(s, withDerived(s.project));
+          s.project.tracks = castDraft(moveClipInTracks(s.project.tracks as unknown as Track[], clipId, targetTrackId, targetStart));
+          Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
         }),
 
       splitClip: (clipId, atTime) =>
@@ -217,11 +218,11 @@ export const useProjectStore = create<ProjectState>()(
           for (const track of s.project.tracks) {
             const idx = track.clips.findIndex((c) => c.id === clipId);
             if (idx === -1) continue;
-            const result = splitClipAt(track.clips[idx], atTime);
+            const result = splitClipAt(track.clips[idx] as unknown as Clip, atTime);
             if (!result) return;
             const [left, right] = result;
-            track.clips.splice(idx, 1, left, right);
-            Object.assign(s, withDerived(s.project));
+            track.clips.splice(idx, 1, castDraft(left), castDraft(right));
+            Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
             return;
           }
         }),
@@ -240,10 +241,10 @@ export const useProjectStore = create<ProjectState>()(
           set((s) => {
             const t = s.project.tracks.find((tr) => tr.id === track.id);
             if (t) {
-              t.clips.push(dup);
+              t.clips.push(castDraft(dup));
               t.clips.sort((a, b) => a.start - b.start);
             }
-            Object.assign(s, withDerived(s.project));
+            Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
           });
           return dup;
         }
@@ -252,8 +253,8 @@ export const useProjectStore = create<ProjectState>()(
 
       replaceTracks: (tracks) =>
         set((s) => {
-          s.project.tracks = tracks;
-          Object.assign(s, withDerived(s.project));
+          s.project.tracks = castDraft(tracks);
+          Object.assign(s, withDerived(castDraft(s.project) as unknown as Project));
         }),
 
       resetToNew: (name, aspect) => set(withDerived(createInitialProject(name, aspect))),

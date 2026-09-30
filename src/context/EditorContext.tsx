@@ -114,6 +114,7 @@ interface EditorContextType {
 
   // DB & Project Persistence
   dbSaveStatus: 'saved' | 'saving' | 'error';
+  isDatabaseReady: boolean;
   projectList: ProjectSummary[];
   isProjectManagerOpen: boolean;
   openProjectManager: () => void;
@@ -247,6 +248,23 @@ const EditorContext = createContext<EditorContextType | null>(null);
 
 const STORAGE_KEY = 'opencut_project_v4';
 
+function createLocalProjectSnapshot(project: Project): Project {
+  return {
+    ...project,
+    tracks: project.tracks.map((track) => ({
+      ...track,
+      clips: track.clips.map((clip) => {
+        const { sourceBlob, thumbnailUrl, thumbnails, htmlMediaElement, ...snapshotClip } = clip;
+        const sourceUrl = snapshotClip.sourceUrl;
+        return {
+          ...snapshotClip,
+          sourceUrl: sourceUrl?.startsWith('blob:') || sourceUrl?.startsWith('data:') ? undefined : sourceUrl,
+        };
+      }),
+    })),
+  };
+}
+
 // Initial Project: Standard professional NLE sequence structure (V1 Video Track + A1 Audio Track) ready for imported media
 function createInitialProject(): Project {
   const videoTrack: Track = {
@@ -322,13 +340,31 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [activeSidebarTab, setActiveSidebarTab] = useState<string>('media');
 
   // View state: Landing page vs Home launcher vs Editor workspace
-  const [currentView, setCurrentView] = useState<AppView>('landing');
-  const openLanding = useCallback(() => setCurrentView('landing'), []);
-  const openEditor = useCallback(() => setCurrentView('editor'), []);
-  const openHome = useCallback(() => setCurrentView('home'), []);
+  const [currentView, setCurrentView] = useState<AppView>(() =>
+    window.location.pathname.replace(/\/$/, '') === '/projects' ? 'home' : 'editor'
+  );
+  useEffect(() => {
+    const syncViewWithLocation = () => {
+      const pathname = window.location.pathname.replace(/\/$/, '');
+      setCurrentView(pathname === '/projects' ? 'home' : 'editor');
+    };
+    window.addEventListener('popstate', syncViewWithLocation);
+    return () => window.removeEventListener('popstate', syncViewWithLocation);
+  }, []);
+
+  const openLanding = useCallback(() => window.location.assign('/'), []);
+  const openEditor = useCallback(() => {
+    window.history.pushState({}, '', '/editor');
+    setCurrentView('editor');
+  }, []);
+  const openHome = useCallback(() => {
+    window.history.pushState({}, '', '/projects');
+    setCurrentView('home');
+  }, []);
 
   // DB and Project persistence state
   const [dbSaveStatus, setDbSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
+  const [isDatabaseReady, setIsDatabaseReady] = useState(false);
   const [projectList, setProjectList] = useState<ProjectSummary[]>([]);
   const [isProjectManagerOpen, setIsProjectManagerOpen] = useState<boolean>(false);
 
@@ -778,8 +814,12 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setProjectList(storedProjects);
         }
 
+                // A website launch intent (demo/template) should win over last-session restore.
+        const params = new URLSearchParams(window.location.search);
+        const hasLaunchIntent = params.has('demo') || params.has('template');
+
         // 3. Hydrate active project from IndexedDB if present
-        if (storedProjects.length > 0) {
+        if (!hasLaunchIntent && storedProjects.length > 0) {
           const lastProjId = localStorage.getItem('opencut_active_project_id') || storedProjects[0].id;
           const fullProj = await loadProjectFromDB(lastProjId);
           if (fullProj && isMounted) {
@@ -794,6 +834,8 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
       } catch (err) {
         console.warn('DB initialization error:', err);
+      } finally {
+        if (isMounted) setIsDatabaseReady(true);
       }
     }
     initDB();
@@ -806,15 +848,22 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async (files: FileList | File[]): Promise<MediaAsset[]> => {
       const newAssets: MediaAsset[] = [];
       const fileList = Array.from(files);
+      try {
+        for (let i = 0; i < fileList.length; i++) {
+          const file = fileList[i];
+          newAssets.push(await processFileToMediaAsset(file, undefined, i));
+        }
 
-      for (let i = 0; i < fileList.length; i++) {
-        const file = fileList[i];
-        const asset = await processFileToMediaAsset(file, undefined, i);
-        saveAssetToDB(asset).catch((err) => console.warn('Failed to save asset to DB:', err));
-        newAssets.push(asset);
+        // Do not report imports as complete until their blobs are committed.
+        await Promise.all(newAssets.map((asset) => saveAssetToDB(asset)));
+      } catch (error) {
+        newAssets.forEach((asset) => {
+          if (asset.url.startsWith('blob:')) URL.revokeObjectURL(asset.url);
+        });
+        throw error;
       }
 
-      setUserAssets((prev) => [...newAssets, ...prev]);
+      setUserAssets((prev) => [...newAssets, ...prev.filter((asset) => !newAssets.some((next) => next.id === asset.id))]);
       return newAssets;
     },
     [processFileToMediaAsset]
@@ -877,12 +926,19 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Auto-save project changes to IndexedDB and localStorage (debounced)
   useEffect(() => {
+    if (!isDatabaseReady) return;
     setDbSaveStatus('saving');
     const handler = setTimeout(async () => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(project));
-        localStorage.setItem('opencut_active_project_id', project.id);
+        // IndexedDB is the primary store. A large localStorage snapshot (especially
+        // embedded thumbnails) can exceed the browser quota and must not block it.
         await saveProjectToDB(project);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(createLocalProjectSnapshot(project)));
+          localStorage.setItem('opencut_active_project_id', project.id);
+        } catch (storageError) {
+          console.warn('Project saved to IndexedDB; localStorage cache could not be updated:', storageError);
+        }
         await refreshProjectList();
         setDbSaveStatus('saved');
       } catch (err) {
@@ -891,7 +947,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     }, 400);
     return () => clearTimeout(handler);
-  }, [project, refreshProjectList]);
+  }, [isDatabaseReady, project, refreshProjectList]);
 
   // Multi-project switching, creation, duplication, rename, deletion
   const switchProject = useCallback(
@@ -3256,6 +3312,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         // DB and Project persistence
         dbSaveStatus,
+        isDatabaseReady,
         projectList,
         isProjectManagerOpen,
         openProjectManager,

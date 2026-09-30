@@ -40,16 +40,19 @@ export const MediaPanel: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [importError, setImportError] = useState('');
   const [processingMsg, setProcessingMsg] = useState('');
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
     setIsProcessing(true);
+    setImportError('');
     setProcessingMsg(`正在解析 ${files.length} 个本地素材元数据...`);
     try {
       await importFiles(files);
     } catch (err) {
       console.error('Import error:', err);
+      setImportError('素材保存失败，请检查浏览器存储空间后重试。');
     } finally {
       setIsProcessing(false);
       setProcessingMsg('');
@@ -134,7 +137,7 @@ export const MediaPanel: React.FC = () => {
                 key={item.id}
                 onClick={() => setFilterType(item.id)}
                 className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-medium transition-colors ${
-                  filterType === item.id ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'
+                  filterType === item.id ? 'bg-[#00c9bd] text-[#081011] shadow-sm' : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 {item.label}
@@ -214,6 +217,7 @@ export const MediaPanel: React.FC = () => {
           <span className="text-[9px] text-neutral-500 mt-0.5">
             支持 MP4, WebM, MOV, MP3, WAV, PNG, JPG, SVG, Lottie JSON
           </span>
+          {importError && <span role="alert" className="mt-1 text-[10px] text-red-400">{importError}</span>}
 
           {/* Native File Handle Button if supported */}
           {isFileSystemAccessSupported() && (
