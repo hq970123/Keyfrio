@@ -8,6 +8,7 @@ import {
   Moon,
   MoveLeft,
   MoveRight,
+  MoveUp,
   ZoomIn,
   Zap,
   CloudFog,
@@ -56,6 +57,13 @@ const TRANSITIONS: {
     desc: '由左向右平稳擦除过渡',
     icon: MoveRight,
     color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+  },
+  {
+    type: 'wipeUp',
+    name: '向上擦除 (Wipe Up)',
+    desc: '由下向上揭示画面',
+    icon: MoveUp,
+    color: 'text-sky-400 bg-sky-500/10 border-sky-500/20',
   },
   {
     type: 'zoomIn',
