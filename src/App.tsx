@@ -132,7 +132,7 @@ const MainAppContent: React.FC = () => {
 
 
 const EditorRouteBootstrap: React.FC = () => {
-  const { createNewProject, loadDemoProject, openEditor, openShortcutsModal } = useEditor();
+  const { createNewProject, loadDemoProject, openShortcutsModal } = useEditor();
   const handled = useRef(false);
 
   useEffect(() => {
@@ -143,6 +143,7 @@ const EditorRouteBootstrap: React.FC = () => {
     const demo = params.get('demo') === '1';
     const shortcuts = params.get('shortcuts') === '1';
     const templateJson = params.get('template');
+    if (!demo && !shortcuts && !templateJson) return;
 
     const launch = async () => {
       if (demo) {
@@ -167,11 +168,10 @@ const EditorRouteBootstrap: React.FC = () => {
 
       window.history.replaceState({}, '', window.location.pathname);
       if (shortcuts) openShortcutsModal();
-      else openEditor();
     };
 
     void launch();
-  }, [createNewProject, loadDemoProject, openEditor, openShortcutsModal]);
+  }, [createNewProject, loadDemoProject, openShortcutsModal]);
 
   return null;
 };
