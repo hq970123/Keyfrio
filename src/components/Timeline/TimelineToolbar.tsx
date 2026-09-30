@@ -97,7 +97,7 @@ export const TimelineToolbar: React.FC = () => {
           title="选择指针工具 (V)"
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md transition-all cursor-pointer ${
             toolMode === 'select'
-              ? 'bg-blue-600 text-white shadow-sm font-medium'
+              ? 'bg-[#00c9bd] text-[#081011] shadow-[0_0_14px_rgba(0,212,200,0.18)] font-semibold'
               : 'text-neutral-400 hover:text-white hover:bg-[#1b1d27]'
           }`}
         >
@@ -232,7 +232,7 @@ export const TimelineToolbar: React.FC = () => {
             onClick={() => setInPoint(currentTime)}
             title="设为工作区入点 (I)"
             className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-              inPoint !== null ? 'text-blue-400 font-bold bg-blue-500/10' : 'text-neutral-400 hover:text-white'
+              inPoint !== null ? 'text-[#00d4c8] font-bold bg-[#00d4c8]/10' : 'text-neutral-400 hover:text-white'
             }`}
           >
             [ In
@@ -241,7 +241,7 @@ export const TimelineToolbar: React.FC = () => {
             onClick={() => setOutPoint(currentTime)}
             title="设为工作区出点 (O)"
             className={`px-1.5 py-0.5 rounded transition-colors cursor-pointer ${
-              outPoint !== null ? 'text-blue-400 font-bold bg-blue-500/10' : 'text-neutral-400 hover:text-white'
+              outPoint !== null ? 'text-[#00d4c8] font-bold bg-[#00d4c8]/10' : 'text-neutral-400 hover:text-white'
             }`}
           >
             Out ]
@@ -263,9 +263,9 @@ export const TimelineToolbar: React.FC = () => {
         <div className="relative">
           <button
             onClick={() => setIsTrackMenuOpen(!isTrackMenuOpen)}
-            className="flex items-center gap-1 bg-[#181a24] hover:bg-[#202330] border border-[#262838] hover:border-blue-500 text-neutral-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+            className="flex items-center gap-1 bg-[#181a24] hover:bg-[#202330] border border-[#262838] hover:border-[#00d4c8]/50 text-neutral-200 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
           >
-            <Plus className="w-3.5 h-3.5 text-blue-400" />
+            <Plus className="w-3.5 h-3.5 text-[#00d4c8]" />
             <span className="text-[11px] font-medium">添加轨道</span>
           </button>
 
