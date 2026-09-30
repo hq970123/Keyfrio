@@ -124,8 +124,8 @@ export const LandingPage: React.FC = () => {
   useEffect(() => {
     if (!isPlayingDemo) return;
     const timer = setInterval(() => {
-      setDemoProgress((prev) => (prev >= 100 ? 0 : prev + 0.4));
-    }, 50);
+      setDemoProgress((prev) => (prev >= 100 ? 0 : prev + 1));
+    }, 200);
     return () => clearInterval(timer);
   }, [isPlayingDemo]);
 
