@@ -134,7 +134,7 @@ export const MediaPanel: React.FC = () => {
                 key={item.id}
                 onClick={() => setFilterType(item.id)}
                 className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-medium transition-colors ${
-                  filterType === item.id ? 'bg-blue-600 text-white' : 'text-neutral-400 hover:text-white'
+                  filterType === item.id ? 'bg-[#00c9bd] text-[#081011] shadow-sm' : 'text-neutral-400 hover:text-white'
                 }`}
               >
                 {item.label}
