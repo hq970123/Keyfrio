@@ -40,7 +40,7 @@ export const SidebarTabs: React.FC = () => {
   return (
     <aside
       aria-label="编辑工具"
-      className="w-[64px] bg-[#141418] border-r border-[#2a2a32] flex flex-col items-center py-2 select-none shrink-0 z-20"
+      className="w-[68px] bg-[#121318] border-r border-[#252731] flex flex-col items-center py-2.5 select-none shrink-0 z-20"
     >
       <nav className="flex flex-col gap-0.5 w-full px-1.5">
         {TABS.map((tab) => {
@@ -56,7 +56,7 @@ export const SidebarTabs: React.FC = () => {
               onClick={() => setActiveSidebarTab(tab.id)}
               className={`relative flex flex-col items-center justify-center gap-0.5 rounded-lg w-full py-2 transition-all duration-150 cursor-pointer ${
                 isActive
-                  ? 'bg-[rgba(0,212,200,0.12)] text-[#00d4c8]'
+                ? 'bg-[#00d4c8]/10 text-[#00d4c8] ring-1 ring-inset ring-[#00d4c8]/20'
                   : 'text-[#6b6b78] hover:text-[#f0f0f2] hover:bg-[#222228]'
               }`}
             >
