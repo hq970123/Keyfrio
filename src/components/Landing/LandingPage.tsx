@@ -35,7 +35,6 @@ import {
   Activity,
   Diamond,
 } from 'lucide-react';
-import { useEditor } from '../../context/EditorContext';
 import { AppLogo } from '../common/AppLogo';
 import { AspectRatio } from '../../types/editor';
 
@@ -110,14 +109,8 @@ const TEMPLATES_LIST: TemplateCard[] = [
 ];
 
 export const LandingPage: React.FC = () => {
-  const {
-    openHome,
-    openEditor,
-    createNewProject,
-    loadDemoProject,
-    openShortcutsModal,
-    projectList,
-  } = useEditor();
+  const openHome = () => window.location.assign('/projects');
+  const openEditor = () => window.location.assign('/editor');
 
   // Interactive Hero Preview State
   const [isPlayingDemo, setIsPlayingDemo] = useState(true);
@@ -137,15 +130,9 @@ export const LandingPage: React.FC = () => {
   }, [isPlayingDemo]);
 
   // Handle direct template start
-  const handleUseTemplate = async (template: TemplateCard) => {
-    await createNewProject(
-      template.title,
-      template.aspect,
-      template.fps,
-      { width: template.width, height: template.height, aspectRatio: template.aspect, label: template.title },
-      template.desc
-    );
-    openEditor();
+  const handleUseTemplate = (template: TemplateCard) => {
+    const params = new URLSearchParams({ template: JSON.stringify(template) });
+    window.location.assign(`/editor?${params.toString()}`);
   };
 
   const handleStartCreating = () => {
@@ -153,8 +140,7 @@ export const LandingPage: React.FC = () => {
   };
 
   const handleQuickDemoLaunch = () => {
-    loadDemoProject();
-    openEditor();
+    window.location.assign('/editor?demo=1');
   };
 
   return (
@@ -225,11 +211,6 @@ export const LandingPage: React.FC = () => {
             >
               <FolderOpen className="w-3.5 h-3.5 text-sky-400" />
               <span>工程项目库</span>
-              {projectList.length > 0 && (
-                <span className="text-[10px] bg-blue-500/20 text-blue-300 px-1.5 py-0.2 rounded-full font-mono">
-                  {projectList.length}
-                </span>
-              )}
             </button>
 
             <button
@@ -1017,7 +998,7 @@ export const LandingPage: React.FC = () => {
               多轨剪辑工作台
             </button>
             <button
-              onClick={openShortcutsModal}
+              onClick={() => window.location.assign('/editor?shortcuts=1')}
               className="hover:text-white transition-colors cursor-pointer flex items-center gap-1"
             >
               <Keyboard className="w-3.5 h-3.5" />
