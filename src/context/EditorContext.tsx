@@ -247,6 +247,23 @@ const EditorContext = createContext<EditorContextType | null>(null);
 
 const STORAGE_KEY = 'opencut_project_v4';
 
+function createLocalProjectSnapshot(project: Project): Project {
+  return {
+    ...project,
+    tracks: project.tracks.map((track) => ({
+      ...track,
+      clips: track.clips.map((clip) => {
+        const { sourceBlob, thumbnailUrl, thumbnails, htmlMediaElement, ...snapshotClip } = clip;
+        const sourceUrl = snapshotClip.sourceUrl;
+        return {
+          ...snapshotClip,
+          sourceUrl: sourceUrl?.startsWith('blob:') || sourceUrl?.startsWith('data:') ? undefined : sourceUrl,
+        };
+      }),
+    })),
+  };
+}
+
 // Initial Project: Standard professional NLE sequence structure (V1 Video Track + A1 Audio Track) ready for imported media
 function createInitialProject(): Project {
   const videoTrack: Track = {
@@ -880,9 +897,15 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     setDbSaveStatus('saving');
     const handler = setTimeout(async () => {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(project));
-        localStorage.setItem('opencut_active_project_id', project.id);
+        // IndexedDB is the primary store. A large localStorage snapshot (especially
+        // embedded thumbnails) can exceed the browser quota and must not block it.
         await saveProjectToDB(project);
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(createLocalProjectSnapshot(project)));
+          localStorage.setItem('opencut_active_project_id', project.id);
+        } catch (storageError) {
+          console.warn('Project saved to IndexedDB; localStorage cache could not be updated:', storageError);
+        }
         await refreshProjectList();
         setDbSaveStatus('saved');
       } catch (err) {
