@@ -106,7 +106,7 @@ const MainAppContent: React.FC = () => {
         <SidebarTabs />
 
         {/* Media / tools panel */}
-        <div className="w-[22vw] min-w-[280px] max-w-[400px] bg-[#1a1a1f] border-r border-[#2a2a32] flex flex-col shrink-0 overflow-hidden">
+        <div className="kf-media-dock w-[clamp(280px,22vw,380px)] min-w-[280px] bg-[#17181e] border-r border-[#2a2c36] flex flex-col shrink-0 overflow-hidden">
           <Suspense
             fallback={
               <div className="flex flex-1 items-center justify-center text-xs text-[#6b6b78]">
@@ -120,10 +120,10 @@ const MainAppContent: React.FC = () => {
 
         {/* Preview + Inspector */}
         <div className="flex-1 flex min-w-0 overflow-hidden">
-          <div className="flex-1 min-w-0 bg-[#121216] flex flex-col">
+          <div className="kf-player-well flex-1 min-w-0 bg-[#101115] flex flex-col p-3">
             <PreviewPlayer />
           </div>
-          <div className="w-[20vw] min-w-[260px] max-w-[360px] bg-[#1a1a1f] border-l border-[#2a2a32] flex flex-col shrink-0 overflow-hidden">
+          <div className="kf-inspector-shell w-[clamp(280px,23vw,360px)] min-w-[280px] bg-[#17181e] border-l border-[#2a2c36] flex flex-col shrink-0 overflow-hidden">
             <InspectorPanel />
           </div>
         </div>
