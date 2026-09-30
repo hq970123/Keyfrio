@@ -208,9 +208,16 @@ export async function exportVideo(
       const frameTime = currentFrame * frameDuration;
 
       // Render video frame
-      renderFrame(ctx, project, frameTime, resolution, {
-        isExporting: true,
-      });
+      try {
+        renderFrame(ctx, project, frameTime, resolution, {
+          isExporting: true,
+        });
+      } catch (error) {
+        cleanup();
+        if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+        reject(new Error(`渲染第 ${currentFrame + 1} 帧失败：${error instanceof Error ? error.message : String(error)}`));
+        return;
+      }
 
       currentFrame++;
 
