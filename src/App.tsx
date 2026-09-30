@@ -47,7 +47,9 @@ const CommonOverlays: React.FC = () => (
 );
 
 const MainAppContent: React.FC = () => {
-  const { currentView, activeSidebarTab } = useEditor();
+  const { currentView, activeSidebarTab, isDatabaseReady } = useEditor();
+
+  if (!isDatabaseReady) return <LoadingFallback />;
 
   if (currentView === 'home') {
     return (
@@ -132,11 +134,11 @@ const MainAppContent: React.FC = () => {
 
 
 const EditorRouteBootstrap: React.FC = () => {
-  const { createNewProject, loadDemoProject, openShortcutsModal } = useEditor();
+  const { createNewProject, loadDemoProject, openShortcutsModal, isDatabaseReady } = useEditor();
   const handled = useRef(false);
 
   useEffect(() => {
-    if (handled.current) return;
+    if (!isDatabaseReady || handled.current) return;
     handled.current = true;
 
     const params = new URLSearchParams(window.location.search);
@@ -171,7 +173,7 @@ const EditorRouteBootstrap: React.FC = () => {
     };
 
     void launch();
-  }, [createNewProject, loadDemoProject, openShortcutsModal]);
+  }, [createNewProject, loadDemoProject, openShortcutsModal, isDatabaseReady]);
 
   return null;
 };
