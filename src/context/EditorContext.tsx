@@ -114,6 +114,7 @@ interface EditorContextType {
 
   // DB & Project Persistence
   dbSaveStatus: 'saved' | 'saving' | 'error';
+  isDatabaseReady: boolean;
   projectList: ProjectSummary[];
   isProjectManagerOpen: boolean;
   openProjectManager: () => void;
@@ -363,6 +364,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // DB and Project persistence state
   const [dbSaveStatus, setDbSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
+  const [isDatabaseReady, setIsDatabaseReady] = useState(false);
   const [projectList, setProjectList] = useState<ProjectSummary[]>([]);
   const [isProjectManagerOpen, setIsProjectManagerOpen] = useState<boolean>(false);
 
@@ -832,6 +834,8 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         }
       } catch (err) {
         console.warn('DB initialization error:', err);
+      } finally {
+        if (isMounted) setIsDatabaseReady(true);
       }
     }
     initDB();
@@ -922,6 +926,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Auto-save project changes to IndexedDB and localStorage (debounced)
   useEffect(() => {
+    if (!isDatabaseReady) return;
     setDbSaveStatus('saving');
     const handler = setTimeout(async () => {
       try {
@@ -942,7 +947,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     }, 400);
     return () => clearTimeout(handler);
-  }, [project, refreshProjectList]);
+  }, [isDatabaseReady, project, refreshProjectList]);
 
   // Multi-project switching, creation, duplication, rename, deletion
   const switchProject = useCallback(
@@ -3307,6 +3312,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
         // DB and Project persistence
         dbSaveStatus,
+        isDatabaseReady,
         projectList,
         isProjectManagerOpen,
         openProjectManager,
