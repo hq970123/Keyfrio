@@ -116,6 +116,10 @@ export interface RenderOptions {
   isExporting?: boolean;
 }
 
+function clamp01(value: number): number {
+  return Math.max(0, Math.min(1, value));
+}
+
 export function renderFrame(
   ctx: CanvasRenderingContext2D,
   project: Project,
@@ -158,26 +162,54 @@ export function renderFrame(
     const clipProgress = (currentTime - clip.start) / clip.duration;
 
     // Get interpolated keyframe values or fallback to static
-    const activeTransform = getClipActiveTransformAtTime(clip, clipRelativeSec);
+    let activeTransform = getClipActiveTransformAtTime(clip, clipRelativeSec);
     const activeFilter = getClipActiveFilterAtTime(clip, clipRelativeSec);
 
-    // Apply global clip opacity & blend mode
+    // Resolve the clip's transition phase once so preview and export share the same effect.
     let opacity = activeTransform.opacity ?? 1;
+    const transition = clip.transition;
+    const transitionDuration = Math.min(clip.duration / 2, Math.max(0.05, transition?.duration || 0.5));
+    const entering = Boolean(transition && transition.type !== 'none' && clipRelativeSec < transitionDuration);
+    const leaving = Boolean(
+      transition && transition.type !== 'none' && clip.duration - clipRelativeSec <= transitionDuration
+    );
+    const transitionProgress = entering
+      ? clamp01(clipRelativeSec / transitionDuration)
+      : leaving
+        ? clamp01((clip.duration - clipRelativeSec) / transitionDuration)
+        : 1;
 
-    // Transition fade in/out calculation
-    if (clip.transition && clip.transition.type !== 'none') {
-      const transDur = clip.transition.duration || 0.5;
-      if (relTime < transDur) {
-        const transProgress = relTime / transDur;
-        if (clip.transition.type === 'fadeBlack' || clip.transition.type === 'crossDissolve') {
-          opacity *= transProgress;
-        }
-      } else if (currentTime > clip.start + clip.duration - transDur) {
-        const outProgress = (clip.start + clip.duration - currentTime) / transDur;
-        if (clip.transition.type === 'fadeBlack' || clip.transition.type === 'crossDissolve') {
-          opacity *= outProgress;
-        }
+    if (transition && (entering || leaving)) {
+      if (transition.type === 'crossDissolve') {
+        opacity *= transitionProgress;
+      } else if (transition.type === 'zoomIn') {
+        activeTransform = {
+          ...activeTransform,
+          scale: (activeTransform.scale || 1) * (0.82 + transitionProgress * 0.18),
+        };
       }
+
+      // Wipes clip the rendered layer in canvas coordinates before the clip transform is applied.
+      if (transition.type === 'wipeLeft' || transition.type === 'wipeRight' || transition.type === 'wipeUp') {
+        const p = transitionProgress;
+        ctx.beginPath();
+        if (transition.type === 'wipeLeft') {
+          ctx.rect(entering ? width * (1 - p) : 0, 0, width * p, height);
+        } else if (transition.type === 'wipeRight') {
+          ctx.rect(entering ? 0 : width * (1 - p), 0, width * p, height);
+        } else {
+          ctx.rect(0, entering ? height * (1 - p) : 0, width, height * p);
+        }
+        ctx.clip();
+      }
+    }
+
+    // Glitch transitions add a deterministic frame shake and brief high-contrast color split feel.
+    if (transition?.type === 'glitch' && (entering || leaving)) {
+      const frame = Math.floor(currentTime * 24);
+      const jitterX = Math.sin(frame * 91.7) * (1 - transitionProgress) * 12;
+      const jitterY = Math.cos(frame * 47.3) * (1 - transitionProgress) * 4;
+      ctx.translate(jitterX, jitterY);
     }
 
     ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
@@ -209,6 +241,13 @@ export function renderFrame(
       if (filterParts.length > 0) {
         ctx.filter = filterParts.join(' ');
       }
+    }
+    if (transition?.type === 'blur' && (entering || leaving)) {
+      const blurPx = (1 - transitionProgress) * Math.min(24, Math.max(0, Math.min(width, height) / 80));
+      ctx.filter = `${ctx.filter === 'none' ? '' : `${ctx.filter} `}blur(${blurPx.toFixed(2)}px)`.trim();
+    }
+    if (transition?.type === 'glitch' && (entering || leaving)) {
+      ctx.filter = `${ctx.filter === 'none' ? '' : `${ctx.filter} `}contrast(1.25) saturate(1.4)`.trim();
     }
 
     // Render depending on media type
@@ -390,6 +429,15 @@ export function renderFrame(
         height,
         offscreenCaptureCanvas || undefined
       );
+    }
+
+    if ((transition?.type === 'fadeWhite' || transition?.type === 'fadeBlack') && (entering || leaving)) {
+      ctx.save();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.globalAlpha = 1 - transitionProgress;
+      ctx.fillStyle = transition.type === 'fadeWhite' ? '#fff' : '#000';
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
     }
 
     ctx.restore();
