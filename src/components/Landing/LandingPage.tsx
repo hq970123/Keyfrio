@@ -147,9 +147,9 @@ export const LandingPage: React.FC = () => {
     <div className="min-h-screen bg-[#070912] text-neutral-100 font-sans selection:bg-blue-500 selection:text-white relative overflow-x-hidden">
       {/* Background Decorative Gradients & Glows */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-blue-600/15 via-purple-600/10 to-transparent blur-[120px] rounded-full" />
-        <div className="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-cyan-600/10 blur-[140px] rounded-full" />
-        <div className="absolute top-[60%] -right-[10%] w-[600px] h-[600px] bg-pink-600/10 blur-[140px] rounded-full" />
+        <div className="absolute -top-[20%] left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-cyan-500/12 via-indigo-600/10 to-transparent blur-[120px] rounded-full" />
+        <div className="absolute top-[40%] -left-[10%] w-[600px] h-[600px] bg-cyan-600/[0.07] blur-[140px] rounded-full" />
+        <div className="absolute top-[60%] -right-[10%] w-[600px] h-[600px] bg-violet-600/[0.07] blur-[140px] rounded-full" />
         {/* Subtle grid mesh */}
         <div
           className="absolute inset-0 opacity-[0.03]"
@@ -161,8 +161,8 @@ export const LandingPage: React.FC = () => {
       </div>
 
       {/* 1. Official Header / Navigation */}
-      <header className="sticky top-0 z-50 backdrop-blur-xl bg-[#070912]/80 border-b border-[#1c1e27] transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#070912]/75 border-b border-white/[0.07] transition-all">
+        <div className="max-w-[1380px] mx-auto px-4 sm:px-6 lg:px-10 h-[72px] flex items-center justify-between">
           {/* Brand Logo & Slogan */}
           <div className="flex items-center gap-3">
             <button
@@ -226,39 +226,39 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* 2. Hero Section */}
-      <section className="relative z-10 pt-16 pb-12 lg:pt-24 lg:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
+      <section className="relative z-10 pt-14 pb-12 lg:pt-20 lg:pb-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto flex flex-col items-center text-center">
         {/* Top Floating Badge */}
-        <div className="inline-flex items-center gap-2 bg-[#141622]/90 border border-blue-500/30 px-3.5 py-1.5 rounded-full text-xs text-neutral-300 mb-8 backdrop-blur-md shadow-lg shadow-blue-950/30 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="inline-flex items-center gap-2 bg-white/[0.035] border border-white/[0.09] px-3.5 py-1.5 rounded-full text-xs text-neutral-300 mb-7 backdrop-blur-md shadow-lg shadow-black/20 animate-in fade-in slide-in-from-top-4 duration-500">
           <span className="flex h-2 w-2 relative">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-300 opacity-50"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-teal-300"></span>
           </span>
-          <span className="font-semibold text-white">Keyfrio 2.0 创新发布</span>
+          <span className="font-semibold text-white">为浏览器打造的视频剪辑工作台</span>
           <span className="text-neutral-500">•</span>
-          <span className="text-blue-300 font-medium">Edit every moment. Shape every story.</span>
+          <span className="text-teal-200 font-medium">Edit every moment. Shape every story.</span>
         </div>
 
         {/* Main Hero Headline */}
-        <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-[1.1] max-w-5xl">
-          <span className="text-white">重塑每一个精彩瞬间</span>
+        <h1 className="text-4xl sm:text-6xl lg:text-[76px] font-black tracking-[-0.045em] leading-[1.08] max-w-5xl">
+          <span className="text-white">让剪辑回归创作</span>
           <br />
-          <span className="bg-gradient-to-r from-blue-400 via-indigo-300 to-purple-400 bg-clip-text text-transparent">
-            让每一个故事，在此成片
+          <span className="bg-gradient-to-r from-teal-200 via-cyan-300 to-indigo-300 bg-clip-text text-transparent">
+            把灵感，剪成你的故事
           </span>
         </h1>
 
         {/* Slogan & Description */}
-        <p className="mt-6 text-base sm:text-lg lg:text-xl text-neutral-300 max-w-3xl leading-relaxed">
-          <strong className="text-sky-400 font-semibold">Keyfrio</strong> 是专为现代创作者打造的下一代 Web 原生多轨视音频剪辑系统。
-          无需下载安装，秒级加载 4K 实时渲染、GPU 粒子着色器、Lottie 矢量动效、ASC-CDL 调色与 AI 创意副驾驶。
+        <p className="mt-6 text-base sm:text-lg text-neutral-400 max-w-2xl leading-8">
+          <strong className="text-teal-200 font-semibold">Keyfrio</strong> 将视频、音频与文字放进一条清晰的多轨时间线，
+          在浏览器里完成剪辑、动效、调色与导出。
         </p>
 
         {/* Hero CTA Buttons */}
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
+        <div className="mt-9 flex w-full flex-col sm:w-auto sm:flex-row flex-wrap items-center justify-center gap-3">
           <button
             id="hero-start-creating-btn"
             onClick={handleStartCreating}
-            className="flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 hover:from-blue-500 hover:to-violet-500 shadow-[0_0_30px_rgba(59,130,246,0.45)] hover:shadow-[0_0_40px_rgba(59,130,246,0.7)] transition-all cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm text-[#071111] bg-gradient-to-r from-teal-200 to-cyan-300 hover:brightness-105 shadow-[0_8px_30px_rgba(45,212,191,0.18)] transition-all cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
           >
             <Sparkles className="w-4 h-4" />
             <span className="text-base tracking-wide">立即创作</span>
@@ -267,7 +267,7 @@ export const LandingPage: React.FC = () => {
 
           <button
             onClick={handleQuickDemoLaunch}
-            className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-neutral-200 hover:text-white bg-[#141620] hover:bg-[#1e202e] border border-[#272b3c] hover:border-neutral-600 transition-all cursor-pointer shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-neutral-200 hover:text-white bg-white/[0.035] hover:bg-white/[0.07] border border-white/[0.09] hover:border-white/20 transition-all cursor-pointer transform hover:-translate-y-0.5 active:translate-y-0"
           >
             <Play className="w-4 h-4 text-emerald-400 fill-emerald-400" />
             <span>试玩演示工程 (Live Demo)</span>
@@ -275,7 +275,7 @@ export const LandingPage: React.FC = () => {
 
           <button
             onClick={openHome}
-            className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-neutral-300 hover:text-white bg-transparent hover:bg-neutral-800/40 border border-neutral-800 hover:border-neutral-700 transition-all cursor-pointer"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-sm text-neutral-400 hover:text-white bg-transparent hover:bg-white/[0.04] border border-transparent hover:border-white/[0.08] transition-all cursor-pointer"
           >
             <FolderOpen className="w-4 h-4 text-indigo-400" />
             <span>进入工程库</span>
@@ -283,7 +283,7 @@ export const LandingPage: React.FC = () => {
         </div>
 
         {/* Feature Highlights Pills */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-xs text-neutral-400">
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs text-neutral-500">
           <div className="flex items-center gap-1.5">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             <span>零等待浏览器即开即用</span>
@@ -303,7 +303,7 @@ export const LandingPage: React.FC = () => {
         </div>
 
         {/* 3. Interactive Hero Studio Mockup */}
-        <div className="mt-14 w-full max-w-5xl rounded-2xl border border-[#242838] bg-[#10121a]/95 p-3 sm:p-4 shadow-[0_20px_70px_rgba(0,0,0,0.8)] backdrop-blur-2xl relative group">
+        <div className="mt-14 w-full max-w-5xl rounded-2xl border border-white/[0.11] bg-[#0d1119]/95 p-3 sm:p-4 shadow-[0_30px_100px_rgba(0,0,0,0.58)] backdrop-blur-2xl relative group ring-1 ring-white/[0.025]">
           {/* Top Mock Window Bar */}
           <div className="flex items-center justify-between pb-3 border-b border-[#1f2230] text-xs">
             <div className="flex items-center gap-2">
@@ -523,31 +523,23 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 4. Stats & Hardware Metric Strip */}
-      <section className="border-y border-[#202837] bg-[#0c0d13]/60 py-10 relative z-10">
+      <section className="border-y border-white/[0.07] bg-white/[0.018] py-9 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="flex flex-col">
-            <span className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent font-mono">
-              &lt; 0.1s
-            </span>
-            <span className="text-xs text-neutral-400 font-medium mt-1">秒级瞬时冷启动</span>
+          <div className="flex flex-col md:border-r md:border-white/[0.08]">
+            <span className="text-2xl sm:text-3xl font-bold text-teal-200 tracking-tight">多轨编辑</span>
+            <span className="text-xs text-neutral-500 font-medium mt-2">视频、音频与文字同屏编排</span>
+          </div>
+          <div className="flex flex-col md:border-r md:border-white/[0.08]">
+            <span className="text-2xl sm:text-3xl font-bold text-cyan-200 tracking-tight">帧级控制</span>
+            <span className="text-xs text-neutral-500 font-medium mt-2">精准调整片段与播放位置</span>
+          </div>
+          <div className="flex flex-col md:border-r md:border-white/[0.08]">
+            <span className="text-2xl sm:text-3xl font-bold text-indigo-200 tracking-tight">灵活创作</span>
+            <span className="text-xs text-neutral-500 font-medium mt-2">字幕、动效、滤镜与音频工具</span>
           </div>
           <div className="flex flex-col">
-            <span className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent font-mono">
-              4K 60FPS
-            </span>
-            <span className="text-xs text-neutral-400 font-medium mt-1">WebCodecs 无损流式处理</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent font-mono">
-              50+
-            </span>
-            <span className="text-xs text-neutral-400 font-medium mt-1">GPU 着色器与电影滤镜</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent font-mono">
-              100%
-            </span>
-            <span className="text-xs text-neutral-400 font-medium mt-1">浏览器本地计算与隐私安全</span>
+            <span className="text-2xl sm:text-3xl font-bold text-violet-200 tracking-tight">项目可续</span>
+            <span className="text-xs text-neutral-500 font-medium mt-2">保存工程，随时继续编辑</span>
           </div>
         </div>
       </section>
@@ -569,7 +561,7 @@ export const LandingPage: React.FC = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {/* Card 1: Multi-track Timeline */}
-          <div className="bg-[#10121b] border border-[#212433] hover:border-blue-500/50 p-6 rounded-2xl transition-all duration-300 group hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] flex flex-col">
+          <div className="bg-gradient-to-b from-white/[0.045] to-white/[0.015] border border-white/[0.08] hover:border-teal-300/30 p-6 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.25)] flex flex-col">
             <div className="w-12 h-12 rounded-xl bg-blue-600/20 border border-blue-500/30 text-sky-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
               <Film className="w-6 h-6" />
             </div>
@@ -584,7 +576,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Card 2: GPU Shaders */}
-          <div className="bg-[#10121b] border border-[#212433] hover:border-cyan-500/50 p-6 rounded-2xl transition-all duration-300 group hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] flex flex-col">
+          <div className="bg-gradient-to-b from-white/[0.045] to-white/[0.015] border border-white/[0.08] hover:border-cyan-300/30 p-6 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.25)] flex flex-col">
             <div className="w-12 h-12 rounded-xl bg-cyan-600/20 border border-cyan-500/30 text-cyan-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
               <Sparkles className="w-6 h-6" />
             </div>
@@ -599,7 +591,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Card 3: Color Grading & CDL */}
-          <div className="bg-[#10121b] border border-[#212433] hover:border-amber-500/50 p-6 rounded-2xl transition-all duration-300 group hover:shadow-[0_0_30px_rgba(245,158,11,0.15)] flex flex-col">
+          <div className="bg-gradient-to-b from-white/[0.045] to-white/[0.015] border border-white/[0.08] hover:border-amber-300/30 p-6 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.25)] flex flex-col">
             <div className="w-12 h-12 rounded-xl bg-amber-600/20 border border-amber-500/30 text-amber-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
               <Palette className="w-6 h-6" />
             </div>
@@ -614,7 +606,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Card 4: Lottie & Typography */}
-          <div className="bg-[#10121b] border border-[#212433] hover:border-purple-500/50 p-6 rounded-2xl transition-all duration-300 group hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] flex flex-col">
+          <div className="bg-gradient-to-b from-white/[0.045] to-white/[0.015] border border-white/[0.08] hover:border-violet-300/30 p-6 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.25)] flex flex-col">
             <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 text-purple-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
               <Type className="w-6 h-6" />
             </div>
@@ -629,7 +621,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Card 5: Audio EQ & Compressor */}
-          <div className="bg-[#10121b] border border-[#212433] hover:border-emerald-500/50 p-6 rounded-2xl transition-all duration-300 group hover:shadow-[0_0_30px_rgba(16,185,129,0.15)] flex flex-col">
+          <div className="bg-gradient-to-b from-white/[0.045] to-white/[0.015] border border-white/[0.08] hover:border-emerald-300/30 p-6 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.25)] flex flex-col">
             <div className="w-12 h-12 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
               <Volume2 className="w-6 h-6" />
             </div>
@@ -644,7 +636,7 @@ export const LandingPage: React.FC = () => {
           </div>
 
           {/* Card 6: AI Copilot & Fast Export */}
-          <div className="bg-[#10121b] border border-[#212433] hover:border-pink-500/50 p-6 rounded-2xl transition-all duration-300 group hover:shadow-[0_0_30px_rgba(236,72,153,0.15)] flex flex-col">
+          <div className="bg-gradient-to-b from-white/[0.045] to-white/[0.015] border border-white/[0.08] hover:border-pink-300/30 p-6 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(0,0,0,0.25)] flex flex-col">
             <div className="w-12 h-12 rounded-xl bg-pink-600/20 border border-pink-500/30 text-pink-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
               <Sparkle className="w-6 h-6" />
             </div>
@@ -661,7 +653,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 6. Scenario Templates Showcase (热门爆款场景模板库) */}
-      <section id="templates" className="py-20 bg-[#0a0b10] border-t border-[#1a1c26] relative z-10">
+      <section id="templates" className="py-20 bg-gradient-to-b from-white/[0.018] to-transparent border-y border-white/[0.06] relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
             <div>
@@ -691,7 +683,7 @@ export const LandingPage: React.FC = () => {
             {TEMPLATES_LIST.map((template) => (
               <div
                 key={template.id}
-                className="group bg-[#12141d] border border-[#212433] hover:border-neutral-500 rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl flex-1"
+                className="group bg-[#11151d] border border-white/[0.08] hover:border-teal-200/30 rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_24px_60px_rgba(0,0,0,0.4)] flex-1"
               >
                 {/* Cover Image */}
                 <div className="relative aspect-[16/10] overflow-hidden bg-neutral-900">
@@ -939,8 +931,8 @@ export const LandingPage: React.FC = () => {
 
       {/* 10. Grand Bottom Call-To-Action Banner */}
       <section className="py-20 relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div className="bg-gradient-to-r from-blue-900/60 via-indigo-900/60 to-purple-900/60 border border-sky-400/35 rounded-3xl p-8 sm:p-14 text-center relative overflow-hidden shadow-[0_0_60px_rgba(59,130,246,0.3)]">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-blue-500/20 via-transparent to-transparent pointer-events-none" />
+        <div className="bg-gradient-to-br from-[#102323] via-[#11192a] to-[#17152a] border border-teal-100/15 rounded-[28px] p-8 sm:p-14 text-center relative overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.35)]">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-teal-300/10 via-transparent to-transparent pointer-events-none" />
 
           <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight relative z-10">
             准备好讲述你的精彩故事了吗？
@@ -955,7 +947,7 @@ export const LandingPage: React.FC = () => {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-4 relative z-10">
             <button
               onClick={handleStartCreating}
-              className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-white bg-sky-500 hover:bg-sky-400 shadow-[0_0_30px_rgba(59,130,246,0.7)] transition-all cursor-pointer transform hover:scale-105 active:scale-95"
+              className="flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-base text-[#071111] bg-teal-200 hover:bg-teal-100 shadow-[0_8px_30px_rgba(45,212,191,0.2)] transition-all cursor-pointer transform hover:-translate-y-0.5 active:scale-95"
             >
               <Sparkles className="w-4 h-4" />
               <span>立即创作 (Start Creating)</span>
@@ -974,7 +966,7 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* 11. Footer */}
-      <footer className="border-t border-[#202837] bg-[#070910] py-12 text-neutral-400 text-xs relative z-10">
+      <footer className="border-t border-white/[0.07] bg-[#070910] py-12 text-neutral-400 text-xs relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
             <AppLogo className="w-7 h-7" />
