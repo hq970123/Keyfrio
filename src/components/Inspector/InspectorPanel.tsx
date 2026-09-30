@@ -220,7 +220,7 @@ export const InspectorPanel: React.FC = () => {
               onClick={() => setActiveTab('text')}
               className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'text'
-                  ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                  ? 'bg-[#00c9bd] text-[#081011] font-semibold shadow-sm'
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
@@ -235,7 +235,7 @@ export const InspectorPanel: React.FC = () => {
               onClick={() => setActiveTab('transform')}
               className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
                 activeTab === 'transform'
-                  ? 'bg-blue-600 text-white font-semibold shadow-xs'
+                  ? 'bg-[#00c9bd] text-[#081011] font-semibold shadow-sm'
                   : 'text-neutral-400 hover:text-neutral-200'
               }`}
             >
@@ -249,7 +249,7 @@ export const InspectorPanel: React.FC = () => {
             onClick={() => setActiveTab('keyframes')}
             className={`px-2.5 py-1 rounded-md flex items-center gap-1 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === 'keyframes'
-                ? 'bg-sky-600 text-white font-semibold shadow-xs'
+                  ? 'bg-[#00a89e] text-[#f5ffff] font-semibold shadow-sm'
                 : 'text-neutral-400 hover:text-neutral-200'
             }`}
           >
