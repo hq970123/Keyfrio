@@ -80,7 +80,7 @@ export const SidebarTabs: React.FC = () => {
               </div>
               <span className={`text-[10px] leading-none font-medium ${
                 isActive ? 'text-[#00d4c8]' : 'text-current'
-              }`>
+              }`}>
                 {tab.name}
               </span>
               {isActive && (
