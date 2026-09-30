@@ -823,15 +823,22 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     async (files: FileList | File[]): Promise<MediaAsset[]> => {
       const newAssets: MediaAsset[] = [];
       const fileList = Array.from(files);
+      try {
+        for (let i = 0; i < fileList.length; i++) {
+          const file = fileList[i];
+          newAssets.push(await processFileToMediaAsset(file, undefined, i));
+        }
 
-      for (let i = 0; i < fileList.length; i++) {
-        const file = fileList[i];
-        const asset = await processFileToMediaAsset(file, undefined, i);
-        saveAssetToDB(asset).catch((err) => console.warn('Failed to save asset to DB:', err));
-        newAssets.push(asset);
+        // Do not report imports as complete until their blobs are committed.
+        await Promise.all(newAssets.map((asset) => saveAssetToDB(asset)));
+      } catch (error) {
+        newAssets.forEach((asset) => {
+          if (asset.url.startsWith('blob:')) URL.revokeObjectURL(asset.url);
+        });
+        throw error;
       }
 
-      setUserAssets((prev) => [...newAssets, ...prev]);
+      setUserAssets((prev) => [...newAssets, ...prev.filter((asset) => !newAssets.some((next) => next.id === asset.id))]);
       return newAssets;
     },
     [processFileToMediaAsset]
