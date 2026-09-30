@@ -389,7 +389,7 @@ export const PreviewPlayer: React.FC = () => {
               onChange={(e) => setTimecodeInput(e.target.value)}
               onBlur={handleTimecodeSubmit}
               onKeyDown={(e) => e.key === 'Enter' && handleTimecodeSubmit()}
-              className="bg-[#171822] border border-blue-500 text-blue-400 font-mono text-[11px] px-1.5 py-0.5 rounded outline-none w-20"
+              className="bg-[#171822] border border-[#00c9bd] text-[#00d4c8] font-mono text-[11px] px-1.5 py-0.5 rounded outline-none w-20"
             />
           ) : (
             <button
@@ -397,7 +397,7 @@ export const PreviewPlayer: React.FC = () => {
                 setTimecodeInput(formatSMPTE(currentTime));
                 setIsEditingTimecode(true);
               }}
-              className="font-mono text-[11px] font-semibold text-blue-400 hover:text-blue-300 bg-[#171822] px-1.5 py-0.5 rounded border border-[#242633] transition-colors"
+              className="font-mono text-[11px] font-semibold text-[#00d4c8] hover:text-[#72fff5] bg-[#171822] px-1.5 py-0.5 rounded border border-[#242633] transition-colors"
               title="点击手动跳转时间码 (HH:MM:SS:FF)"
             >
               {formatSMPTE(currentTime)}
@@ -483,7 +483,7 @@ export const PreviewPlayer: React.FC = () => {
             onClick={() => setLoop(!loop)}
             title={loop ? '循环播放：已开启' : '循环播放：已关闭'}
             className={`p-1 rounded transition-colors ${
-              loop ? 'text-blue-400 bg-blue-500/15' : 'text-neutral-400 hover:text-white hover:bg-[#1c1d27]'
+              loop ? 'text-[#00d4c8] bg-[#00d4c8]/10' : 'text-neutral-400 hover:text-white hover:bg-[#1c1d27]'
             }`}
           >
             <Repeat className="w-3.5 h-3.5" />
@@ -505,7 +505,7 @@ export const PreviewPlayer: React.FC = () => {
             onClick={() => setShowGrid(!showGrid)}
             title="九宫格构图参考线"
             className={`p-1 rounded transition-colors ${
-              showGrid ? 'text-blue-400 bg-blue-500/15' : 'text-neutral-400 hover:text-white hover:bg-[#1c1d27]'
+              showGrid ? 'text-[#00d4c8] bg-[#00d4c8]/10' : 'text-neutral-400 hover:text-white hover:bg-[#1c1d27]'
             }`}
           >
             <Grid className="w-3.5 h-3.5" />
