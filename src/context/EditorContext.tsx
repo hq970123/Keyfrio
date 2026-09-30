@@ -342,6 +342,15 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [currentView, setCurrentView] = useState<AppView>(() =>
     window.location.pathname.replace(/\/$/, '') === '/projects' ? 'home' : 'editor'
   );
+  useEffect(() => {
+    const syncViewWithLocation = () => {
+      const pathname = window.location.pathname.replace(/\/$/, '');
+      setCurrentView(pathname === '/projects' ? 'home' : 'editor');
+    };
+    window.addEventListener('popstate', syncViewWithLocation);
+    return () => window.removeEventListener('popstate', syncViewWithLocation);
+  }, []);
+
   const openLanding = useCallback(() => window.location.assign('/'), []);
   const openEditor = useCallback(() => {
     window.history.pushState({}, '', '/editor');
