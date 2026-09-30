@@ -1,6 +1,6 @@
 import { Project, ExportSettings, ExportProgress } from '../types/editor';
 import { renderFrame } from './canvasRenderer';
-import { getAudioContext } from './audio';
+import { getAudioContext, getDecodedAudioBuffer } from './audio';
 
 export async function exportVideo(
   project: Project,
@@ -9,7 +9,11 @@ export async function exportVideo(
   abortSignal?: AbortSignal
 ): Promise<Blob> {
   const { resolution, fps, quality } = settings;
-  const totalDuration = project.duration || 10;
+  const timelineEnd = project.tracks.reduce(
+    (latest, track) => Math.max(latest, ...track.clips.map((clip) => clip.start + clip.duration)),
+    0
+  );
+  const totalDuration = Math.max(project.duration || 0, timelineEnd, 1);
   const totalFrames = Math.ceil(totalDuration * fps);
 
   // Bitrate estimation
@@ -27,6 +31,71 @@ export async function exportVideo(
   // 2. Set up Web Audio destination for audio mixing
   const audioCtx = getAudioContext();
   const audioDest = audioCtx.createMediaStreamDestination();
+  const scheduledSources: AudioBufferSourceNode[] = [];
+
+  // Decode and schedule every audible timeline clip into the export stream.
+  const soloTracksExist = project.tracks.some((track) => track.type === 'audio' && track.isSolo && !track.isMuted);
+  const audioClips = project.tracks
+    .filter((track) => track.type === 'audio' && !track.isMuted && (!soloTracksExist || track.isSolo))
+    .flatMap((track) => track.clips
+      .filter((clip) => clip.type === 'audio' && !clip.audio?.muted && (clip.audio?.volume ?? 1) > 0)
+      .map((clip) => ({ track, clip })));
+  const decodedAudioClips = await Promise.all(audioClips.map(async ({ track, clip }) => {
+    const sourceRef = clip.sourceBlob || clip.sourceUrl;
+    if (!sourceRef) return null;
+
+    const buffer = await getDecodedAudioBuffer(sourceRef);
+    return buffer ? { track, clip, buffer } : null;
+  }));
+  const audioStartAt = audioCtx.currentTime + 0.1;
+
+  decodedAudioClips.forEach((decoded) => {
+    if (!decoded) return;
+    const { track, clip, buffer } = decoded;
+
+    const sourceOffset = Math.max(0, clip.trimStart || 0);
+    const sourceLimit = Math.max(0, (clip.trimEnd || buffer.duration) - sourceOffset);
+    const sourceDuration = Math.min(sourceLimit, clip.duration * (clip.speed || 1), buffer.duration - sourceOffset);
+    if (sourceDuration <= 0) return;
+
+    const speed = Math.max(0.05, clip.speed || 1);
+    const playDuration = sourceDuration / speed;
+    const startsAt = audioStartAt + Math.max(0, clip.start);
+    const endsAt = startsAt + playDuration;
+    const clipVolume = Math.max(0, Math.min(2, (clip.audio?.volume ?? 1) * (track.volume ?? 1)));
+
+    const source = audioCtx.createBufferSource();
+    source.buffer = buffer;
+    source.playbackRate.setValueAtTime(speed, startsAt);
+
+    const gain = audioCtx.createGain();
+    const fadeIn = Math.min(playDuration, Math.max(0, clip.audio?.fadeIn || 0));
+    const fadeOut = Math.min(playDuration, Math.max(0, clip.audio?.fadeOut || 0));
+    if (fadeIn > 0) {
+      gain.gain.setValueAtTime(0, startsAt);
+      gain.gain.linearRampToValueAtTime(clipVolume, startsAt + fadeIn);
+    } else {
+      gain.gain.setValueAtTime(clipVolume, startsAt);
+    }
+    if (fadeOut > 0) {
+      const fadeOutStartsAt = Math.max(startsAt, endsAt - fadeOut);
+      gain.gain.setValueAtTime(clipVolume, fadeOutStartsAt);
+      gain.gain.linearRampToValueAtTime(0, endsAt);
+    }
+
+    source.connect(gain);
+    if (typeof audioCtx.createStereoPanner === 'function') {
+      const panner = audioCtx.createStereoPanner();
+      panner.pan.setValueAtTime(Math.max(-1, Math.min(1, clip.audio?.pan || 0)), startsAt);
+      gain.connect(panner);
+      panner.connect(audioDest);
+    } else {
+      gain.connect(audioDest);
+    }
+
+    source.start(startsAt, sourceOffset, sourceDuration);
+    scheduledSources.push(source);
+  });
 
   // 3. Create stream from canvas + audio stream
   const canvasStream = canvas.captureStream(fps);
@@ -57,12 +126,22 @@ export async function exportVideo(
   };
 
   return new Promise((resolve, reject) => {
+    const cleanup = () => {
+      scheduledSources.forEach((source) => {
+        try { source.stop(); } catch { /* already stopped */ }
+      });
+      canvasStream.getTracks().forEach((track) => track.stop());
+      audioDest.stream.getTracks().forEach((track) => track.stop());
+    };
+
     mediaRecorder.onstop = () => {
+      cleanup();
       const finalBlob = new Blob(recordedChunks, { type: mimeType });
       resolve(finalBlob);
     };
 
     mediaRecorder.onerror = (err) => {
+      cleanup();
       reject(err);
     };
 
@@ -74,7 +153,8 @@ export async function exportVideo(
 
     const renderNextFrame = () => {
       if (abortSignal?.aborted) {
-        mediaRecorder.stop();
+        if (mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+        cleanup();
         reject(new DOMException('Export aborted by user', 'AbortError'));
         return;
       }
@@ -109,9 +189,9 @@ export async function exportVideo(
       }
 
       // Schedule next frame rendering
-      setTimeout(renderNextFrame, Math.max(2, (1000 / fps) * 0.4));
+      setTimeout(renderNextFrame, 1000 / fps);
     };
 
-    renderNextFrame();
+    setTimeout(renderNextFrame, 100);
   });
 }
