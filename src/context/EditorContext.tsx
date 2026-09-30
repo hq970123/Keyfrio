@@ -339,10 +339,18 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [activeSidebarTab, setActiveSidebarTab] = useState<string>('media');
 
   // View state: Landing page vs Home launcher vs Editor workspace
-  const [currentView, setCurrentView] = useState<AppView>('landing');
-  const openLanding = useCallback(() => setCurrentView('landing'), []);
-  const openEditor = useCallback(() => setCurrentView('editor'), []);
-  const openHome = useCallback(() => setCurrentView('home'), []);
+  const [currentView, setCurrentView] = useState<AppView>(() =>
+    window.location.pathname.replace(/\/$/, '') === '/projects' ? 'home' : 'editor'
+  );
+  const openLanding = useCallback(() => window.location.assign('/'), []);
+  const openEditor = useCallback(() => {
+    window.history.pushState({}, '', '/editor');
+    setCurrentView('editor');
+  }, []);
+  const openHome = useCallback(() => {
+    window.history.pushState({}, '', '/projects');
+    setCurrentView('home');
+  }, []);
 
   // DB and Project persistence state
   const [dbSaveStatus, setDbSaveStatus] = useState<'saved' | 'saving' | 'error'>('saved');
