@@ -326,13 +326,13 @@ export const PreviewPlayer: React.FC = () => {
   return (
     <div
       ref={containerRef}
-      className="flex-1 flex flex-col bg-white border border-[#dde1e7] rounded-lg overflow-hidden select-none relative"
+      className="kf-preview-pane flex-1 flex flex-col bg-[#15161c] border border-[#2b2d37] rounded-xl overflow-hidden select-none relative shadow-[0_18px_48px_rgba(0,0,0,0.24)]"
     >
       {/* Player Canvas Area */}
-      <div className="flex-1 flex items-center justify-center p-3 relative overflow-hidden bg-[#f8fafc]">
+      <div className="flex-1 flex items-center justify-center p-5 relative overflow-hidden bg-[radial-gradient(ellipse_at_center,#1c1d25_0%,#111217_72%)]">
         {/* Aspect Ratio Box Wrapper */}
         <div
-          className="relative max-w-full max-h-full flex items-center justify-center rounded-sm overflow-hidden border border-[#d9dee7] bg-black"
+          className="relative max-w-full max-h-full flex items-center justify-center rounded-md overflow-hidden border border-[#363944] bg-black shadow-[0_12px_44px_rgba(0,0,0,0.48)]"
           style={{
             aspectRatio: `${project.resolution.width} / ${project.resolution.height}`,
           }}
@@ -360,10 +360,10 @@ export const PreviewPlayer: React.FC = () => {
 
           {/* Quick HUD badge when hovering */}
           <div className="absolute top-2 left-2 flex items-center gap-1 pointer-events-none opacity-60 hover:opacity-100 transition-opacity">
-            <span className="bg-white/90 backdrop-blur-xs px-1.5 py-0.5 rounded text-[9px] font-mono text-slate-600 border border-slate-200">
+            <span className="bg-[#101116]/90 backdrop-blur-xs px-1.5 py-0.5 rounded text-[9px] font-mono text-neutral-300 border border-[#343743]">
               {project.resolution.aspectRatio} · {project.resolution.width}×{project.resolution.height}
             </span>
-            <span className="bg-white/90 backdrop-blur-xs px-1.5 py-0.5 rounded text-[9px] font-mono text-slate-500 border border-slate-200">
+            <span className="bg-[#101116]/90 backdrop-blur-xs px-1.5 py-0.5 rounded text-[9px] font-mono text-neutral-400 border border-[#343743]">
               {project.fps} FPS
             </span>
           </div>
@@ -378,7 +378,7 @@ export const PreviewPlayer: React.FC = () => {
       </div>
 
       {/* Player Bottom Control Bar */}
-      <div className="h-10 bg-white border-t border-[#dde1e7] px-3 flex items-center justify-between text-xs text-slate-600 shrink-0 select-none">
+      <div className="h-11 bg-[#17181f] border-t border-[#2a2c36] px-3 flex items-center justify-between text-xs text-neutral-300 shrink-0 select-none">
         {/* Left: Timecode / Position */}
         <div className="flex items-center gap-1.5">
           {isEditingTimecode ? (
@@ -439,7 +439,7 @@ export const PreviewPlayer: React.FC = () => {
           <button
             onClick={togglePlay}
             title="播放 / 暂停 (Space)"
-            className="w-7 h-7 rounded-full bg-blue-600 hover:bg-blue-500 text-white flex items-center justify-center shadow-sm active:scale-95 transition-all mx-0.5 cursor-pointer"
+            className="w-7 h-7 rounded-full bg-[#00c9bd] hover:bg-[#00e0d2] text-[#081011] flex items-center justify-center shadow-[0_0_16px_rgba(0,212,200,0.24)] active:scale-95 transition-all mx-0.5 cursor-pointer"
           >
             {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
           </button>
