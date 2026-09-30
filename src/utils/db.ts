@@ -5,6 +5,14 @@ const DB_VERSION = 1;
 const STORE_PROJECTS = 'projects';
 const STORE_ASSETS = 'media_assets';
 
+function waitForTransaction(tx: IDBTransaction): Promise<void> {
+  return new Promise((resolve, reject) => {
+    tx.oncomplete = () => resolve();
+    tx.onabort = () => reject(tx.error || new Error('IndexedDB transaction was aborted'));
+    tx.onerror = () => reject(tx.error || new Error('IndexedDB transaction failed'));
+  });
+}
+
 // Open or upgrade IndexedDB
 function openDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -77,8 +85,8 @@ export async function saveAssetToDB(asset: MediaAsset): Promise<void> {
     };
 
     const req = store.put(record);
-    req.onsuccess = () => resolve();
     req.onerror = () => reject(req.error);
+    waitForTransaction(tx).then(resolve, reject);
   });
 }
 
@@ -142,8 +150,8 @@ export async function deleteAssetFromDB(assetId: string): Promise<void> {
     const tx = db.transaction(STORE_ASSETS, 'readwrite');
     const store = tx.objectStore(STORE_ASSETS);
     const req = store.delete(assetId);
-    req.onsuccess = () => resolve();
     req.onerror = () => reject(req.error);
+    waitForTransaction(tx).then(resolve, reject);
   });
 }
 
@@ -168,8 +176,8 @@ export async function saveProjectToDB(project: Project): Promise<void> {
     };
 
     const req = store.put(serializableProject);
-    req.onsuccess = () => resolve();
     req.onerror = () => reject(req.error);
+    waitForTransaction(tx).then(resolve, reject);
   });
 }
 
@@ -242,8 +250,8 @@ export async function deleteProjectFromDB(projectId: string): Promise<void> {
     const tx = db.transaction(STORE_PROJECTS, 'readwrite');
     const store = tx.objectStore(STORE_PROJECTS);
     const req = store.delete(projectId);
-    req.onsuccess = () => resolve();
     req.onerror = () => reject(req.error);
+    waitForTransaction(tx).then(resolve, reject);
   });
 }
 
