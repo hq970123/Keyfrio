@@ -803,8 +803,12 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           setProjectList(storedProjects);
         }
 
+                // A website launch intent (demo/template) should win over last-session restore.
+        const params = new URLSearchParams(window.location.search);
+        const hasLaunchIntent = params.has('demo') || params.has('template');
+
         // 3. Hydrate active project from IndexedDB if present
-        if (storedProjects.length > 0) {
+        if (!hasLaunchIntent && storedProjects.length > 0) {
           const lastProjId = localStorage.getItem('opencut_active_project_id') || storedProjects[0].id;
           const fullProj = await loadProjectFromDB(lastProjId);
           if (fullProj && isMounted) {
