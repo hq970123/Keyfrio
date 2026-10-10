@@ -38,7 +38,7 @@ export const TransitionInspectorTab: React.FC<TransitionInspectorTabProps> = ({ 
   return (
     <div className="flex flex-col gap-3 text-xs">
       {/* 1. Transition Presets Grid */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-pink-400" />
@@ -59,7 +59,7 @@ export const TransitionInspectorTab: React.FC<TransitionInspectorTabProps> = ({ 
                 className={`p-2 rounded-lg border text-left flex items-start gap-2 transition-all cursor-pointer ${
                   isSelected
                     ? 'bg-pink-500/20 border-pink-500 text-pink-200 font-medium shadow-xs'
-                    : 'bg-[#101116] border-[#20222a] text-neutral-300 hover:border-neutral-700 hover:text-white'
+                    : 'bg-[var(--kf-surface-1)] border-white/[0.06] text-neutral-300 hover:border-neutral-700 hover:text-white'
                 }`}
               >
                 <span className="text-base leading-none">{preset.icon}</span>
@@ -75,7 +75,7 @@ export const TransitionInspectorTab: React.FC<TransitionInspectorTabProps> = ({ 
 
       {/* 2. Duration Control (Only when transition active) */}
       {currentTransition.type !== 'none' && (
-        <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 text-pink-400" />

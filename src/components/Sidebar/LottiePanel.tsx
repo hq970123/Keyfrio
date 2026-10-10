@@ -185,9 +185,9 @@ export const LottiePanel: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
+    <div className="flex flex-col h-full text-neutral-200 text-xs select-none">
       {/* Panel Header */}
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between">
+      <div className="p-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <span className="font-bold text-xs text-white flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           Lottie 矢量动效 (Animations)
@@ -227,7 +227,7 @@ export const LottiePanel: React.FC = () => {
 
         <div
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-[#2a2d3d] hover:border-amber-500 hover:bg-amber-500/5 bg-[#171822] rounded-lg p-3 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-1.5"
+          className="border-2 border-dashed border-[#2a2d3d] hover:border-amber-500 hover:bg-amber-500/5 bg-[var(--kf-surface-3)] rounded-lg p-3 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-1.5"
         >
           <div className="w-8 h-8 rounded-full bg-amber-500/10 text-amber-400 flex items-center justify-center group-hover:scale-110 transition-transform">
             <Upload className="w-4 h-4" />
@@ -239,7 +239,7 @@ export const LottiePanel: React.FC = () => {
         </div>
 
         {/* URL Quick Paste Input */}
-        <div className="bg-[#171822] border border-[#242633] rounded-lg p-2 flex flex-col gap-1.5">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] rounded-lg p-2 flex flex-col gap-1.5">
           <span className="text-[10px] font-semibold text-neutral-300 flex items-center gap-1">
             <Link className="w-3 h-3 text-cyan-400" />
             <span>粘贴 Lottie 网络链接</span>
@@ -250,7 +250,7 @@ export const LottiePanel: React.FC = () => {
               value={urlInput}
               onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://.../animation.json"
-              className="flex-1 bg-[#101116] border border-[#242633] focus:border-cyan-500 rounded px-2 py-1 text-white text-[11px] outline-none"
+              className="flex-1 bg-[var(--kf-surface-1)] border border-white/[0.06] focus:border-cyan-500 rounded px-2 py-1 text-white text-[11px] outline-none"
             />
             <button
               onClick={handleUrlAdd}
@@ -291,7 +291,7 @@ export const LottiePanel: React.FC = () => {
                       },
                     })
                   }
-                  className="group relative bg-[#171822] hover:bg-[#202230] border border-[#242633] hover:border-amber-400 rounded-md p-2 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer"
+                  className="group relative bg-[var(--kf-surface-3)] hover:bg-[#202230] border border-white/[0.06] hover:border-amber-400 rounded-md p-2 flex flex-col items-center justify-center gap-1 transition-all cursor-pointer"
                 >
                   <span className="text-2xl group-hover:scale-115 transition-transform">{item.icon}</span>
                   <span className="text-[10px] text-neutral-200 truncate w-full text-center font-medium">
@@ -318,7 +318,7 @@ export const LottiePanel: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索内置动效..."
-            className="w-full bg-[#171822] border border-[#242633] rounded pl-7 pr-2 py-1 text-white text-[11px] outline-none"
+            className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] rounded pl-7 pr-2 py-1 text-white text-[11px] outline-none"
           />
         </div>
 
@@ -334,7 +334,7 @@ export const LottiePanel: React.FC = () => {
               <div
                 key={preset.id}
                 onClick={() => handleAddPreset(preset)}
-                className="group relative bg-[#171822] hover:bg-[#202230] border border-[#242633] hover:border-amber-400 rounded-lg p-2.5 flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer"
+                className="group relative bg-[var(--kf-surface-3)] hover:bg-[#202230] border border-white/[0.06] hover:border-amber-400 rounded-lg p-2.5 flex flex-col items-center justify-center gap-1.5 transition-all cursor-pointer"
               >
                 <div className="w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-2xl group-hover:scale-115 transition-transform">
                   {preset.icon}

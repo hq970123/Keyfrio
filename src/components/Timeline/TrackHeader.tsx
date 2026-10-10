@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import {
   Eye,
   EyeOff,
@@ -7,7 +7,7 @@ import {
   Trash2,
   Link2,
 } from 'lucide-react';
-import { useEditor } from '../../context/EditorContext';
+import { useEditorActions } from '../../context/EditorContext';
 import { useUiStore } from '../../stores/uiStore';
 import { useSelectionStore } from '../../stores/selectionStore';
 import { Track } from '../../types/editor';
@@ -18,7 +18,7 @@ interface TrackHeaderProps {
   totalTracks: number;
 }
 
-export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTracks }) => {
+export const TrackHeader: React.FC<TrackHeaderProps> = memo(({ track, index, totalTracks }) => {
   const {
     updateTrack,
     deleteTrack,
@@ -26,13 +26,13 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
     toggleTrackSolo,
     toggleTrackLock,
     toggleTrackHide,
-  } = useEditor();
+  } = useEditorActions();
 
   const trackHeight = useUiStore((s) => s.trackHeight);
   const activeTrackId = useSelectionStore((s) => s.activeTrackId);
   const setActiveTrackId = useSelectionStore((s) => s.setActiveTrackId);
   // Also write through context so StoreBridge stays consistent for non-migrated consumers
-  const { setActiveTrackId: setActiveTrackIdCtx } = useEditor();
+  const { setActiveTrackId: setActiveTrackIdCtx } = useEditorActions();
 
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameValue, setNameValue] = useState(track.name);
@@ -80,34 +80,36 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
   return (
     <div
       onClick={handleSelectTrack}
-      className={`${getHeightClass()} bg-[#121319] border-b border-[#20222a] px-1.5 flex items-center justify-between select-none text-xs text-neutral-300 transition-all hover:bg-[#161722] relative group ${
-        isTargeted ? 'bg-[#161824]' : ''
+      className={`${getHeightClass()} border-b border-white/[0.06] px-1.5 flex items-center justify-between select-none text-xs transition-colors hover:bg-white/[0.03] relative group cursor-pointer ${
+        isTargeted ? 'bg-cyan-400/[0.05]' : ''
       }`}
     >
       {isTargeted && (
         <div
-          className={`absolute left-0 top-0 bottom-0 w-1 ${
-            isAudio ? 'bg-emerald-500' : 'bg-blue-500'
-          }`}
+          className="absolute left-0 top-0 bottom-0 w-[2.5px] rounded-r-full"
+          style={{
+            background: isAudio ? '#34d399' : '#22d3ee',
+            boxShadow: isAudio ? '0 0 8px rgba(52,211,153,0.7)' : '0 0 8px rgba(34,211,238,0.7)',
+          }}
         />
       )}
 
-      <div className="flex items-center gap-1.5 min-w-0 flex-1 pl-1">
+      <div className="flex items-center gap-1.5 min-w-0 flex-1 pl-1.5">
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation();
             handleSelectTrack();
           }}
-          title={isTargeted ? '当前目标轨道 (Target Track)' : '设为目标轨道 (Target Track)'}
-          className={`w-6 h-6 rounded flex items-center justify-center font-mono font-bold text-[10px] shrink-0 transition-all shadow-xs ${
+          title={isTargeted ? '当前目标轨道' : '设为目标轨道'}
+          className={`w-6 h-6 rounded-lg flex items-center justify-center font-mono font-bold text-[10px] shrink-0 transition-all ${
             isAudio
               ? isTargeted
-                ? 'bg-emerald-600 text-white shadow-emerald-500/20'
-                : 'bg-emerald-950/40 text-emerald-400 border border-emerald-800/40 hover:bg-emerald-900/60'
+                ? 'bg-emerald-400 text-emerald-950 shadow-[0_0_12px_rgba(52,211,153,0.4)]'
+                : 'bg-emerald-400/10 text-emerald-300 border border-emerald-400/25 hover:bg-emerald-400/20'
               : isTargeted
-              ? 'bg-blue-600 text-white shadow-blue-500/20'
-              : 'bg-blue-950/40 text-blue-400 border border-blue-800/40 hover:bg-blue-900/60'
+              ? 'bg-cyan-400 text-cyan-950 shadow-[0_0_12px_rgba(34,211,238,0.4)]'
+              : 'bg-cyan-400/10 text-cyan-300 border border-cyan-400/25 hover:bg-cyan-400/20'
           }`}
         >
           {getPrTrackLabel()}
@@ -122,7 +124,7 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
               onBlur={handleNameSubmit}
               onKeyDown={(e) => e.key === 'Enter' && handleNameSubmit()}
               autoFocus
-              className="bg-[#0b0c10] text-[10px] text-white px-1 py-0.5 rounded border border-blue-500 outline-none w-full"
+              className="kf-input text-[10px] px-1.5 py-0.5 w-full"
             />
           ) : (
             <div
@@ -130,14 +132,14 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
                 e.stopPropagation();
                 setIsEditingName(true);
               }}
-              className="font-medium text-neutral-200 truncate text-[11px] cursor-text hover:text-blue-300 flex items-center gap-1"
+              className="font-medium text-neutral-200 truncate text-[11px] cursor-text hover:text-cyan-300 flex items-center gap-1 transition-colors"
               title={`${track.name} (双击重命名)`}
             >
               <span>{track.name}</span>
             </div>
           )}
-          <span className="text-[8px] text-neutral-500 uppercase tracking-wide">
-            {isAudio ? 'Audio Track' : 'Video Track'}
+          <span className="text-[8px] text-neutral-500 uppercase tracking-widest font-mono">
+            {isAudio ? 'Audio' : 'Video'}
           </span>
         </div>
       </div>
@@ -150,12 +152,8 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
               e.stopPropagation();
               toggleTrackHide(track.id);
             }}
-            title={!isHidden ? '切换轨道输出 (Toggle Track Output)' : '已隐藏轨道画面 (Track Hidden)'}
-            className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-              !isHidden
-                ? 'text-neutral-400 hover:text-white hover:bg-[#20222f]'
-                : 'text-amber-400 bg-amber-500/15 border border-amber-500/30'
-            }`}
+            title={!isHidden ? '切换轨道输出' : '已隐藏轨道画面'}
+            className={`kf-icon-btn w-5.5 h-5.5 !p-1 ${!isHidden ? '' : 'active'}`}
           >
             {!isHidden ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
           </button>
@@ -169,11 +167,11 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
                 e.stopPropagation();
                 toggleTrackMute(track.id);
               }}
-              title={isMuted ? '取消静音 (Mute)' : '静音轨道 (Mute)'}
-              className={`w-5 h-5 rounded font-mono font-bold text-[9px] flex items-center justify-center transition-all ${
+              title={isMuted ? '取消静音' : '静音轨道'}
+              className={`w-5.5 h-5.5 rounded-lg font-mono font-bold text-[9px] flex items-center justify-center transition-all cursor-pointer ${
                 isMuted
-                  ? 'bg-red-600 text-white shadow-xs'
-                  : 'bg-[#1c1e28] text-neutral-400 hover:text-white hover:bg-[#262838]'
+                  ? 'bg-rose-500 text-white shadow-[0_0_10px_rgba(244,63,94,0.4)]'
+                  : 'bg-white/[0.05] text-neutral-500 hover:text-white hover:bg-white/[0.09]'
               }`}
             >
               M
@@ -185,11 +183,11 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
                 e.stopPropagation();
                 toggleTrackSolo(track.id);
               }}
-              title={isSolo ? '取消独奏 (Solo)' : '独奏轨道 (Solo)'}
-              className={`w-5 h-5 rounded font-mono font-bold text-[9px] flex items-center justify-center transition-all ${
+              title={isSolo ? '取消独奏' : '独奏轨道'}
+              className={`w-5.5 h-5.5 rounded-lg font-mono font-bold text-[9px] flex items-center justify-center transition-all cursor-pointer ${
                 isSolo
-                  ? 'bg-amber-500 text-black font-extrabold shadow-xs'
-                  : 'bg-[#1c1e28] text-neutral-400 hover:text-white hover:bg-[#262838]'
+                  ? 'bg-amber-400 text-amber-950 font-extrabold shadow-[0_0_10px_rgba(251,191,36,0.4)]'
+                  : 'bg-white/[0.05] text-neutral-500 hover:text-white hover:bg-white/[0.09]'
               }`}
             >
               S
@@ -203,12 +201,8 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
             e.stopPropagation();
             setSyncLock(!syncLock);
           }}
-          title={syncLock ? '同步锁定已开启 (Sync Lock ON)' : '同步锁定已关闭 (Sync Lock OFF)'}
-          className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-            syncLock
-              ? 'text-neutral-400 hover:text-neutral-200'
-              : 'text-neutral-600 opacity-40 hover:opacity-80'
-          }`}
+          title={syncLock ? '同步锁定已开启' : '同步锁定已关闭'}
+          className={`kf-icon-btn w-5.5 h-5.5 !p-1 ${syncLock ? '' : 'opacity-40'}`}
         >
           <Link2 className="w-2.5 h-2.5" />
         </button>
@@ -219,12 +213,8 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
             e.stopPropagation();
             toggleTrackLock(track.id);
           }}
-          title={isLocked ? '解锁轨道 (Track Locked)' : '锁定轨道 (Lock Track)'}
-          className={`w-5 h-5 rounded flex items-center justify-center transition-colors ${
-            isLocked
-              ? 'text-blue-400 bg-blue-500/15 border border-blue-500/30'
-              : 'text-neutral-500 hover:text-white hover:bg-[#20222f]'
-          }`}
+          title={isLocked ? '解锁轨道' : '锁定轨道'}
+          className={`kf-icon-btn w-5.5 h-5.5 !p-1 ${isLocked ? 'active' : ''}`}
         >
           {isLocked ? <Lock className="w-2.5 h-2.5" /> : <Unlock className="w-2.5 h-2.5" />}
         </button>
@@ -237,7 +227,7 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
               deleteTrack(track.id);
             }}
             title="删除轨道"
-            className="w-5 h-5 rounded flex items-center justify-center text-neutral-500 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-all"
+            className="kf-icon-btn w-5.5 h-5.5 !p-1 opacity-0 group-hover:opacity-100 hover:!text-rose-300"
           >
             <Trash2 className="w-2.5 h-2.5" />
           </button>
@@ -245,4 +235,4 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track, index, totalTra
       </div>
     </div>
   );
-};
+});

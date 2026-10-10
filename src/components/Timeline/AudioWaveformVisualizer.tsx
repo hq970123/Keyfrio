@@ -198,7 +198,7 @@ export const AudioWaveformVisualizer: React.FC<AudioWaveformVisualizerProps> = (
     // Draw Fade In / Out envelope overlay lines if present
     if (fadeInPx > 0 || fadeOutPx > 0) {
       ctx.save();
-      ctx.strokeStyle = 'rgba(96, 165, 250, 0.7)'; // blue-400
+      ctx.strokeStyle = 'rgba(96, 165, 250, 0.7)'; // cyan-300
       ctx.lineWidth = 1.5;
       ctx.beginPath();
 

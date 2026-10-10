@@ -50,7 +50,7 @@ export const StorageManagerModal: React.FC<StorageManagerModalProps> = ({ isOpen
   const usagePercent = stats.quotaBytes > 0 ? (stats.usageBytes / stats.quotaBytes) * 100 : 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 kf-anim-fade-in">
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col text-xs">
         {/* Header */}
         <div className="p-4 border-b border-neutral-800 flex items-center justify-between">

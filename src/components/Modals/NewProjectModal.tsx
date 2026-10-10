@@ -189,7 +189,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
   return (
     <div
       id="new-project-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-in fade-in duration-200 select-none"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 kf-anim-fade-in select-none"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -201,13 +201,13 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
         {/* Modal Top Bar */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#1c1f2d] bg-[#141520]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
+            <div className="w-8 h-8 rounded-lg bg-cyan-500/20 border border-cyan-400/30 flex items-center justify-center text-cyan-300">
               <Film className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-base font-bold text-white tracking-wide">开启你的下一个视频创作</h2>
-                <span className="text-[10px] font-semibold bg-blue-500/20 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-semibold bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 px-2 py-0.5 rounded-full">
                   高性能 Web 剪辑引擎
                 </span>
               </div>
@@ -218,7 +218,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-[#202333] transition-colors cursor-pointer"
+            className="p-1.5 rounded-xl text-neutral-400 hover:text-white hover:bg-[var(--kf-surface-4)] transition-colors cursor-pointer"
             title="关闭"
           >
             <X className="w-5 h-5" />
@@ -228,7 +228,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
         {/* Modal Body - 2 Columns */}
         <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-5">
           {/* 1. Project Name Input Bar with Random Name Button */}
-          <div className="flex items-center gap-2 bg-[#0c0d13] border border-[#232738] focus-within:border-blue-500/80 focus-within:ring-1 focus-within:ring-blue-500/50 rounded-xl px-3.5 py-2.5 transition-all">
+          <div className="flex items-center gap-2 bg-[#0c0d13] border border-[#232738] focus-within:border-cyan-400/80 focus-within:ring-1 focus-within:ring-cyan-400/50 rounded-xl px-3.5 py-2.5 transition-all">
             <Film className="w-4 h-4 text-neutral-400 shrink-0" />
             <input
               id="modal-project-name-input"
@@ -252,7 +252,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
           <div className="flex flex-col gap-2.5">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-1.5 font-bold text-neutral-200">
-                <Sliders className="w-3.5 h-3.5 text-blue-400" />
+                <Sliders className="w-3.5 h-3.5 text-cyan-300" />
                 <span>选择画幅与分辨率预设:</span>
               </div>
               <span className="text-neutral-400 text-[11px] font-mono">
@@ -273,8 +273,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                     onClick={() => setSelectedPresetId(preset.id)}
                     className={`relative p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between group ${
                       isSelected
-                        ? 'bg-blue-600/15 border-blue-500/90 ring-1 ring-blue-500/60 shadow-[0_0_20px_rgba(59,130,246,0.18)]'
-                        : 'bg-[#141520] hover:bg-[#191b29] border-[#222638] text-neutral-300'
+                        ? 'bg-cyan-500/15 border-cyan-400/90 ring-1 ring-cyan-400/60 shadow-[0_0_20px_rgba(59,130,246,0.18)]'
+                        : 'bg-[var(--kf-surface-2)] hover:bg-[var(--kf-surface-3)] border-white/[0.06] text-neutral-300'
                     }`}
                   >
                     {/* Top Row: Icon + Tag */}
@@ -282,7 +282,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                       <div
                         className={`w-7 h-7 rounded-lg flex items-center justify-center ${
                           isSelected
-                            ? 'bg-blue-500/25 text-blue-400 border border-blue-400/40'
+                            ? 'bg-cyan-400/25 text-cyan-300 border border-cyan-300/40'
                             : 'bg-[#0d0e14] text-neutral-400 border border-[#232738] group-hover:text-neutral-200'
                         }`}
                       >
@@ -291,7 +291,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                       <span
                         className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
                           isSelected
-                            ? 'bg-blue-500 text-white font-bold'
+                            ? 'bg-cyan-400 text-white font-bold'
                             : 'bg-[#1c1f2e] text-neutral-400 border border-[#272b3e]'
                         }`}
                       >
@@ -316,7 +316,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                     {/* Bottom Resolution text */}
                     <div
                       className={`text-[11px] font-mono mt-2 pt-2 border-t border-[#1c1f2d] ${
-                        isSelected ? 'text-blue-300 font-semibold' : 'text-neutral-500'
+                        isSelected ? 'text-cyan-200 font-semibold' : 'text-neutral-500'
                       }`}
                     >
                       {preset.resLabel}
@@ -328,7 +328,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
 
             {/* Custom Dimensions Form */}
             {activePreset.isCustom && (
-              <div className="p-3.5 bg-[#141622] border border-blue-500/40 rounded-xl flex items-center gap-3 animate-in fade-in duration-150 mt-1">
+              <div className="p-3.5 bg-[#141622] border border-cyan-400/40 rounded-xl flex items-center gap-3 kf-anim-fade-in mt-1">
                 <div className="flex-1 flex flex-col gap-1">
                   <label className="text-[11px] text-neutral-400 font-medium">宽度 (Width px)</label>
                   <input
@@ -337,7 +337,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                     max={7680}
                     value={customWidth}
                     onChange={(e) => setCustomWidth(Number(e.target.value))}
-                    className="bg-[#0b0c11] border border-[#262a3d] focus:border-blue-500 rounded-lg px-3 py-1.5 text-xs text-white outline-none font-mono"
+                    className="bg-[#0b0c11] border border-[#262a3d] focus:border-cyan-400 rounded-lg px-3 py-1.5 text-xs text-white outline-none font-mono"
                   />
                 </div>
                 <span className="text-neutral-500 mt-4">×</span>
@@ -349,7 +349,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                     max={4320}
                     value={customHeight}
                     onChange={(e) => setCustomHeight(Number(e.target.value))}
-                    className="bg-[#0b0c11] border border-[#262a3d] focus:border-blue-500 rounded-lg px-3 py-1.5 text-xs text-white outline-none font-mono"
+                    className="bg-[#0b0c11] border border-[#262a3d] focus:border-cyan-400 rounded-lg px-3 py-1.5 text-xs text-white outline-none font-mono"
                   />
                 </div>
               </div>
@@ -373,7 +373,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                     onClick={() => setFps(item.value)}
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all cursor-pointer ${
                       fps === item.value
-                        ? 'bg-blue-600 text-white font-bold shadow'
+                        ? 'bg-cyan-500 text-white font-bold shadow'
                         : 'text-neutral-400 hover:text-white'
                     }`}
                   >
@@ -391,7 +391,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="可选: 为该工程添加简要备注或标签..."
-                className="w-full bg-[#0c0d13] border border-[#232738] focus:border-blue-500 rounded-xl px-3 py-1.5 text-xs text-white placeholder-neutral-500 outline-none"
+                className="w-full bg-[#0c0d13] border border-[#232738] focus:border-cyan-400 rounded-xl px-3 py-1.5 text-xs text-white placeholder-neutral-500 outline-none"
               />
             </div>
           </div>
@@ -402,7 +402,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl text-xs font-medium text-neutral-300 hover:text-white bg-[#1a1c28] hover:bg-[#232637] border border-[#2b2e40] transition-colors cursor-pointer"
+            className="px-5 py-2.5 rounded-xl text-xs font-medium text-neutral-300 hover:text-white bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] transition-colors cursor-pointer"
           >
             取消
           </button>
@@ -411,7 +411,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({ isOpen, onClos
             type="button"
             onClick={handleCreate}
             disabled={isSubmitting}
-            className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-500 hover:via-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-600/30 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50 flex items-center gap-2"
+            className="px-6 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-cyan-500 via-violet-600 to-purple-600 hover:from-cyan-400 hover:via-violet-500 hover:to-purple-500 shadow-lg shadow-violet-600/30 transition-all transform active:scale-98 cursor-pointer disabled:opacity-50 flex items-center gap-2"
           >
             <span>+ 新建工程并开启剪辑</span>
           </button>

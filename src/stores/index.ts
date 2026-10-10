@@ -5,7 +5,7 @@
  * - Each store owns a single domain concern
  * - Components subscribe only to the slices they need (useShallow / selectors)
  * - Side-effects (DB, media extraction, AI) live in services / hooks, not stores
- * - EditorContext remains as a temporary compatibility façade during migration
+ * - EditorContext is the sole mutation owner; stores are read-only mirrors
  */
 
 export { useProjectStore } from './projectStore';
@@ -19,9 +19,6 @@ export type { SelectionState } from './selectionStore';
 
 export { useUiStore } from './uiStore';
 export type { UiState } from './uiStore';
-
-export { useHistoryStore } from './historyStore';
-export type { HistoryState, HistorySnapshot } from './historyStore';
 
 export { useAssetsStore } from './assetsStore';
 export type { AssetsState } from './assetsStore';

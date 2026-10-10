@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
+    "@remotion/bundler": "^4.0.534",
+    "@remotion/renderer": "^4.0.534",
     "@tailwindcss/vite": "^4.1.14",
     "@types/canvas-confetti": "^1.9.0",
     "@vitejs/plugin-react": "^5.0.4",
@@ -27,6 +29,7 @@
     "pixi.js": "^8.19.0",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",
+    "remotion": "^4.0.534",
     "vite": "^6.2.3",
     "zustand": "^5.0.3"
   },

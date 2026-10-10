@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import {
-  Scissors,
   Undo2,
   Redo2,
   Download,
   Sparkles,
-  Video,
   Keyboard,
   FileJson,
   FolderOpen,
@@ -14,7 +12,6 @@ import {
   RotateCcw,
   Film,
   Ratio,
-  SlidersHorizontal,
   CircleDot,
   Radio,
   Database,
@@ -66,11 +63,8 @@ export const Navbar: React.FC = () => {
 
   const handleTitleSubmit = () => {
     setIsEditingTitle(false);
-    if (tempTitle.trim()) {
-      setProjectName(tempTitle.trim());
-    } else {
-      setTempTitle(project.name);
-    }
+    if (tempTitle.trim()) setProjectName(tempTitle.trim());
+    else setTempTitle(project.name);
   };
 
   const handleImportJSONClick = () => {
@@ -81,10 +75,7 @@ export const Navbar: React.FC = () => {
       const file = e.target?.files?.[0];
       if (file) {
         const text = await file.text();
-        const success = importProjectJSON(text);
-        if (!success) {
-          alert('工程文件解析失败，请检查格式');
-        }
+        if (!importProjectJSON(text)) alert('工程文件解析失败，请检查格式');
       }
     };
     input.click();
@@ -102,154 +93,93 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="h-12 bg-[#111218]/95 backdrop-blur-md border-b border-white/8 flex items-center justify-between px-4 text-xs text-neutral-200 select-none shrink-0 z-30">
-      {/* Left: Brand + Project Manager & Name */}
-      <div className="flex items-center gap-2.5">
-        <div className="flex items-center gap-2 pr-2.5 border-r border-[#22242d]">
-          <button
-            id="navbar-home-btn"
-            onClick={openLanding}
-            className="flex items-center gap-1.5 hover:opacity-85 transition-opacity cursor-pointer group"
-            title="返回 Keyfrio 官网首页"
-          >
-            <div className="w-7 h-7 flex items-center justify-center">
-              <AppLogo className="w-6.5 h-6.5 group-hover:scale-105 transition-transform" />
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="font-bold tracking-tight text-white flex items-center text-sm">
-                Keyfrio
-              </span>
-              <span className="text-[8.5px] font-bold bg-gradient-to-r from-blue-500/15 to-purple-500/15 text-sky-400 border border-sky-400/25 px-1 py-0.2 rounded font-mono">
-                PRO
-              </span>
-            </div>
-          </button>
-        </div>
-
-        {/* Database Projects Library Button */}
+    <header className="h-[52px] kf-glass !border-x-0 !border-t-0 flex items-center justify-between px-3 text-xs select-none shrink-0 z-30">
+      {/* ── left ── */}
+      <div className="flex items-center gap-1.5 min-w-0">
         <button
-          id="navbar-open-projects-btn"
-          onClick={openHome}
-          className="flex items-center gap-1.5 bg-[#1b2130] hover:bg-[#252d40] border border-indigo-500/30 text-indigo-300 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
-          title="工程项目库 (项目管理中心)"
+          onClick={openLanding}
+          className="flex items-center gap-2 pl-1 pr-3 py-1 rounded-lg hover:bg-white/[0.05] transition-colors cursor-pointer group shrink-0"
+          title="返回 Keyfrio 官网首页"
         >
-          <Database className="w-3.5 h-3.5 text-indigo-400" />
-          <span className="font-medium text-xs">工程库</span>
-          <span className="text-[10px] bg-indigo-500/20 text-indigo-300 px-1 rounded-full font-mono">
-            {projectList.length}
+          <AppLogo className="w-6 h-6 group-hover:scale-105 transition-transform" />
+          <span className="text-sm font-extrabold tracking-tight text-white">
+            Keyfrio <span className="kf-badge-brand kf-badge !text-[8px] ml-0.5 align-middle">PRO</span>
           </span>
         </button>
 
-        {/* Quick New Project Button */}
+        <div className="kf-divider-v h-5 mx-1 hidden sm:block" />
+
         <button
-          id="navbar-quick-new-proj-btn"
+          onClick={openHome}
+          className="kf-btn kf-btn-subtle !text-[11px] px-2.5 py-1.5 hidden sm:inline-flex"
+          title="工程项目库"
+        >
+          <Database className="w-3.5 h-3.5 text-cyan-300" />
+          工程库
+          <span className="kf-badge !text-[10px] !px-1.5 font-mono">{projectList.length}</span>
+        </button>
+        <button
           onClick={() => createNewProject()}
-          className="flex items-center gap-1 bg-sky-500/15 hover:bg-sky-500/25 border border-sky-400/30 text-sky-300 hover:text-white px-2 py-1 rounded-md transition-colors cursor-pointer"
+          className="kf-icon-btn p-1.5"
           title="新建空白工程"
         >
-          <Plus className="w-3.5 h-3.5" />
-          <span className="font-medium text-xs hidden lg:inline">新建</span>
+          <Plus className="w-4 h-4" />
         </button>
 
-        {/* Project Name Edit */}
-        <div className="flex items-center gap-1.5">
+        <div className="kf-divider-v h-5 mx-1 hidden md:block" />
+
+        {/* project title */}
+        <div className="hidden md:flex items-center gap-1 min-w-0">
           {isEditingTitle ? (
             <input
-              type="text"
-              value={tempTitle}
-              autoFocus
-              aria-label="工程名称"
+              type="text" value={tempTitle} autoFocus aria-label="工程名称"
               onChange={(e) => setTempTitle(e.target.value)}
               onBlur={handleTitleSubmit}
               onKeyDown={(e) => e.key === 'Enter' && handleTitleSubmit()}
-              className="bg-[#1a1b22] border border-blue-500 text-white text-xs px-2 py-0.5 rounded outline-none w-44 font-medium"
+              className="kf-input text-xs px-2.5 py-1 w-44"
             />
           ) : (
             <button
-              onClick={() => {
-                setTempTitle(project.name);
-                setIsEditingTitle(true);
-              }}
+              onClick={() => { setTempTitle(project.name); setIsEditingTitle(true); }}
               title="点击重命名工程"
-              className="text-xs font-medium text-neutral-300 hover:text-white px-2 py-1 rounded-md hover:bg-[#1c1d25] transition-colors max-w-[180px] truncate cursor-pointer flex items-center gap-1"
+              className="flex items-center gap-1.5 text-xs font-medium text-neutral-300 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-white/[0.05] transition-colors max-w-[190px] cursor-pointer"
             >
-              <Film className="w-3 h-3 text-neutral-400 shrink-0" />
+              <Film className="w-3 h-3 text-neutral-500 shrink-0" />
               <span className="truncate">{project.name}</span>
             </button>
           )}
-
-          {/* Real-time DB saving indicator badge */}
-          <div 
-            title={dbSaveStatus === 'saved' ? '数据库自动保存成功' : dbSaveStatus === 'saving' ? '正在保存到数据库...' : '保存异常'} 
-            className="flex items-center"
-          >
-            <span className={`w-2 h-2 rounded-full ${
-              dbSaveStatus === 'saved'
-                ? 'bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.7)]'
-                : dbSaveStatus === 'saving'
-                ? 'bg-amber-400 animate-ping'
-                : 'bg-red-500'
-            }`} />
-          </div>
-
-          {/* Project File Menu */}
+          <span
+            title={dbSaveStatus === 'saved' ? '已自动保存' : dbSaveStatus === 'saving' ? '保存中…' : '保存异常'}
+            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+              dbSaveStatus === 'saved' ? 'bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)]'
+              : dbSaveStatus === 'saving' ? 'bg-amber-400 animate-ping' : 'bg-rose-500'
+            }`}
+          />
           <div className="relative">
             <button
               onClick={() => setIsProjectMenuOpen((o) => !o)}
-              aria-label="打开工程文件菜单"
-              aria-haspopup="menu"
-              aria-expanded={isProjectMenuOpen}
-              className="text-neutral-400 hover:text-white p-1.5 rounded-md hover:bg-[#1c1d25] transition-colors cursor-pointer"
-              title="工程文件导入/导出"
+              aria-label="工程文件菜单" aria-haspopup="menu" aria-expanded={isProjectMenuOpen}
+              className="kf-icon-btn p-1.5" title="工程文件导入/导出"
             >
-              <ChevronDown className="w-3 h-3" />
+              <ChevronDown className="w-3.5 h-3.5" />
             </button>
-
             {isProjectMenuOpen && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setIsProjectMenuOpen(false)} />
-                <div className="absolute top-full left-0 mt-1 w-56 bg-[#181d29] border border-[#2b3445] rounded-xl shadow-2xl py-1.5 z-50 text-xs animate-in fade-in">
-                  <button
-                    onClick={() => {
-                      openProjectManager();
-                      setIsProjectMenuOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-left text-indigo-300 hover:text-indigo-200 hover:bg-indigo-600/20 flex items-center gap-2.5 transition-colors cursor-pointer font-medium"
-                  >
-                    <Database className="w-4 h-4 text-indigo-400" />
-                    <span>管理本地工程库 ({projectList.length})</span>
+                <div className="kf-menu absolute top-full left-0 mt-1.5 w-60 z-50 text-xs">
+                  <button onClick={() => { openProjectManager(); setIsProjectMenuOpen(false); }} className="kf-menu-item">
+                    <Database className="w-4 h-4 text-cyan-300" /> 管理本地工程库 ({projectList.length})
                   </button>
-                  <div className="h-px bg-[#2b3445] my-1" />
-                  <button
-                    onClick={() => {
-                      handleExportJSONClick();
-                      setIsProjectMenuOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-left text-neutral-300 hover:text-white hover:bg-blue-600/20 flex items-center gap-2.5 transition-colors cursor-pointer"
-                  >
-                    <FileJson className="w-4 h-4 text-sky-400" />
-                    <span>导出工程文件 (.json)</span>
+                  <div className="kf-divider my-1" />
+                  <button onClick={() => { handleExportJSONClick(); setIsProjectMenuOpen(false); }} className="kf-menu-item">
+                    <FileJson className="w-4 h-4 text-sky-400" /> 导出工程文件 (.json)
                   </button>
-                  <button
-                    onClick={() => {
-                      handleImportJSONClick();
-                      setIsProjectMenuOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-left text-neutral-300 hover:text-white hover:bg-blue-600/20 flex items-center gap-2.5 transition-colors cursor-pointer"
-                  >
-                    <FolderOpen className="w-4 h-4 text-emerald-400" />
-                    <span>导入工程文件 (.json)</span>
+                  <button onClick={() => { handleImportJSONClick(); setIsProjectMenuOpen(false); }} className="kf-menu-item">
+                    <FolderOpen className="w-4 h-4 text-emerald-400" /> 导入工程文件 (.json)
                   </button>
-                  <div className="h-px bg-[#2b3445] my-1" />
-                  <button
-                    onClick={() => {
-                      loadDemoProject();
-                      setIsProjectMenuOpen(false);
-                    }}
-                    className="w-full px-3 py-2 text-left text-amber-300 hover:text-amber-200 hover:bg-amber-500/10 flex items-center gap-2.5 transition-colors cursor-pointer"
-                  >
-                    <RotateCcw className="w-4 h-4" />
-                    <span>重置为官方示例工程</span>
+                  <div className="kf-divider my-1" />
+                  <button onClick={() => { loadDemoProject(); setIsProjectMenuOpen(false); }} className="kf-menu-item">
+                    <RotateCcw className="w-4 h-4 text-amber-300" /> 重置为官方示例工程
                   </button>
                 </div>
               </>
@@ -257,45 +187,36 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Aspect Ratio Selector */}
-        <div className="relative ml-1">
+        {/* aspect ratio */}
+        <div className="relative hidden lg:block">
           <button
             onClick={() => setIsAspectMenuOpen((o) => !o)}
-            className="flex items-center gap-1.5 bg-[#181921] hover:bg-[#20222c] border border-[#262833] text-[11px] text-neutral-300 px-2.5 py-1 rounded-md transition-colors cursor-pointer"
+            className="kf-btn kf-btn-ghost !text-[11px] px-2.5 py-1.5"
           >
-            <Ratio className="w-3 h-3 text-sky-400" />
-            <span className="font-semibold text-sky-400">{project.resolution.aspectRatio}</span>
-            <span className="text-[10px] text-neutral-500 hidden md:inline">({project.resolution.width}×{project.resolution.height})</span>
-            <ChevronDown className="w-2.5 h-2.5 text-neutral-400" />
+            <Ratio className="w-3 h-3 text-cyan-300" />
+            <span className="font-bold text-cyan-300 font-mono">{project.resolution.aspectRatio}</span>
+            <span className="text-[10px] text-neutral-500 font-mono">{project.resolution.width}×{project.resolution.height}</span>
+            <ChevronDown className="w-3 h-3 text-neutral-500" />
           </button>
-
           {isAspectMenuOpen && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setIsAspectMenuOpen(false)} />
-              <div className="absolute top-full left-0 mt-1 w-64 bg-[#181d29] border border-[#2b3445] rounded-xl shadow-2xl py-1.5 z-50 text-xs animate-in fade-in">
-                <div className="px-3 py-1 text-[10px] font-semibold text-neutral-400 border-b border-[#2b3445] flex items-center gap-1.5">
-                  <Ratio className="w-3 h-3 text-sky-400" />
-                  <span>画面画幅 / 比例预设</span>
-                </div>
+              <div className="kf-menu absolute top-full left-0 mt-1.5 w-64 z-50 text-xs">
+                <div className="px-2.5 py-1.5 text-[10px] font-semibold tracking-wider text-neutral-500 uppercase">画面画幅</div>
                 {(Object.keys(ASPECT_RATIOS) as AspectRatio[]).map((ratio) => {
                   const item = ASPECT_RATIOS[ratio];
                   const isSelected = project.resolution.aspectRatio === ratio;
                   return (
                     <button
                       key={ratio}
-                      onClick={() => {
-                        setAspectRatio(ratio);
-                        setIsAspectMenuOpen(false);
-                      }}
-                      className={`w-full px-3 py-2 text-left flex items-center justify-between hover:bg-blue-600/20 transition-colors cursor-pointer ${
-                        isSelected ? 'text-sky-400 font-medium bg-sky-400/10' : 'text-neutral-300'
-                      }`}
+                      onClick={() => { setAspectRatio(ratio); setIsAspectMenuOpen(false); }}
+                      className={`kf-menu-item justify-between ${isSelected ? '!text-cyan-300 !bg-cyan-400/10' : ''}`}
                     >
-                      <div className="flex flex-col">
-                        <span className="font-semibold text-xs">{item.label}</span>
-                        <span className="text-[9px] text-neutral-500">{item.width} × {item.height} px</span>
-                      </div>
-                      {isSelected && <Check className="w-4 h-4 text-sky-400" />}
+                      <span>
+                        <span className="block font-semibold">{item.label}</span>
+                        <span className="block text-[10px] text-neutral-500 font-mono">{item.width} × {item.height}</span>
+                      </span>
+                      {isSelected && <Check className="w-4 h-4 text-cyan-300" />}
                     </button>
                   );
                 })}
@@ -305,123 +226,79 @@ export const Navbar: React.FC = () => {
         </div>
       </div>
 
-      {/* Center: Undo/Redo & AI Copilot & Record */}
-      <div className="flex items-center gap-1">
-        <button
-          onClick={undo}
-          aria-label="撤销"
-          disabled={!canUndo}
-          title="撤销 (Ctrl+Z)"
-          className={`p-1.5 rounded-md hover:bg-[#1e202a] transition-colors cursor-pointer ${
-            canUndo ? 'text-neutral-300 hover:text-white' : 'text-neutral-600 cursor-not-allowed'
-          }`}
-        >
+      {/* ── center ── */}
+      <div className="flex items-center gap-1 shrink-0">
+        <button onClick={undo} aria-label="撤销" disabled={!canUndo} title="撤销 (Ctrl+Z)"
+          className="kf-icon-btn p-2 disabled:opacity-30">
           <Undo2 className="w-4 h-4" />
         </button>
-        <button
-          onClick={redo}
-          aria-label="重做"
-          disabled={!canRedo}
-          title="重做 (Ctrl+Y)"
-          className={`p-1.5 rounded-md hover:bg-[#1e202a] transition-colors cursor-pointer ${
-            canRedo ? 'text-neutral-300 hover:text-white' : 'text-neutral-600 cursor-not-allowed'
-          }`}
-        >
+        <button onClick={redo} aria-label="重做" disabled={!canRedo} title="重做 (Ctrl+Y)"
+          className="kf-icon-btn p-2 disabled:opacity-30">
           <Redo2 className="w-4 h-4" />
         </button>
-
-        <div className="h-4 w-px bg-[#232530] mx-1.5" />
-
-        {/* AI Magic Button */}
+        <div className="kf-divider-v h-5 mx-1.5" />
         <button
           onClick={openAiCopilotDrawer}
-          className="flex items-center gap-1.5 bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white text-[11px] px-2.5 py-1 rounded-lg font-medium shadow-sm transition-all cursor-pointer group"
-          title="AI 智能剪辑助理 (Copilot 对话 / 智能粗剪 / 一键调色)"
+          className="kf-btn kf-btn-brand !text-[11px] px-3 py-1.5 group"
+          title="AI 智能剪辑助理"
         >
-          <Sparkles className="w-3.5 h-3.5 text-yellow-300 group-hover:rotate-12 transition-transform" />
-          <span>AI 智能助理</span>
+          <Sparkles className="w-3.5 h-3.5 group-hover:rotate-12 transition-transform" />
+          <span className="hidden sm:inline">AI 智能助理</span>
         </button>
-
-        {/* Recording Tool */}
         <button
           onClick={() => openRecordModal('camera')}
-          className="flex items-center gap-1.5 text-[11px] text-neutral-300 hover:text-white hover:bg-[#1e202a] px-2 py-1 rounded-md transition-colors cursor-pointer"
+          className="kf-btn kf-btn-subtle !text-[11px] px-2.5 py-1.5"
           title="录制屏幕 / 摄像头 / 配音"
         >
-          <Radio className="w-3.5 h-3.5 text-rose-400 animate-pulse" />
+          <Radio className="w-3.5 h-3.5 text-rose-400" />
           <span className="hidden sm:inline">录制</span>
         </button>
       </div>
 
-      {/* Right: Relink Indicator + Storage + Sequences + Keyboard Shortcuts + Export */}
-      <div className="flex items-center gap-1.5">
-        {/* Multi-Sequence Manager Button */}
+      {/* ── right ── */}
+      <div className="flex items-center gap-1.5 shrink-0">
         <button
           onClick={() => setIsSeqModalOpen(true)}
-          className="flex items-center gap-1 bg-[#1a1f2b] hover:bg-[#1f212d] border border-[#2d3648] text-neutral-300 hover:text-white px-2 py-1 rounded-md text-xs transition-colors cursor-pointer"
-          title="Keyfrio 多序列管理器 (Sequences)"
+          className="kf-btn kf-btn-ghost !text-[11px] px-2.5 py-1.5"
+          title="多序列管理器"
         >
-          <Layers className="w-3.5 h-3.5 text-sky-400" />
-          <span className="hidden md:inline font-medium">序列</span>
-          <span className="text-[10px] bg-sky-500/20 text-sky-300 px-1 rounded-full font-mono">
-            {project.sequences?.length || 1}
-          </span>
+          <Layers className="w-3.5 h-3.5 text-cyan-300" />
+          <span className="hidden md:inline">序列</span>
+          <span className="kf-badge-accent kf-badge !text-[10px] !px-1.5 font-mono">{project.sequences?.length || 1}</span>
         </button>
-
-        {/* OPFS Storage Diagnostics Button */}
         <button
           onClick={() => setIsStorageModalOpen(true)}
-          className="flex items-center gap-1 bg-[#1a1f2b] hover:bg-[#1f212d] border border-[#2d3648] text-neutral-300 hover:text-white px-2 py-1 rounded-md text-xs transition-colors cursor-pointer"
-          title="Keyfrio 本地 OPFS 存储监控"
+          className="kf-icon-btn p-2 hidden lg:inline-flex"
+          title="OPFS 本地存储监控"
         >
-          <HardDrive className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="hidden lg:inline font-medium">OPFS</span>
+          <HardDrive className="w-4 h-4 text-emerald-400" />
         </button>
-
         {(needsPermissionCount > 0 || offlineAssetsCount > 0) && (
           <button
             onClick={openRelinkModal}
-            className="flex items-center gap-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/35 text-amber-300 px-2.5 py-1 rounded-md text-xs transition-colors cursor-pointer animate-pulse"
-            title="点击重新授权或重连离线素材"
+            className="kf-btn kf-btn-danger-ghost !text-[11px] px-2.5 py-1.5 animate-pulse"
+            title="重新授权或重连离线素材"
           >
-            <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
-            <span className="font-medium">
-              {needsPermissionCount > 0 ? `${needsPermissionCount} 需授权` : `${offlineAssetsCount} 离线`}
-            </span>
+            <AlertTriangle className="w-3.5 h-3.5" />
+            {needsPermissionCount > 0 ? `${needsPermissionCount} 需授权` : `${offlineAssetsCount} 离线`}
           </button>
         )}
-
-        <button
-          onClick={openShortcutsModal}
-          aria-label="打开快捷键指南"
-          title="快捷键大全 (?)"
-          className="p-1.5 text-neutral-400 hover:text-white hover:bg-[#1e202a] rounded-md transition-colors cursor-pointer"
-        >
+        <button onClick={openShortcutsModal} aria-label="快捷键指南" title="快捷键 (?)"
+          className="kf-icon-btn p-2">
           <Keyboard className="w-4 h-4" />
         </button>
-
-        {/* Export Button */}
         <button
           onClick={openExportModal}
-          className="flex items-center gap-1.5 bg-sky-500 hover:bg-sky-400 active:scale-95 text-white font-semibold text-xs px-3.5 py-1.5 rounded-lg shadow-md shadow-blue-600/30 transition-all cursor-pointer"
-          title="导出视频 (WebM / MP4)"
+          className="kf-btn kf-btn-primary !text-[11px] px-3.5 py-2 font-semibold"
+          title="导出视频"
         >
           <Download className="w-3.5 h-3.5" />
-          <span>导出视频</span>
+          <span className="hidden sm:inline">导出视频</span>
         </button>
       </div>
 
-      {/* Keyfrio Sequence Manager Modal */}
-      <SequenceManagerModal
-        isOpen={isSeqModalOpen}
-        onClose={() => setIsSeqModalOpen(false)}
-      />
-
-      {/* Keyfrio OPFS Storage Modal */}
-      <StorageManagerModal
-        isOpen={isStorageModalOpen}
-        onClose={() => setIsStorageModalOpen(false)}
-      />
+      <SequenceManagerModal isOpen={isSeqModalOpen} onClose={() => setIsSeqModalOpen(false)} />
+      <StorageManagerModal isOpen={isStorageModalOpen} onClose={() => setIsStorageModalOpen(false)} />
     </header>
   );
 };

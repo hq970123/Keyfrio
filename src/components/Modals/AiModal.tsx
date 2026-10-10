@@ -9,9 +9,10 @@ import {
   Zap,
 } from 'lucide-react';
 import { useEditor } from '../../context/EditorContext';
+import { AiUnavailableBanner } from '../common/AiUnavailableBanner';
 
 export const AiModal: React.FC = () => {
-  const { isAiModalOpen, closeAiModal, project, totalDuration, addTrack, addClip } = useEditor();
+  const { isAiModalOpen, closeAiModal, project, totalDuration, addTrack, addClip, aiAvailable } = useEditor();
   const [tab, setTab] = useState<'captions' | 'script' | 'titles'>('captions');
   const [loading, setLoading] = useState(false);
 
@@ -94,9 +95,9 @@ export const AiModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 select-none">
-      <div className="bg-[#131419] border border-[#20222a] rounded-xl w-full max-w-xl shadow-2xl overflow-hidden text-neutral-200 text-xs">
+      <div className="bg-[var(--kf-surface-2)] border border-white/[0.06] rounded-xl w-full max-w-xl shadow-2xl overflow-hidden text-neutral-200 text-xs">
         {/* Header */}
-        <div className="h-10 px-3.5 border-b border-[#20222a] flex items-center justify-between bg-[#101116]">
+        <div className="h-10 px-3.5 border-b border-white/[0.06] flex items-center justify-between bg-[var(--kf-surface-1)]">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-purple-600/20 text-purple-400 flex items-center justify-center">
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
@@ -107,14 +108,16 @@ export const AiModal: React.FC = () => {
           </div>
           <button
             onClick={closeAiModal}
-            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-[#171822] transition-colors"
+            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-[var(--kf-surface-3)] transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
+        <AiUnavailableBanner />
+
         {/* Tab switcher */}
-        <div className="flex border-b border-[#20222a] bg-[#101116] p-1 gap-1">
+        <div className="flex border-b border-white/[0.06] bg-[var(--kf-surface-1)] p-1 gap-1">
           {[
             { id: 'captions', label: '自动字幕识别', icon: Wand2 },
             { id: 'script', label: '短视频分镜脚本', icon: FileText },
@@ -129,7 +132,7 @@ export const AiModal: React.FC = () => {
               className={`flex-1 py-1.5 px-2 rounded-lg flex items-center justify-center gap-1.5 font-medium transition-all text-xs ${
                 tab === t.id
                   ? 'bg-purple-600/20 border border-purple-500/40 text-purple-300'
-                  : 'text-neutral-400 hover:text-white hover:bg-[#171822]'
+                  : 'text-neutral-400 hover:text-white hover:bg-[var(--kf-surface-3)]'
               }`}
             >
               <t.icon className="w-3 h-3" />
@@ -139,7 +142,7 @@ export const AiModal: React.FC = () => {
         </div>
 
         {/* Content */}
-        <div className="p-4 flex flex-col gap-3.5 max-h-[60vh] overflow-y-auto">
+        <div className={`p-4 flex flex-col gap-3.5 max-h-[60vh] overflow-y-auto ${aiAvailable === false ? 'opacity-50 pointer-events-none' : ''}`}>
           {tab === 'captions' && (
             <div className="flex flex-col gap-2.5">
               <label className="text-[10px] font-semibold text-neutral-400 block">
@@ -149,7 +152,7 @@ export const AiModal: React.FC = () => {
                 value={captionInput}
                 onChange={(e) => setCaptionInput(e.target.value)}
                 rows={3}
-                className="w-full bg-[#171822] border border-[#242633] focus:border-purple-500 rounded-lg p-2.5 text-white outline-none resize-none text-xs"
+                className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-purple-500 rounded-lg p-2.5 text-white outline-none resize-none text-xs"
                 placeholder="粘贴台词文案..."
               />
 
@@ -172,7 +175,7 @@ export const AiModal: React.FC = () => {
               </button>
 
               {result?.subtitles && (
-                <div className="flex flex-col gap-2 mt-1 bg-[#171822] border border-[#242633] rounded-lg p-3">
+                <div className="flex flex-col gap-2 mt-1 bg-[var(--kf-surface-3)] border border-white/[0.06] rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-emerald-400 text-xs">
                       ✅ 成功对齐生成 {result.subtitles.length} 条字幕片段
@@ -190,7 +193,7 @@ export const AiModal: React.FC = () => {
                     {result.subtitles.map((sub: any, idx: number) => (
                       <div
                         key={idx}
-                        className="bg-[#101116] p-1.5 rounded border border-[#20222a] flex items-center justify-between text-xs"
+                        className="bg-[var(--kf-surface-1)] p-1.5 rounded border border-white/[0.06] flex items-center justify-between text-xs"
                       >
                         <span className="text-neutral-200">{sub.text}</span>
                         <span className="text-neutral-500 font-mono text-[9px]">
@@ -211,7 +214,7 @@ export const AiModal: React.FC = () => {
                 type="text"
                 value={scriptTopic}
                 onChange={(e) => setScriptTopic(e.target.value)}
-                className="w-full bg-[#171822] border border-[#242633] focus:border-purple-500 rounded-lg px-2.5 py-1.5 text-white outline-none text-xs"
+                className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-purple-500 rounded-lg px-2.5 py-1.5 text-white outline-none text-xs"
                 placeholder="例如: 3分钟快速掌握街拍人像调色"
               />
 
@@ -241,14 +244,14 @@ export const AiModal: React.FC = () => {
               </button>
 
               {result?.scenes && (
-                <div className="flex flex-col gap-2 bg-[#171822] border border-[#242633] rounded-lg p-3 mt-1">
+                <div className="flex flex-col gap-2 bg-[var(--kf-surface-3)] border border-white/[0.06] rounded-lg p-3 mt-1">
                   <div className="p-2 rounded bg-purple-950/50 border border-purple-500/30 text-purple-200 text-xs">
                     <span className="font-bold text-yellow-300">🔥 黄金Hook:</span> {result.hook}
                   </div>
                   <div className="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
                     {result.scenes.map((s: any, idx: number) => (
-                      <div key={idx} className="bg-[#101116] p-2 rounded border border-[#20222a] flex flex-col gap-0.5 text-xs">
-                        <span className="font-medium text-blue-400">
+                      <div key={idx} className="bg-[var(--kf-surface-1)] p-2 rounded border border-white/[0.06] flex flex-col gap-0.5 text-xs">
+                        <span className="font-medium text-cyan-300">
                           镜头 {idx + 1}: {s.title} ({s.duration}s)
                         </span>
                         <span className="text-neutral-300">台词: {s.spokenText}</span>
@@ -268,7 +271,7 @@ export const AiModal: React.FC = () => {
                 type="text"
                 value={titleInput}
                 onChange={(e) => setTitleInput(e.target.value)}
-                className="w-full bg-[#171822] border border-[#242633] focus:border-amber-500 rounded-lg px-2.5 py-1.5 text-white outline-none text-xs"
+                className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-amber-500 rounded-lg px-2.5 py-1.5 text-white outline-none text-xs"
                 placeholder="例如: 剪辑技巧"
               />
 
@@ -331,7 +334,7 @@ export const AiModal: React.FC = () => {
                         });
                         closeAiModal();
                       }}
-                      className="p-2.5 bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-amber-400/50 rounded-lg flex items-center justify-between cursor-pointer transition-all"
+                      className="p-2.5 bg-[var(--kf-surface-3)] hover:bg-[#1f202d] border border-white/[0.06] hover:border-amber-400/50 rounded-lg flex items-center justify-between cursor-pointer transition-all"
                     >
                       <div className="flex flex-col">
                         <span className="font-medium text-xs text-white">{sug.headline}</span>

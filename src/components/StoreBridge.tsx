@@ -1,26 +1,20 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import { useEditor } from '../context/EditorContext';
 import { useProjectStore } from '../stores/projectStore';
 import { usePlaybackStore } from '../stores/playbackStore';
 import { useSelectionStore } from '../stores/selectionStore';
 import { useUiStore } from '../stores/uiStore';
 import { useAssetsStore } from '../stores/assetsStore';
-import { useHistoryStore } from '../stores/historyStore';
 
 /**
- * One-way bridge: keeps Zustand stores in sync with the legacy EditorContext.
+ * Long-term one-way bridge from EditorContext to the Zustand mirror stores.
  *
- * During the migration period, EditorContext remains the source of truth for
- * mutations. This component mirrors its state into the sliced stores so that
- * newly migrated components can already benefit from fine-grained subscriptions.
- *
- * Once all consumers read from stores and mutations are moved into store actions,
- * this bridge can be deleted together with EditorContext.
+ * EditorContext is the sole owner of state mutations. This component keeps the
+ * domain-sliced stores synchronized so components can use fine-grained
+ * subscriptions without introducing a second mutation path.
  */
 export function StoreBridge() {
   const editor = useEditor();
-  const lastHistoryPush = useRef(0);
-
   // ---- Project ----
   useEffect(() => {
     useProjectStore.getState().setProject(editor.project);
@@ -167,13 +161,6 @@ export function StoreBridge() {
       .getState()
       .setOfflineCounts(editor.offlineAssetsCount, editor.needsPermissionCount);
   }, [editor.offlineAssetsCount, editor.needsPermissionCount]);
-
-  // ---- History flags (context already owns the stack; just mirror canUndo/canRedo if needed later) ----
-  // We do not overwrite history store from context to avoid double stacks.
-  // When mutations move to stores, useHistoryActions will own the stack.
-
-  // Suppress unused-var warning for the ref kept for future debounce
-  void lastHistoryPush;
 
   return null;
 }

@@ -150,7 +150,7 @@ const ColorWheelControl: React.FC<{
   const puckY = 50 + (wheel.b || 0) * 40;
 
   return (
-    <div className="flex flex-col items-center gap-1.5 bg-[#101116] p-2 rounded-xl border border-[#20222a] flex-1 min-w-[85px]">
+    <div className="flex flex-col items-center gap-1.5 bg-[var(--kf-surface-1)] p-2 rounded-xl border border-white/[0.06] flex-1 min-w-[85px]">
       <div className="flex items-center justify-between w-full px-0.5">
         <span className="text-[10px] font-semibold text-neutral-300 tracking-wide truncate">{label}</span>
         <button
@@ -250,7 +250,7 @@ export const ColorGradeInspectorTab: React.FC<ColorGradeInspectorTabProps> = ({ 
   return (
     <div className="flex flex-col gap-3 text-xs">
       {/* Top Banner & Enable Toggle */}
-      <div className="flex items-center justify-between bg-[#171822] p-2.5 rounded-xl border border-[#242633]">
+      <div className="flex items-center justify-between bg-[var(--kf-surface-3)] p-2.5 rounded-xl border border-white/[0.06]">
         <div className="flex items-center gap-1.5">
           <Palette className="w-3.5 h-3.5 text-amber-400" />
           <span className="font-semibold text-neutral-200">ASC-CDL 专业调色</span>
@@ -277,7 +277,7 @@ export const ColorGradeInspectorTab: React.FC<ColorGradeInspectorTabProps> = ({ 
       </div>
 
       {/* Sub-tabs: 电影滤镜 / 基础校色 / 三段色轮 / 特效滤镜 */}
-      <div className="flex bg-[#101116] p-0.5 rounded-lg gap-0.5 text-[10px]">
+      <div className="flex bg-[var(--kf-surface-1)] p-0.5 rounded-lg gap-0.5 text-[10px]">
         <button
           onClick={() => setActiveSubTab('presets')}
           className={`flex-1 py-1 rounded transition-colors ${
@@ -314,7 +314,7 @@ export const ColorGradeInspectorTab: React.FC<ColorGradeInspectorTabProps> = ({ 
 
       {/* 1. PRESETS TAB */}
       {activeSubTab === 'presets' && (
-        <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
           <div className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-amber-400" />
             <span className="font-semibold text-neutral-200">大师级电影调色 LUT 预设</span>
@@ -330,7 +330,7 @@ export const ColorGradeInspectorTab: React.FC<ColorGradeInspectorTabProps> = ({ 
                     enabled: true,
                   })
                 }
-                className="p-2 bg-[#101116] hover:bg-neutral-800 border border-[#20222a] hover:border-amber-500/40 text-neutral-200 rounded-lg text-left transition-all flex items-center gap-1.5 cursor-pointer"
+                className="p-2 bg-[var(--kf-surface-1)] hover:bg-neutral-800 border border-white/[0.06] hover:border-amber-500/40 text-neutral-200 rounded-lg text-left transition-all flex items-center gap-1.5 cursor-pointer"
               >
                 <span className="text-base">{preset.icon}</span>
                 <span className="text-[11px] font-medium truncate">{preset.name.split(' ')[0]}</span>
@@ -342,7 +342,7 @@ export const ColorGradeInspectorTab: React.FC<ColorGradeInspectorTabProps> = ({ 
 
       {/* 2. PRIMARY TAB */}
       {activeSubTab === 'primary' && (
-        <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
           <span className="font-semibold text-neutral-200">基础校色参数 (Primary Adjustments)</span>
 
           {/* Exposure */}
@@ -434,7 +434,7 @@ export const ColorGradeInspectorTab: React.FC<ColorGradeInspectorTabProps> = ({ 
 
       {/* 3. WHEELS TAB */}
       {activeSubTab === 'wheels' && (
-        <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
           <div className="flex items-center justify-between">
             <span className="font-semibold text-neutral-200">三段色轮 (3-Way Wheels)</span>
             <span className="text-[10px] text-neutral-500 font-mono">ASC-CDL</span>
@@ -465,7 +465,7 @@ export const ColorGradeInspectorTab: React.FC<ColorGradeInspectorTabProps> = ({ 
 
       {/* 4. FILTERS & VIGNETTE TAB */}
       {activeSubTab === 'filters' && (
-        <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
           <span className="font-semibold text-neutral-200">暗角与滤镜 (Vignette & Blur)</span>
 
           {/* Vignette */}

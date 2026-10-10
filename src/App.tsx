@@ -12,6 +12,7 @@ const TextPanel = lazy(() => import('./components/Sidebar/TextPanel').then((modu
 const StickersPanel = lazy(() => import('./components/Sidebar/StickersPanel').then((module) => ({ default: module.StickersPanel })));
 const EffectsPanel = lazy(() => import('./components/Sidebar/EffectsPanel').then((module) => ({ default: module.EffectsPanel })));
 const TransitionsPanel = lazy(() => import('./components/Sidebar/TransitionsPanel').then((module) => ({ default: module.TransitionsPanel })));
+const RemotionPanel = lazy(() => import('./components/Sidebar/RemotionPanel').then((module) => ({ default: module.RemotionPanel })));
 const AiPanel = lazy(() => import('./components/Sidebar/AiPanel').then((module) => ({ default: module.AiPanel })));
 const PreviewPlayer = lazy(() => import('./components/Player/PreviewPlayer').then((module) => ({ default: module.PreviewPlayer })));
 const InspectorPanel = lazy(() => import('./components/Inspector/InspectorPanel').then((module) => ({ default: module.InspectorPanel })));
@@ -81,6 +82,8 @@ const MainAppContent: React.FC = () => {
         return <TransitionsPanel />;
       case 'ai':
         return <AiPanel />;
+      case 'remotion':
+        return <RemotionPanel />;
       default:
         return <MediaPanel />;
     }

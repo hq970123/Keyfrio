@@ -22,12 +22,20 @@ interface MediaCardProps {
   duration?: number;
   width?: number;
   height?: number;
+  size?: number;
   isOffline?: boolean;
   needsPermission?: boolean;
   onAdd: () => void;
   onDelete?: () => void;
   onRelink?: () => void;
   badge?: string;
+}
+
+// Format a byte size to KB / MB with one decimal
+export function formatFileSize(bytes?: number): string {
+  if (!bytes || bytes <= 0) return '';
+  if (bytes < 1024 * 1024) return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 // Format duration to mm:ss (e.g. 00:06)
@@ -46,6 +54,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
   duration,
   width,
   height,
+  size,
   isOffline,
   needsPermission,
   onAdd,
@@ -103,12 +112,12 @@ export const MediaCard: React.FC<MediaCardProps> = ({
       >
         {/* Thumbnail Container */}
         <div
-          className={`relative aspect-video w-full rounded-lg overflow-hidden bg-[#121319] border transition-all shadow-xs group-hover:shadow-md ${
+          className={`relative aspect-video w-full rounded-lg overflow-hidden bg-[var(--kf-surface-2)] border transition-all shadow-xs group-hover:shadow-md ${
             needsPermission
               ? 'border-amber-500/60 group-hover:border-amber-400'
               : isOffline
               ? 'border-rose-500/60 group-hover:border-rose-400'
-              : 'border-[#232532] group-hover:border-blue-500/80'
+              : 'border-white/[0.07] group-hover:border-cyan-400/50'
           }`}
         >
           {/* Media Thumbnail Image / Visual */}
@@ -216,7 +225,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               className={`w-5.5 h-5.5 rounded-full flex items-center justify-center transition-all backdrop-blur-xs shadow-sm ${
                 isAdded
                   ? 'bg-emerald-600 text-white scale-110'
-                  : 'bg-black/65 hover:bg-blue-600 text-white border border-white/10 hover:border-blue-400'
+                  : 'bg-black/65 hover:bg-cyan-500 text-white border border-white/10 hover:border-cyan-300'
               }`}
             >
               {isAdded ? (
@@ -245,10 +254,21 @@ export const MediaCard: React.FC<MediaCardProps> = ({
 
         {/* Title Name below thumbnail */}
         <div className="mt-1 px-0.5 flex items-center justify-between min-w-0">
-          <span className="text-[11px] font-normal text-neutral-200 group-hover:text-white truncate transition-colors">
+          <span
+            className="text-[11px] font-normal text-neutral-200 group-hover:text-white truncate transition-colors"
+            title={name}
+          >
             {name}
           </span>
         </div>
+        {/* Meta line: resolution · file size */}
+        {(width && height) || size ? (
+          <div className="px-0.5 flex items-center gap-1.5 text-[9px] font-mono text-neutral-500">
+            {width && height ? <span>{width}×{height}</span> : null}
+            {width && height && size ? <span className="text-neutral-700">·</span> : null}
+            {size ? <span>{formatFileSize(size)}</span> : null}
+          </div>
+        ) : null}
       </div>
 
       {/* Full Modal Preview */}
@@ -258,13 +278,13 @@ export const MediaCard: React.FC<MediaCardProps> = ({
           onClick={() => setShowPreviewModal(false)}
         >
           <div
-            className="bg-[#171822] border border-[#2d3042] rounded-xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col"
+            className="kf-anim-pop-in bg-[var(--kf-surface-3)] border border-white/[0.08] rounded-xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-3 border-b border-[#252838] flex items-center justify-between">
+            <div className="p-3 border-b border-white/[0.06] flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <span className="font-bold text-xs text-white truncate">{name}</span>
-                <span className="text-[9px] bg-blue-500/20 text-blue-400 border border-blue-500/30 px-1.5 py-0.2 rounded font-mono uppercase">
+                <span className="kf-badge kf-badge-accent font-mono uppercase">
                   {type}
                 </span>
               </div>
@@ -305,16 +325,17 @@ export const MediaCard: React.FC<MediaCardProps> = ({
               )}
             </div>
 
-            <div className="p-3 bg-[#13141b] border-t border-[#252838] flex items-center justify-between">
+            <div className="p-3 bg-[var(--kf-surface-1)] border-t border-white/[0.06] flex items-center justify-between">
               <div className="text-[10px] text-neutral-400 font-mono">
                 时长: {formattedDuration}
                 {width && height ? ` · 分辨率: ${width}x${height}` : ''}
+                {size ? ` · 大小: ${formatFileSize(size)}` : ''}
               </div>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setShowPreviewModal(false)}
-                  className="px-3 py-1 rounded text-xs bg-neutral-800 hover:bg-neutral-700 text-neutral-300"
+                  className="kf-btn kf-btn-ghost px-3 py-1 text-xs"
                 >
                   关闭
                 </button>
@@ -324,7 +345,7 @@ export const MediaCard: React.FC<MediaCardProps> = ({
                     onAdd();
                     setShowPreviewModal(false);
                   }}
-                  className="px-3 py-1 rounded text-xs bg-blue-600 hover:bg-blue-500 text-white font-medium flex items-center gap-1.5 shadow-sm"
+                  className="kf-btn kf-btn-primary px-3 py-1 text-xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>添加到时间线</span>

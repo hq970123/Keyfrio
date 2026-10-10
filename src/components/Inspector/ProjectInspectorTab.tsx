@@ -51,13 +51,13 @@ export const ProjectInspectorTab: React.FC<ProjectInspectorTabProps> = ({ projec
   return (
     <div className="flex flex-col gap-3.5 text-xs">
       {/* 1. Project Header & Info */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Sliders className="w-3.5 h-3.5 text-blue-400" />
+            <Sliders className="w-3.5 h-3.5 text-cyan-300" />
             <span className="font-semibold text-neutral-200">工程全局属性 (Project)</span>
           </div>
-          <span className="text-[10px] bg-blue-500/20 text-blue-300 px-2 py-0.5 rounded-full font-mono">
+          <span className="text-[10px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-full font-mono">
             {project.fps} FPS
           </span>
         </div>
@@ -81,13 +81,13 @@ export const ProjectInspectorTab: React.FC<ProjectInspectorTabProps> = ({ projec
       </div>
 
       {/* 2. Canvas Aspect Ratio & Resolution */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Monitor className="w-3.5 h-3.5 text-indigo-400" />
+            <Monitor className="w-3.5 h-3.5 text-violet-400" />
             <span className="font-semibold text-neutral-200">画布画幅比例 (Aspect Ratio)</span>
           </div>
-          <span className="font-mono text-[11px] text-indigo-300 font-medium">
+          <span className="font-mono text-[11px] text-violet-300 font-medium">
             {project.resolution.width} × {project.resolution.height}
           </span>
         </div>
@@ -101,8 +101,8 @@ export const ProjectInspectorTab: React.FC<ProjectInspectorTabProps> = ({ projec
                 onClick={() => handleAspectRatioSelect(aspect)}
                 className={`py-1.5 px-2 rounded-lg border text-center transition-all cursor-pointer ${
                   isSelected
-                    ? 'bg-indigo-500/20 border-indigo-500 text-indigo-200 font-semibold shadow-xs'
-                    : 'bg-[#101116] border-[#20222a] text-neutral-300 hover:border-neutral-700'
+                    ? 'bg-violet-500/20 border-violet-500 text-violet-200 font-semibold shadow-xs'
+                    : 'bg-[var(--kf-surface-1)] border-white/[0.06] text-neutral-300 hover:border-neutral-700'
                 }`}
               >
                 <div className="text-[11px] font-mono">{aspect}</div>
@@ -116,26 +116,26 @@ export const ProjectInspectorTab: React.FC<ProjectInspectorTabProps> = ({ projec
       </div>
 
       {/* 3. Timeline Elements Overview */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <Layers className="w-3.5 h-3.5 text-emerald-400" />
           <span className="font-semibold text-neutral-200">时间线素材概览</span>
         </div>
 
         <div className="grid grid-cols-2 gap-2 pt-1">
-          <div className="bg-[#101116] p-2 rounded-lg border border-[#20222a] flex flex-col">
+          <div className="bg-[var(--kf-surface-1)] p-2 rounded-lg border border-white/[0.06] flex flex-col">
             <span className="text-[10px] text-neutral-500">轨道总数</span>
             <span className="text-base font-bold text-white font-mono">{project.tracks.length}</span>
           </div>
-          <div className="bg-[#101116] p-2 rounded-lg border border-[#20222a] flex flex-col">
+          <div className="bg-[var(--kf-surface-1)] p-2 rounded-lg border border-white/[0.06] flex flex-col">
             <span className="text-[10px] text-neutral-500">总片段数</span>
-            <span className="text-base font-bold text-blue-400 font-mono">{totalClips}</span>
+            <span className="text-base font-bold text-cyan-300 font-mono">{totalClips}</span>
           </div>
-          <div className="bg-[#101116] p-2 rounded-lg border border-[#20222a] flex flex-col">
+          <div className="bg-[var(--kf-surface-1)] p-2 rounded-lg border border-white/[0.06] flex flex-col">
             <span className="text-[10px] text-neutral-500">视视频 / 图片</span>
             <span className="text-base font-bold text-sky-400 font-mono">{videoClips}</span>
           </div>
-          <div className="bg-[#101116] p-2 rounded-lg border border-[#20222a] flex flex-col">
+          <div className="bg-[var(--kf-surface-1)] p-2 rounded-lg border border-white/[0.06] flex flex-col">
             <span className="text-[10px] text-neutral-500">音频 / 音乐</span>
             <span className="text-base font-bold text-emerald-400 font-mono">{audioClips}</span>
           </div>
@@ -143,40 +143,40 @@ export const ProjectInspectorTab: React.FC<ProjectInspectorTabProps> = ({ projec
       </div>
 
       {/* 4. Keyboard Shortcuts Cheatsheet */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <Keyboard className="w-3.5 h-3.5 text-amber-400" />
           <span className="font-semibold text-neutral-200">专业快捷键指南 (Hotkeys)</span>
         </div>
 
         <div className="flex flex-col gap-1 pt-1 text-[11px]">
-          <div className="flex justify-between py-0.5 border-b border-[#20222a]">
+          <div className="flex justify-between py-0.5 border-b border-white/[0.06]">
             <span className="text-neutral-400">播放 / 暂停</span>
-            <kbd className="bg-[#101116] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
+            <kbd className="bg-[var(--kf-surface-1)] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
               Space 空格
             </kbd>
           </div>
-          <div className="flex justify-between py-0.5 border-b border-[#20222a]">
+          <div className="flex justify-between py-0.5 border-b border-white/[0.06]">
             <span className="text-neutral-400">切割拆分片段</span>
-            <kbd className="bg-[#101116] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
+            <kbd className="bg-[var(--kf-surface-1)] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
               S
             </kbd>
           </div>
-          <div className="flex justify-between py-0.5 border-b border-[#20222a]">
+          <div className="flex justify-between py-0.5 border-b border-white/[0.06]">
             <span className="text-neutral-400">删除所选片段</span>
-            <kbd className="bg-[#101116] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
+            <kbd className="bg-[var(--kf-surface-1)] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
               Delete / Backspace
             </kbd>
           </div>
-          <div className="flex justify-between py-0.5 border-b border-[#20222a]">
+          <div className="flex justify-between py-0.5 border-b border-white/[0.06]">
             <span className="text-neutral-400">复制片段</span>
-            <kbd className="bg-[#101116] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
+            <kbd className="bg-[var(--kf-surface-1)] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
               Ctrl + D
             </kbd>
           </div>
           <div className="flex justify-between py-0.5">
             <span className="text-neutral-400">撤销 / 重做</span>
-            <kbd className="bg-[#101116] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
+            <kbd className="bg-[var(--kf-surface-1)] border border-[#272a38] text-neutral-300 px-1.5 py-0.5 rounded font-mono text-[10px]">
               Ctrl + Z / Ctrl + Y
             </kbd>
           </div>

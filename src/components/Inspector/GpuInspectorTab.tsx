@@ -44,7 +44,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
   return (
     <div className="flex flex-col gap-3 text-xs select-none">
       {/* Category Toggle */}
-      <div className="bg-[#171822] border border-[#242633] p-1 rounded-lg flex gap-1">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-1 rounded-lg flex gap-1">
         <button
           onClick={() => updateSetting({ category: 'particle' })}
           className={`flex-1 py-1 px-2 rounded text-[11px] font-medium transition-all flex items-center justify-center gap-1.5 ${
@@ -71,7 +71,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
 
       {/* Preset Pickers */}
       {isParticle ? (
-        <div className="bg-[#171822] border border-[#242633] p-2.5 rounded-lg flex flex-col gap-2">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-2.5 rounded-lg flex flex-col gap-2">
           <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
             粒子特效预设
           </span>
@@ -89,7 +89,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
                   className={`p-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all ${
                     isActive
                       ? 'bg-amber-500/15 border-amber-500 text-amber-300 font-semibold'
-                      : 'bg-[#101116] border-[#20222a] text-neutral-300 hover:border-neutral-500'
+                      : 'bg-[var(--kf-surface-1)] border-white/[0.06] text-neutral-300 hover:border-neutral-500'
                   }`}
                 >
                   <span className="text-base">{preset.icon}</span>
@@ -100,7 +100,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
           </div>
         </div>
       ) : (
-        <div className="bg-[#171822] border border-[#242633] p-2.5 rounded-lg flex flex-col gap-2">
+        <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-2.5 rounded-lg flex flex-col gap-2">
           <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider">
             GPU 着色滤镜预设
           </span>
@@ -118,7 +118,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
                   className={`p-1.5 rounded-md border text-left flex items-center gap-1.5 transition-all ${
                     isActive
                       ? 'bg-cyan-500/15 border-cyan-500 text-cyan-300 font-semibold'
-                      : 'bg-[#101116] border-[#20222a] text-neutral-300 hover:border-neutral-500'
+                      : 'bg-[var(--kf-surface-1)] border-white/[0.06] text-neutral-300 hover:border-neutral-500'
                   }`}
                 >
                   <span className="text-base">{preset.icon}</span>
@@ -131,7 +131,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
       )}
 
       {/* Numerical Sliders */}
-      <div className="bg-[#171822] border border-[#242633] p-2.5 rounded-lg flex flex-col gap-3">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-2.5 rounded-lg flex flex-col gap-3">
         <span className="text-[10px] font-semibold text-neutral-400 uppercase tracking-wider flex items-center justify-between">
           <span>动力学参数调优</span>
           <span className="text-cyan-400 font-mono text-[9px]">WebGL 2.0</span>
@@ -149,7 +149,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
             max="100"
             value={currentEffect.intensity ?? 65}
             onChange={(e) => updateSetting({ intensity: Number(e.target.value) })}
-            className="w-full accent-cyan-500 h-1 bg-[#101116] rounded appearance-none cursor-pointer"
+            className="w-full accent-cyan-500 h-1 bg-[var(--kf-surface-1)] rounded appearance-none cursor-pointer"
           />
         </div>
 
@@ -166,7 +166,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
             step="0.1"
             value={currentEffect.speed ?? 1.0}
             onChange={(e) => updateSetting({ speed: Number(e.target.value) })}
-            className="w-full accent-cyan-500 h-1 bg-[#101116] rounded appearance-none cursor-pointer"
+            className="w-full accent-cyan-500 h-1 bg-[var(--kf-surface-1)] rounded appearance-none cursor-pointer"
           />
         </div>
 
@@ -187,7 +187,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
                 step="0.1"
                 value={currentEffect.density ?? 1.0}
                 onChange={(e) => updateSetting({ density: Number(e.target.value) })}
-                className="w-full accent-amber-500 h-1 bg-[#101116] rounded appearance-none cursor-pointer"
+                className="w-full accent-amber-500 h-1 bg-[var(--kf-surface-1)] rounded appearance-none cursor-pointer"
               />
             </div>
 
@@ -205,7 +205,7 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
                 step="0.1"
                 value={currentEffect.size ?? 1.0}
                 onChange={(e) => updateSetting({ size: Number(e.target.value) })}
-                className="w-full accent-amber-500 h-1 bg-[#101116] rounded appearance-none cursor-pointer"
+                className="w-full accent-amber-500 h-1 bg-[var(--kf-surface-1)] rounded appearance-none cursor-pointer"
               />
             </div>
           </>
@@ -227,13 +227,13 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
               step="0.1"
               value={currentEffect.frequency ?? 1.0}
               onChange={(e) => updateSetting({ frequency: Number(e.target.value) })}
-              className="w-full accent-purple-500 h-1 bg-[#101116] rounded appearance-none cursor-pointer"
+              className="w-full accent-purple-500 h-1 bg-[var(--kf-surface-1)] rounded appearance-none cursor-pointer"
             />
           </div>
         )}
 
         {/* Color Tint Palette */}
-        <div className="flex flex-col gap-1.5 pt-1 border-t border-[#20222a]">
+        <div className="flex flex-col gap-1.5 pt-1 border-t border-white/[0.06]">
           <span className="text-[11px] text-neutral-300 flex items-center justify-between">
             <span>主色调 / 辉光颜色</span>
             <span className="font-mono text-[10px] text-neutral-400">{currentEffect.color || '#ffffff'}</span>
@@ -259,12 +259,12 @@ export const GpuInspectorTab: React.FC<GpuInspectorTabProps> = ({ clip, onUpdate
         </div>
 
         {/* Blend Mode */}
-        <div className="flex flex-col gap-1 pt-1 border-t border-[#20222a]">
+        <div className="flex flex-col gap-1 pt-1 border-t border-white/[0.06]">
           <span className="text-[11px] text-neutral-300">混合叠加模式 (Blend Mode)</span>
           <select
             value={currentEffect.blendMode || (isParticle ? 'add' : 'normal')}
             onChange={(e) => updateSetting({ blendMode: e.target.value as any })}
-            className="bg-[#101116] border border-[#242633] rounded px-2 py-1 text-white text-[11px] outline-none"
+            className="bg-[var(--kf-surface-1)] border border-white/[0.06] rounded px-2 py-1 text-white text-[11px] outline-none"
           >
             <option value="normal">正常 (Normal)</option>
             <option value="add">发光加色 (Linear Add / Lighter)</option>

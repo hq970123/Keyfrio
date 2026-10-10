@@ -24,7 +24,8 @@ import {
 } from 'lucide-react';
 import { useEditor } from '../../context/EditorContext';
 import { DEFAULT_TEXT, DEFAULT_TRANSFORM, DEFAULT_FILTER } from '../../constants/samples';
-import { generateProceduralWaveform } from '../../utils/audio';
+import { extractWaveformFromBlob, pcmBase64ToWavBlob } from '../../utils/audio';
+import { AiUnavailableBanner } from '../common/AiUnavailableBanner';
 
 export const AiPanel: React.FC = () => {
   const {
@@ -36,6 +37,7 @@ export const AiPanel: React.FC = () => {
     executeAiAction,
     executeBatchAiActions,
     openAiCopilotDrawer,
+    aiAvailable,
   } = useEditor();
 
   const [aiMode, setAiMode] = useState<'copilot' | 'tts' | 'captions' | 'script' | 'image' | 'audit'>('copilot');
@@ -54,6 +56,9 @@ export const AiPanel: React.FC = () => {
   const [ttsText, setTtsText] = useState('欢迎收看本期视频，今天我们将一起探索电影级视频剪辑的秘密技巧！');
   const [ttsVoice, setTtsVoice] = useState<'Kore' | 'Puck' | 'Zephyr' | 'Fenrir' | 'Charon'>('Kore');
   const [ttsResultAudio, setTtsResultAudio] = useState<string | null>(null);
+  const [ttsAudioBlob, setTtsAudioBlob] = useState<Blob | null>(null);
+  const [ttsAudioUrl, setTtsAudioUrl] = useState<string | null>(null);
+  const [ttsDuration, setTtsDuration] = useState<number | null>(null);
 
   // Captions State
   const [captionInput, setCaptionInput] = useState('今天给大家分享3个超实用剪辑技巧，让你也能轻松做出电影感大片！第一步是节奏把控，第二步是色彩情绪，第三步是音效细节...');
@@ -122,6 +127,12 @@ export const AiPanel: React.FC = () => {
     if (!ttsText.trim() || loading) return;
     setLoading(true);
     setTtsResultAudio(null);
+    setTtsAudioBlob(null);
+    setTtsDuration(null);
+    if (ttsAudioUrl) {
+      URL.revokeObjectURL(ttsAudioUrl);
+      setTtsAudioUrl(null);
+    }
     try {
       const res = await fetch('/api/ai/tts', {
         method: 'POST',
@@ -133,7 +144,12 @@ export const AiPanel: React.FC = () => {
       });
       const data = await res.json();
       if (data.audioBase64) {
+        const { blob, duration } = pcmBase64ToWavBlob(data.audioBase64, 24000);
+        const url = URL.createObjectURL(blob);
         setTtsResultAudio(data.audioBase64);
+        setTtsAudioBlob(blob);
+        setTtsAudioUrl(url);
+        setTtsDuration(duration);
       }
     } catch (e: any) {
       console.error(e);
@@ -144,23 +160,29 @@ export const AiPanel: React.FC = () => {
   };
 
   // Apply TTS audio into timeline
-  const handleApplyTTSToTimeline = () => {
+  const handleApplyTTSToTimeline = async () => {
+    if (!ttsAudioBlob || !ttsAudioUrl || ttsDuration === null) {
+      alert('请先生成语音后再添加至时间线');
+      return;
+    }
     let audioTrack = project.tracks.find((t) => t.type === 'audio');
     if (!audioTrack) {
       audioTrack = addTrack('audio', 'AI 旁白配音 (Voiceover)');
     }
 
-    const estimatedDuration = Math.max(2, Math.ceil(ttsText.length * 0.35));
+    const waveform = await extractWaveformFromBlob(ttsAudioBlob, 80);
     addClip(audioTrack.id, {
       name: `AI 配音 (${ttsVoice}): ${ttsText.slice(0, 8)}...`,
       type: 'audio',
       start: currentTime,
-      duration: estimatedDuration,
+      duration: ttsDuration,
+      sourceUrl: ttsAudioUrl,
+      sourceBlob: ttsAudioBlob,
       audio: { volume: 0.95, fadeIn: 0.2, fadeOut: 0.4, muted: false, pan: 0 },
-      audioWaveform: generateProceduralWaveform(80, 7),
+      audioWaveform: waveform,
     });
 
-    alert(`🎉 成功将 AI 旁白语音导入音频轨 (时长约 ${estimatedDuration}s)！`);
+    alert(`🎉 成功将 AI 旁白语音导入音频轨 (时长约 ${ttsDuration.toFixed(1)}s)！`);
   };
 
   // 3. Auto Captions Generator
@@ -289,9 +311,9 @@ export const AiPanel: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
+    <div className="flex flex-col h-full text-neutral-200 text-xs select-none">
       {/* Top Header */}
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between bg-[#101116] shrink-0">
+      <div className="p-2.5 border-b border-white/[0.06] flex items-center justify-between bg-[var(--kf-surface-1)] shrink-0">
         <div className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
           <span className="font-bold text-xs text-white">AI 智能剪辑工作室</span>
@@ -305,10 +327,12 @@ export const AiPanel: React.FC = () => {
         </button>
       </div>
 
+      <AiUnavailableBanner />
+
       {/* Sub Tabs */}
-      <div className="grid grid-cols-3 border-b border-[#20222a] bg-[#101116] p-1 gap-1 shrink-0">
+      <div className="grid grid-cols-3 border-b border-white/[0.06] bg-[var(--kf-surface-1)] p-1 gap-1 shrink-0">
         {[
-          { id: 'copilot', label: '对话助理', icon: Bot, color: 'text-blue-400' },
+          { id: 'copilot', label: '对话助理', icon: Bot, color: 'text-cyan-300' },
           { id: 'tts', label: 'AI 配音', icon: Mic, color: 'text-emerald-400' },
           { id: 'captions', label: '智能字幕', icon: FileText, color: 'text-amber-400' },
           { id: 'script', label: '分镜脚本', icon: Clapperboard, color: 'text-purple-400' },
@@ -326,8 +350,8 @@ export const AiPanel: React.FC = () => {
               }}
               className={`py-1.5 px-1 rounded-md text-[10px] font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                 isActive
-                  ? 'bg-blue-600 text-white font-semibold shadow-xs'
-                  : 'text-neutral-400 hover:text-white hover:bg-[#181920]'
+                  ? 'bg-cyan-500 text-white font-semibold shadow-xs'
+                  : 'text-neutral-400 hover:text-white hover:bg-[var(--kf-surface-4)]'
               }`}
             >
               <Icon className={`w-3 h-3 ${isActive ? 'text-white' : tab.color}`} />
@@ -338,7 +362,7 @@ export const AiPanel: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto p-2.5 flex flex-col gap-2.5">
+      <div className={`flex-1 overflow-y-auto p-2.5 flex flex-col gap-2.5 ${aiAvailable === false ? 'opacity-50 pointer-events-none' : ''}`}>
         {/* 1. COPILOT CHAT MODE */}
         {aiMode === 'copilot' && (
           <div className="flex flex-col h-full gap-2">
@@ -348,8 +372,8 @@ export const AiPanel: React.FC = () => {
                   key={idx}
                   className={`p-2 rounded-lg text-[11px] leading-relaxed ${
                     item.sender === 'user'
-                      ? 'bg-blue-600 text-white ml-6 text-right'
-                      : 'bg-[#171822] border border-[#232532] text-neutral-200 mr-4'
+                      ? 'bg-cyan-500 text-white ml-6 text-right'
+                      : 'bg-[var(--kf-surface-3)] border border-[#232532] text-neutral-200 mr-4'
                   }`}
                 >
                   <p>{item.text}</p>
@@ -374,7 +398,7 @@ export const AiPanel: React.FC = () => {
                 <button
                   key={idx}
                   onClick={() => handleSendCopilot(chip)}
-                  className="text-[9px] px-1.5 py-0.5 rounded bg-[#181a24] hover:bg-blue-600/20 text-neutral-300 hover:text-blue-300 border border-[#232532] transition-colors"
+                  className="text-[9px] px-1.5 py-0.5 rounded bg-[#181a24] hover:bg-cyan-500/20 text-neutral-300 hover:text-cyan-200 border border-[#232532] transition-colors"
                 >
                   {chip}
                 </button>
@@ -382,7 +406,7 @@ export const AiPanel: React.FC = () => {
             </div>
 
             {/* Chat Input */}
-            <div className="flex items-center gap-1 bg-[#171822] border border-[#232532] rounded-md px-2 py-1">
+            <div className="flex items-center gap-1 bg-[var(--kf-surface-3)] border border-[#232532] rounded-md px-2 py-1">
               <input
                 type="text"
                 value={chatPrompt}
@@ -394,7 +418,7 @@ export const AiPanel: React.FC = () => {
               <button
                 onClick={() => handleSendCopilot()}
                 disabled={!chatPrompt.trim() || loading}
-                className="p-1 text-blue-400 hover:text-white disabled:opacity-40"
+                className="p-1 text-cyan-300 hover:text-white disabled:opacity-40"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
@@ -416,8 +440,8 @@ export const AiPanel: React.FC = () => {
                     onClick={() => setTtsVoice(v)}
                     className={`py-1 rounded border text-[10px] transition-colors ${
                       ttsVoice === v
-                        ? 'bg-blue-600/20 border-blue-500 text-blue-300 font-semibold'
-                        : 'bg-[#171822] border-[#242633] text-neutral-400 hover:text-white'
+                        ? 'bg-cyan-500/20 border-cyan-400 text-cyan-200 font-semibold'
+                        : 'bg-[var(--kf-surface-3)] border-white/[0.06] text-neutral-400 hover:text-white'
                     }`}
                   >
                     {v === 'Kore' && '清澈女声'}
@@ -438,7 +462,7 @@ export const AiPanel: React.FC = () => {
                 value={ttsText}
                 onChange={(e) => setTtsText(e.target.value)}
                 rows={4}
-                className="w-full bg-[#171822] border border-[#242633] focus:border-blue-500 rounded-md p-2 text-xs text-white outline-none resize-none"
+                className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-cyan-400 rounded-md p-2 text-xs text-white outline-none resize-none"
                 placeholder="输入你要生成的旁白或台词..."
               />
             </div>
@@ -463,11 +487,18 @@ export const AiPanel: React.FC = () => {
 
             {/* TTS Success Box */}
             {ttsResultAudio && (
-              <div className="bg-[#171822] border border-purple-500/30 rounded-lg p-2.5 flex flex-col gap-2">
+              <div className="bg-[var(--kf-surface-3)] border border-purple-500/30 rounded-lg p-2.5 flex flex-col gap-2">
                 <span className="text-[11px] font-bold text-purple-300 flex items-center gap-1">
                   <Check className="w-3.5 h-3.5 text-emerald-400" />
                   语音合成完毕
                 </span>
+                {ttsAudioUrl && (
+                  <audio
+                    controls
+                    src={ttsAudioUrl}
+                    className="w-full h-8 rounded bg-[var(--kf-surface-4)]"
+                  />
+                )}
                 <button
                   onClick={handleApplyTTSToTimeline}
                   className="w-full py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-medium text-xs flex items-center justify-center gap-1 transition-all"
@@ -491,7 +522,7 @@ export const AiPanel: React.FC = () => {
                 value={captionInput}
                 onChange={(e) => setCaptionInput(e.target.value)}
                 rows={4}
-                className="w-full bg-[#171822] border border-[#242633] focus:border-blue-500 rounded-md p-2 text-xs text-white outline-none resize-none"
+                className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-cyan-400 rounded-md p-2 text-xs text-white outline-none resize-none"
                 placeholder="输入视频语音内容，AI将自动断句对齐时间码..."
               />
             </div>
@@ -499,7 +530,7 @@ export const AiPanel: React.FC = () => {
             <button
               onClick={handleGenerateCaptions}
               disabled={loading || !captionInput.trim()}
-              className="w-full py-2 rounded-md bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all text-xs"
+              className="w-full py-2 rounded-md bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-white font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all text-xs"
             >
               {loading ? (
                 <>
@@ -515,7 +546,7 @@ export const AiPanel: React.FC = () => {
             </button>
 
             {resultData?.subtitles && (
-              <div className="bg-[#171822] border border-emerald-500/30 rounded-lg p-2.5 flex flex-col gap-2">
+              <div className="bg-[var(--kf-surface-3)] border border-emerald-500/30 rounded-lg p-2.5 flex flex-col gap-2">
                 <div className="flex items-center justify-between">
                   <span className="font-bold text-emerald-400 text-[11px]">
                     ✅ 已生成 {resultData.subtitles.length} 条精准字幕
@@ -544,7 +575,7 @@ export const AiPanel: React.FC = () => {
                 type="text"
                 value={scriptTopic}
                 onChange={(e) => setScriptTopic(e.target.value)}
-                className="w-full bg-[#171822] border border-[#242633] focus:border-blue-500 rounded-md px-2 py-1.5 text-xs text-white outline-none"
+                className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-cyan-400 rounded-md px-2 py-1.5 text-xs text-white outline-none"
                 placeholder="例如: 3个超实用剪辑技巧..."
               />
             </div>
@@ -568,15 +599,15 @@ export const AiPanel: React.FC = () => {
             </button>
 
             {resultData?.scenes && (
-              <div className="bg-[#171822] border border-[#242633] rounded-lg p-2.5 flex flex-col gap-2 max-h-52 overflow-y-auto">
+              <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] rounded-lg p-2.5 flex flex-col gap-2 max-h-52 overflow-y-auto">
                 <span className="font-bold text-amber-300 text-[11px]">
                   📌 开篇黄金3秒 Hook: {resultData.hook}
                 </span>
                 {resultData.scenes.map((sc: any, idx: number) => (
-                  <div key={idx} className="bg-[#121319] p-2 rounded border border-[#20222a] text-[10px]">
+                  <div key={idx} className="bg-[var(--kf-surface-2)] p-2 rounded border border-white/[0.06] text-[10px]">
                     <span className="font-bold text-white block">分镜 {idx + 1}: {sc.title || sc.overlayText}</span>
                     <p className="text-neutral-400 mt-0.5">台词: {sc.spokenText}</p>
-                    <p className="text-blue-400 mt-0.5">画面: {sc.visualNote}</p>
+                    <p className="text-cyan-300 mt-0.5">画面: {sc.visualNote}</p>
                   </div>
                 ))}
               </div>
@@ -595,7 +626,7 @@ export const AiPanel: React.FC = () => {
                 value={imagePrompt}
                 onChange={(e) => setImagePrompt(e.target.value)}
                 rows={3}
-                className="w-full bg-[#171822] border border-[#242633] focus:border-blue-500 rounded-md p-2 text-xs text-white outline-none resize-none"
+                className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-cyan-400 rounded-md p-2 text-xs text-white outline-none resize-none"
                 placeholder="描述你想要的B-Roll配图或封面背景..."
               />
             </div>
@@ -603,7 +634,7 @@ export const AiPanel: React.FC = () => {
             <button
               onClick={handleGenerateImage}
               disabled={loading || !imagePrompt.trim()}
-              className="w-full py-2 rounded-md bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all text-xs"
+              className="w-full py-2 rounded-md bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white font-semibold flex items-center justify-center gap-1.5 shadow-sm transition-all text-xs"
             >
               {loading ? (
                 <>
@@ -619,7 +650,7 @@ export const AiPanel: React.FC = () => {
             </button>
 
             {resultData?.imageUrl && (
-              <div className="bg-[#171822] border border-[#242633] rounded-lg p-2.5 flex flex-col gap-2">
+              <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] rounded-lg p-2.5 flex flex-col gap-2">
                 <img
                   src={resultData.imageUrl}
                   alt="Generated"
@@ -627,7 +658,7 @@ export const AiPanel: React.FC = () => {
                 />
                 <button
                   onClick={handleApplyImageToTimeline}
-                  className="w-full py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-medium text-xs flex items-center justify-center gap-1 transition-all"
+                  className="w-full py-1 bg-cyan-600 hover:bg-cyan-500 text-white rounded font-medium text-xs flex items-center justify-center gap-1 transition-all"
                 >
                   <ListPlus className="w-3.5 h-3.5" />
                   <span>插入视频主轨道</span>
@@ -659,7 +690,7 @@ export const AiPanel: React.FC = () => {
             </button>
 
             {auditResult?.suggestions && (
-              <div className="bg-[#171822] border border-[#242633] rounded-lg p-2.5 flex flex-col gap-2 max-h-56 overflow-y-auto">
+              <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] rounded-lg p-2.5 flex flex-col gap-2 max-h-56 overflow-y-auto">
                 <div className="flex items-center justify-between border-b border-[#222430] pb-1.5">
                   <span className="font-bold text-xs text-white">节奏评分:</span>
                   <span className="font-bold text-emerald-400 text-sm">
@@ -667,8 +698,8 @@ export const AiPanel: React.FC = () => {
                   </span>
                 </div>
                 {auditResult.suggestions.map((sug: any, idx: number) => (
-                  <div key={idx} className="bg-[#121319] p-2 rounded border border-[#20222a] text-[10px]">
-                    <span className="font-bold text-blue-400">[{sug.category}]</span>
+                  <div key={idx} className="bg-[var(--kf-surface-2)] p-2 rounded border border-white/[0.06] text-[10px]">
+                    <span className="font-bold text-cyan-300">[{sug.category}]</span>
                     <p className="text-white mt-0.5">{sug.recommendation}</p>
                     {sug.actionableTip && (
                       <p className="text-neutral-400 mt-0.5 italic">💡 {sug.actionableTip}</p>

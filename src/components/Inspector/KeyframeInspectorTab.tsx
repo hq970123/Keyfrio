@@ -119,18 +119,18 @@ export const KeyframeInspectorTab: React.FC<KeyframeInspectorTabProps> = ({
   return (
     <div className="flex flex-col gap-3 text-xs">
       {/* 1. Header Info & Current Time */}
-      <div className="bg-[#171822] border border-[#242633] p-2.5 rounded-xl flex items-center justify-between">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-2.5 rounded-xl flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Diamond className="w-3.5 h-3.5 text-sky-400 fill-sky-400" />
           <span className="font-semibold text-neutral-200">关键帧动效 (Keyframes)</span>
         </div>
-        <div className="flex items-center gap-1 text-[10px] font-mono text-sky-300 bg-[#101116] px-2 py-0.5 rounded border border-[#20222a]">
+        <div className="flex items-center gap-1 text-[10px] font-mono text-sky-300 bg-[var(--kf-surface-1)] px-2 py-0.5 rounded border border-white/[0.06]">
           <span>当前片段点: {clipRelativeTime.toFixed(2)}s</span>
         </div>
       </div>
 
       {/* 2. Motion Presets */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <Sparkles className="w-3.5 h-3.5 text-amber-400" />
           <span className="font-semibold text-neutral-200">一键动效预设 (Motion Presets)</span>
@@ -144,7 +144,7 @@ export const KeyframeInspectorTab: React.FC<KeyframeInspectorTabProps> = ({
                 const newKfs = preset.apply(clip);
                 onUpdate({ keyframes: newKfs });
               }}
-              className="p-2 bg-[#101116] hover:bg-neutral-800 border border-[#20222a] hover:border-sky-500/40 text-neutral-300 rounded-lg text-[11px] text-left transition-all flex items-center gap-1.5 cursor-pointer"
+              className="p-2 bg-[var(--kf-surface-1)] hover:bg-neutral-800 border border-white/[0.06] hover:border-sky-500/40 text-neutral-300 rounded-lg text-[11px] text-left transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <span className="text-sm">{preset.icon}</span>
               <span className="truncate">{preset.name.split(' ')[0]}</span>
@@ -167,7 +167,7 @@ export const KeyframeInspectorTab: React.FC<KeyframeInspectorTabProps> = ({
           return (
             <div
               key={prop.key}
-              className="bg-[#171822] border border-[#242633] p-2.5 rounded-xl flex flex-col gap-2"
+              className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-2.5 rounded-xl flex flex-col gap-2"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export const KeyframeInspectorTab: React.FC<KeyframeInspectorTabProps> = ({
                     className={`p-1 rounded-md border transition-all cursor-pointer ${
                       hasKfAtTime
                         ? 'bg-sky-500/20 text-sky-400 border-sky-400 shadow-xs'
-                        : 'bg-[#101116] text-neutral-400 hover:text-white border-[#20222a]'
+                        : 'bg-[var(--kf-surface-1)] text-neutral-400 hover:text-white border-white/[0.06]'
                     }`}
                     title={hasKfAtTime ? '删除当前时间点关键帧' : '在当前播放头打上关键帧'}
                   >
@@ -188,7 +188,7 @@ export const KeyframeInspectorTab: React.FC<KeyframeInspectorTabProps> = ({
                 </div>
 
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[10px] font-mono text-neutral-400 bg-[#101116] px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] font-mono text-neutral-400 bg-[var(--kf-surface-1)] px-1.5 py-0.5 rounded">
                     {totalKfs > 0 ? `${totalKfs} 帧` : '静态'}
                   </span>
                   {totalKfs > 0 && (
@@ -205,14 +205,14 @@ export const KeyframeInspectorTab: React.FC<KeyframeInspectorTabProps> = ({
 
               {/* Keyframe details & Easing */}
               {totalKfs > 0 && (
-                <div className="flex flex-col gap-1 pl-6 border-l border-[#20222a] mt-1">
+                <div className="flex flex-col gap-1 pl-6 border-l border-white/[0.06] mt-1">
                   {propList.map((kf, idx) => {
                     const isSelected = Math.abs(kf.time - clipRelativeTime) < 0.08;
                     return (
                       <div
                         key={kf.id || idx}
                         className={`flex items-center justify-between p-1.5 rounded-lg text-[10px] ${
-                          isSelected ? 'bg-sky-950/40 border border-sky-800/50 text-sky-200' : 'bg-[#101116] text-neutral-400'
+                          isSelected ? 'bg-sky-950/40 border border-sky-800/50 text-sky-200' : 'bg-[var(--kf-surface-1)] text-neutral-400'
                         }`}
                       >
                         <span className="font-mono">

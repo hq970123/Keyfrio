@@ -68,7 +68,7 @@ export const AudioInspectorTab: React.FC<AudioInspectorTabProps> = ({ clip, onUp
   return (
     <div className="flex flex-col gap-3 text-xs">
       {/* 1. Volume & Live VU Meter & Pan */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
@@ -89,7 +89,7 @@ export const AudioInspectorTab: React.FC<AudioInspectorTabProps> = ({ clip, onUp
         </div>
 
         {/* Live Stereo Decibel VU Meter */}
-        <div className="flex flex-col gap-1 bg-[#101116] p-2 rounded-lg border border-[#20222a]">
+        <div className="flex flex-col gap-1 bg-[var(--kf-surface-1)] p-2 rounded-lg border border-white/[0.06]">
           <div className="flex items-center justify-between text-[10px] text-neutral-400 font-mono">
             <span>实时电平 (Peak dBFS)</span>
             <span className={vuLevel.db > -6 ? 'text-amber-400 font-bold' : 'text-emerald-400'}>
@@ -149,7 +149,7 @@ export const AudioInspectorTab: React.FC<AudioInspectorTabProps> = ({ clip, onUp
         </div>
 
         {/* Fade In & Fade Out */}
-        <div className="grid grid-cols-2 gap-2 border-t border-[#20222a] pt-2">
+        <div className="grid grid-cols-2 gap-2 border-t border-white/[0.06] pt-2">
           <div className="flex flex-col gap-1">
             <div className="flex justify-between text-[10px] text-neutral-400">
               <span>淡入 (Fade In)</span>
@@ -184,7 +184,7 @@ export const AudioInspectorTab: React.FC<AudioInspectorTabProps> = ({ clip, onUp
       </div>
 
       {/* 2. 3-Band Parametric Equalizer (EQ) with Presets */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Sliders className="w-3.5 h-3.5 text-sky-400" />
@@ -215,7 +215,7 @@ export const AudioInspectorTab: React.FC<AudioInspectorTabProps> = ({ clip, onUp
                   highGain: p.high,
                 })
               }
-              className="px-2 py-1 bg-[#101116] hover:bg-neutral-800 text-neutral-300 rounded text-[10px] whitespace-nowrap transition-colors border border-neutral-800"
+              className="px-2 py-1 bg-[var(--kf-surface-1)] hover:bg-neutral-800 text-neutral-300 rounded text-[10px] whitespace-nowrap transition-colors border border-neutral-800"
             >
               {p.name.split(' ')[0]}
             </button>
@@ -275,7 +275,7 @@ export const AudioInspectorTab: React.FC<AudioInspectorTabProps> = ({ clip, onUp
       </div>
 
       {/* 3. Dynamics Compressor */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Activity className="w-3.5 h-3.5 text-purple-400" />

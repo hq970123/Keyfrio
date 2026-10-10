@@ -46,19 +46,19 @@ export const ProjectManagerModal: React.FC = () => {
   return (
     <div 
       id="project-manager-modal-backdrop"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 kf-anim-fade-in"
       onClick={(e) => {
         if (e.target === e.currentTarget) closeProjectManager();
       }}
     >
       <div 
         id="project-manager-modal-container"
-        className="w-full max-w-2xl bg-[#18181b] border border-zinc-800 rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
+        className="w-full max-w-2xl bg-[var(--kf-surface-2)] border border-white/[0.08] rounded-xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-800 bg-[#121214]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/[0.06] bg-[var(--kf-surface-1)]">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+            <div className="w-9 h-9 rounded-lg bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
               <Database className="w-5 h-5" />
             </div>
             <div>
@@ -82,7 +82,7 @@ export const ProjectManagerModal: React.FC = () => {
           <button
             id="close-project-manager-btn"
             onClick={closeProjectManager}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-colors"
+            className="p-1.5 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-[var(--kf-surface-4)] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -92,10 +92,10 @@ export const ProjectManagerModal: React.FC = () => {
         <div className="p-6 overflow-y-auto flex-1 space-y-5">
           {/* New Project Creator Card */}
           {isCreating ? (
-            <div className="bg-zinc-900/90 border border-indigo-500/40 rounded-lg p-4 space-y-4">
+            <div className="bg-zinc-900/90 border border-cyan-500/40 rounded-lg p-4 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium text-zinc-200 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-indigo-400" />
+                  <Sparkles className="w-4 h-4 text-cyan-400" />
                   新建剪辑工程序列
                 </h3>
                 <button
@@ -118,7 +118,7 @@ export const ProjectManagerModal: React.FC = () => {
                     if (e.key === 'Enter') handleCreate();
                   }}
                   autoFocus
-                  className="w-full bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-indigo-500"
+                  className="w-full bg-[var(--kf-bg)] border border-white/[0.08] rounded-lg px-3 py-2 text-sm text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-cyan-400"
                 />
               </div>
 
@@ -132,8 +132,8 @@ export const ProjectManagerModal: React.FC = () => {
                       onClick={() => setSelectedRatio(ratio)}
                       className={`px-3 py-2 text-xs rounded-lg border font-medium transition-all ${
                         selectedRatio === ratio
-                          ? 'bg-indigo-600/20 border-indigo-500 text-indigo-300 shadow-sm'
-                          : 'bg-zinc-950 border-zinc-800 text-zinc-400 hover:bg-zinc-800'
+                          ? 'bg-cyan-600/20 border-cyan-500 text-cyan-300 shadow-sm'
+                          : 'bg-[var(--kf-bg)] border-white/[0.06] text-neutral-400 hover:bg-[var(--kf-surface-3)]'
                       }`}
                     >
                       {ratio} {ratio === '16:9' ? '(横屏)' : ratio === '9:16' ? '(短视频)' : ''}
@@ -146,7 +146,7 @@ export const ProjectManagerModal: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsCreating(false)}
-                  className="px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800 rounded-lg"
+                  className="px-3 py-1.5 text-xs text-neutral-300 hover:bg-[var(--kf-surface-4)] rounded-lg"
                 >
                   取消
                 </button>
@@ -155,7 +155,7 @@ export const ProjectManagerModal: React.FC = () => {
                   type="button"
                   onClick={handleCreate}
                   disabled={!newProjectName.trim()}
-                  className="px-4 py-1.5 text-xs font-medium bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center gap-1.5"
+                  className="px-4 py-1.5 text-xs font-medium bg-cyan-600 hover:bg-cyan-500 disabled:opacity-50 text-white rounded-lg transition-colors flex items-center gap-1.5"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   立即创建
@@ -170,7 +170,7 @@ export const ProjectManagerModal: React.FC = () => {
               <button
                 id="open-create-project-btn"
                 onClick={() => setIsCreating(true)}
-                className="px-3 py-1.5 text-xs font-medium bg-indigo-600/20 hover:bg-indigo-600/30 border border-indigo-500/40 text-indigo-300 rounded-lg transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 text-xs font-medium bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/40 text-cyan-300 rounded-lg transition-colors flex items-center gap-1.5"
               >
                 <Plus className="w-3.5 h-3.5" />
                 新建工程
@@ -195,15 +195,15 @@ export const ProjectManagerModal: React.FC = () => {
                   id={`project-card-${item.id}`}
                   className={`group flex items-center justify-between p-3.5 rounded-lg border transition-all ${
                     isCurrent
-                      ? 'bg-indigo-950/30 border-indigo-500/50 shadow-sm'
-                      : 'bg-zinc-900/60 border-zinc-800/80 hover:border-zinc-700 hover:bg-zinc-900'
+                      ? 'bg-cyan-950/30 border-cyan-500/50 shadow-sm'
+                      : 'bg-[var(--kf-surface-2)]/60 border-white/[0.06] hover:border-white/[0.12] hover:bg-[var(--kf-surface-3)]'
                   }`}
                 >
                   <div className="flex items-center gap-3.5 min-w-0">
                     <div className={`w-10 h-10 rounded-lg flex items-center justify-center border shrink-0 ${
                       isCurrent
-                        ? 'bg-indigo-600/20 border-indigo-500/40 text-indigo-400'
-                        : 'bg-zinc-800 border-zinc-700 text-zinc-400'
+                        ? 'bg-cyan-600/20 border-cyan-500/40 text-cyan-400'
+                        : 'bg-[var(--kf-surface-4)] border-white/[0.08] text-neutral-400'
                     }`}>
                       <FolderGit2 className="w-5 h-5" />
                     </div>
@@ -214,7 +214,7 @@ export const ProjectManagerModal: React.FC = () => {
                           {item.name}
                         </h4>
                         {isCurrent && (
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-medium">
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-medium">
                             当前载入
                           </span>
                         )}
@@ -245,7 +245,7 @@ export const ProjectManagerModal: React.FC = () => {
                           await switchProject(item.id);
                           closeProjectManager();
                         }}
-                        className="px-2.5 py-1.5 text-xs font-medium bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg border border-zinc-700 transition-colors flex items-center gap-1"
+                        className="px-2.5 py-1.5 text-xs font-medium bg-[var(--kf-surface-4)] hover:bg-[var(--kf-surface-5)] text-neutral-200 rounded-lg border border-white/[0.08] transition-colors flex items-center gap-1"
                       >
                         载入工程
                         <ArrowRight className="w-3 h-3" />
@@ -256,7 +256,7 @@ export const ProjectManagerModal: React.FC = () => {
                       id={`duplicate-project-${item.id}`}
                       onClick={() => duplicateProject(item.id)}
                       title="复制工程副本"
-                      className="p-1.5 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 rounded-lg transition-colors"
+                      className="p-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-[var(--kf-surface-4)] rounded-lg transition-colors"
                     >
                       <Copy className="w-4 h-4" />
                     </button>
@@ -274,7 +274,7 @@ export const ProjectManagerModal: React.FC = () => {
                         </button>
                         <button
                           onClick={() => setDeletingId(null)}
-                          className="px-1.5 py-0.5 text-[10px] text-zinc-300 hover:bg-zinc-800 rounded"
+                          className="px-1.5 py-0.5 text-[10px] text-neutral-300 hover:bg-[var(--kf-surface-4)] rounded"
                         >
                           取消
                         </button>
@@ -297,12 +297,12 @@ export const ProjectManagerModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 border-t border-zinc-800 bg-[#121214] flex items-center justify-between text-xs text-zinc-400">
+        <div className="px-6 py-3.5 border-t border-white/[0.06] bg-[var(--kf-surface-1)] flex items-center justify-between text-xs text-zinc-400">
           <span>存储引擎: 浏览器 IndexedDB 高性能持久化存储</span>
           <button
             id="done-project-manager-btn"
             onClick={closeProjectManager}
-            className="px-4 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg font-medium transition-colors"
+            className="px-4 py-1.5 bg-[var(--kf-surface-4)] hover:bg-[var(--kf-surface-5)] text-neutral-200 rounded-lg font-medium transition-colors"
           >
             完成
           </button>

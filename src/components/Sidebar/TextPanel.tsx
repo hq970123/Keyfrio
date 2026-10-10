@@ -7,9 +7,9 @@ export const TextPanel: React.FC = () => {
   const { addMediaToTimeline, openAiModal } = useEditor();
 
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
+    <div className="flex flex-col h-full text-neutral-200 text-xs select-none">
       {/* Header */}
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between">
+      <div className="p-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <span className="font-bold text-xs text-white flex items-center gap-1.5">
           <Type className="w-3.5 h-3.5 text-amber-400" />
           文字花字 (Text)
@@ -57,7 +57,7 @@ export const TextPanel: React.FC = () => {
                   },
                 })
               }
-              className="p-2 bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-amber-500 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all"
+              className="p-2 bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] hover:border-amber-500 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all"
             >
               <span className="text-sm font-bold text-white">大标题</span>
               <span className="text-[9px] text-neutral-500">Main Title</span>
@@ -84,7 +84,7 @@ export const TextPanel: React.FC = () => {
                   },
                 })
               }
-              className="p-2 bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-amber-500 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all"
+              className="p-2 bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] hover:border-amber-500 rounded-md flex flex-col items-center justify-center gap-0.5 transition-all"
             >
               <span className="text-xs font-semibold text-neutral-200 bg-black/60 px-1.5 py-0.2 rounded">字幕条</span>
               <span className="text-[9px] text-neutral-500">Subtitle Box</span>
@@ -107,7 +107,7 @@ export const TextPanel: React.FC = () => {
                     text: tpl.config,
                   })
                 }
-                className="p-2 bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-amber-400 rounded-md flex items-center justify-between cursor-pointer transition-all group"
+                className="p-2 bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] hover:border-amber-400 rounded-md flex items-center justify-between cursor-pointer transition-all group"
               >
                 <div className="flex flex-col gap-0.5 min-w-0">
                   <span className="text-[9px] text-neutral-500 font-semibold uppercase">{tpl.category}</span>

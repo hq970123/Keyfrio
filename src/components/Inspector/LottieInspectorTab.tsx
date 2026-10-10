@@ -255,7 +255,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
       {/* Section 1: File Upload & Drag Box */}
       <div className="flex flex-col gap-1.5">
         <label className="text-[10px] font-semibold text-neutral-300 flex items-center gap-1">
-          <Upload className="w-3 h-3 text-blue-400" />
+          <Upload className="w-3 h-3 text-cyan-300" />
           <span>上传本地 Lottie 动画文件 (.json)</span>
         </label>
 
@@ -271,12 +271,12 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className="border-2 border-dashed border-[#2a2d3d] hover:border-blue-500 hover:bg-blue-500/5 bg-[#171822] rounded-lg p-3 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-1.5"
+          className="border-2 border-dashed border-[#2a2d3d] hover:border-cyan-400 hover:bg-cyan-400/5 bg-[var(--kf-surface-3)] rounded-lg p-3 text-center cursor-pointer transition-all group flex flex-col items-center justify-center gap-1.5"
         >
-          <div className="w-7 h-7 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <div className="w-7 h-7 rounded-full bg-cyan-400/10 text-cyan-300 flex items-center justify-center group-hover:scale-110 transition-transform">
             <FileJson className="w-4 h-4" />
           </div>
-          <span className="text-[11px] font-medium text-neutral-200 group-hover:text-blue-400">
+          <span className="text-[11px] font-medium text-neutral-200 group-hover:text-cyan-300">
             点击或拖拽上传 Lottie JSON 文件
           </span>
           <span className="text-[9px] text-neutral-500">支持 After Effects 导出的 Bodymovin JSON</span>
@@ -284,7 +284,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
       </div>
 
       {/* Section 2: Paste Lottie URL */}
-      <div className="flex flex-col gap-1.5 border-t border-[#20222a] pt-2.5">
+      <div className="flex flex-col gap-1.5 border-t border-white/[0.06] pt-2.5">
         <label className="text-[10px] font-semibold text-neutral-300 flex items-center gap-1">
           <Link className="w-3 h-3 text-cyan-400" />
           <span>粘贴 Lottie 网络链接 (URL)</span>
@@ -296,12 +296,12 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
             value={urlInput}
             onChange={(e) => setUrlInput(e.target.value)}
             placeholder="https://.../animation.json"
-            className="flex-1 bg-[#171822] border border-[#242633] focus:border-blue-500 rounded px-2 py-1 text-white text-[11px] outline-none"
+            className="flex-1 bg-[var(--kf-surface-3)] border border-white/[0.06] focus:border-cyan-400 rounded px-2 py-1 text-white text-[11px] outline-none"
           />
           <button
             onClick={handleUrlSubmit}
             disabled={isLoadingUrl}
-            className="px-2.5 py-1 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded font-medium text-[11px] transition-colors shrink-0 flex items-center gap-1"
+            className="px-2.5 py-1 bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-white rounded font-medium text-[11px] transition-colors shrink-0 flex items-center gap-1"
           >
             {isLoadingUrl ? (
               <RotateCw className="w-3 h-3 animate-spin" />
@@ -319,7 +319,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
               const u = 'https://assets2.lottiefiles.com/packages/lf20_touohxv0.json';
               setUrlInput(u);
             }}
-            className="bg-[#171822] hover:bg-[#20222e] px-1.5 py-0.5 rounded text-neutral-300 hover:text-white border border-[#242633] transition-colors"
+            className="bg-[var(--kf-surface-3)] hover:bg-[#20222e] px-1.5 py-0.5 rounded text-neutral-300 hover:text-white border border-white/[0.06] transition-colors"
           >
             🚀 火箭
           </button>
@@ -328,7 +328,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
               const u = 'https://assets9.lottiefiles.com/packages/lf20_m6cu9m91.json';
               setUrlInput(u);
             }}
-            className="bg-[#171822] hover:bg-[#20222e] px-1.5 py-0.5 rounded text-neutral-300 hover:text-white border border-[#242633] transition-colors"
+            className="bg-[var(--kf-surface-3)] hover:bg-[#20222e] px-1.5 py-0.5 rounded text-neutral-300 hover:text-white border border-white/[0.06] transition-colors"
           >
             👍 点赞
           </button>
@@ -337,7 +337,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
               const u = 'https://assets3.lottiefiles.com/packages/lf20_j1adxtyb.json';
               setUrlInput(u);
             }}
-            className="bg-[#171822] hover:bg-[#20222e] px-1.5 py-0.5 rounded text-neutral-300 hover:text-white border border-[#242633] transition-colors"
+            className="bg-[var(--kf-surface-3)] hover:bg-[#20222e] px-1.5 py-0.5 rounded text-neutral-300 hover:text-white border border-white/[0.06] transition-colors"
           >
             🎉 礼花
           </button>
@@ -345,7 +345,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
       </div>
 
       {/* Section 3: Built-in Presets */}
-      <div className="flex flex-col gap-1.5 border-t border-[#20222a] pt-2.5">
+      <div className="flex flex-col gap-1.5 border-t border-white/[0.06] pt-2.5">
         <label className="text-[10px] font-semibold text-neutral-300 flex items-center justify-between">
           <span className="flex items-center gap-1">
             <Sparkles className="w-3 h-3 text-amber-400" />
@@ -359,7 +359,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
             <button
               key={p.id}
               onClick={() => handleApplyPreset(p.id)}
-              className="bg-[#171822] hover:bg-[#202230] border border-[#242633] hover:border-amber-400/60 rounded p-1.5 flex flex-col items-center justify-center gap-1 transition-all text-center group"
+              className="bg-[var(--kf-surface-3)] hover:bg-[#202230] border border-white/[0.06] hover:border-amber-400/60 rounded p-1.5 flex flex-col items-center justify-center gap-1 transition-all text-center group"
             >
               <span className="text-lg group-hover:scale-115 transition-transform">{p.icon}</span>
               <span className="text-[9px] text-neutral-300 truncate w-full font-medium">{p.name.split(' ')[0]}</span>
@@ -369,13 +369,13 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
       </div>
 
       {/* Section 4: Playback Controls & Loops */}
-      <div className="flex flex-col gap-2 border-t border-[#20222a] pt-2.5">
+      <div className="flex flex-col gap-2 border-t border-white/[0.06] pt-2.5">
         <span className="text-[10px] font-semibold text-neutral-300">播放行为控制</span>
 
         {/* Loop Toggle */}
-        <div className="flex items-center justify-between bg-[#171822] p-1.5 rounded border border-[#242633]">
+        <div className="flex items-center justify-between bg-[var(--kf-surface-3)] p-1.5 rounded border border-white/[0.06]">
           <div className="flex items-center gap-1.5 text-neutral-300 text-[11px]">
-            <Repeat className="w-3.5 h-3.5 text-blue-400" />
+            <Repeat className="w-3.5 h-3.5 text-cyan-300" />
             <span>循环播放动画</span>
           </div>
           <button
@@ -389,7 +389,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
               })
             }
             className={`w-9 h-5 rounded-full transition-colors relative p-0.5 ${
-              isLoop ? 'bg-blue-600' : 'bg-neutral-700'
+              isLoop ? 'bg-cyan-500' : 'bg-neutral-700'
             }`}
           >
             <div
@@ -401,12 +401,12 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
         </div>
 
         {/* Direction Switch */}
-        <div className="flex items-center justify-between bg-[#171822] p-1.5 rounded border border-[#242633]">
+        <div className="flex items-center justify-between bg-[var(--kf-surface-3)] p-1.5 rounded border border-white/[0.06]">
           <div className="flex items-center gap-1.5 text-neutral-300 text-[11px]">
             <ArrowRightLeft className="w-3.5 h-3.5 text-purple-400" />
             <span>播放方向</span>
           </div>
-          <div className="flex bg-[#101116] rounded p-0.5 border border-[#242633] text-[10px]">
+          <div className="flex bg-[var(--kf-surface-1)] rounded p-0.5 border border-white/[0.06] text-[10px]">
             <button
               onClick={() =>
                 updateClip(clip.id, {
@@ -418,7 +418,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
                 })
               }
               className={`px-2 py-0.5 rounded transition-colors ${
-                currentDirection === 1 ? 'bg-blue-600 text-white font-medium' : 'text-neutral-400'
+                currentDirection === 1 ? 'bg-cyan-500 text-white font-medium' : 'text-neutral-400'
               }`}
             >
               正放 ▶
@@ -434,7 +434,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
                 })
               }
               className={`px-2 py-0.5 rounded transition-colors ${
-                currentDirection === -1 ? 'bg-blue-600 text-white font-medium' : 'text-neutral-400'
+                currentDirection === -1 ? 'bg-cyan-500 text-white font-medium' : 'text-neutral-400'
               }`}
             >
               倒放 ◀
@@ -444,7 +444,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
       </div>
 
       {/* Section 5: Raw JSON Code Editor (Collapsible) */}
-      <div className="flex flex-col gap-1.5 border-t border-[#20222a] pt-2.5">
+      <div className="flex flex-col gap-1.5 border-t border-white/[0.06] pt-2.5">
         <button
           onClick={() => setShowJsonEditor(!showJsonEditor)}
           className="flex items-center justify-between text-neutral-400 hover:text-neutral-200 text-[10px] w-full"
@@ -453,7 +453,7 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
             <Code className="w-3 h-3 text-emerald-400" />
             <span>Lottie JSON 源码编辑器</span>
           </span>
-          <span className="text-[9px] text-blue-400">{showJsonEditor ? '收起 ▲' : '展开代码 ▼'}</span>
+          <span className="text-[9px] text-cyan-300">{showJsonEditor ? '收起 ▲' : '展开代码 ▼'}</span>
         </button>
 
         {showJsonEditor && (
@@ -463,11 +463,11 @@ export const LottieInspectorTab: React.FC<LottieInspectorTabProps> = ({ clip }) 
               onChange={(e) => setJsonInput(e.target.value)}
               placeholder="在此粘贴 Lottie JSON 源代码..."
               rows={5}
-              className="w-full bg-[#101116] border border-[#242633] focus:border-emerald-500 rounded p-1.5 text-emerald-400 font-mono text-[9px] outline-none resize-y"
+              className="w-full bg-[var(--kf-surface-1)] border border-white/[0.06] focus:border-emerald-500 rounded p-1.5 text-emerald-400 font-mono text-[9px] outline-none resize-y"
             />
             <button
               onClick={handleJsonCodeApply}
-              className="w-full py-1 bg-[#171822] hover:bg-emerald-600 text-neutral-300 hover:text-white border border-[#242633] hover:border-emerald-500 rounded text-[10px] font-medium transition-colors"
+              className="w-full py-1 bg-[var(--kf-surface-3)] hover:bg-emerald-600 text-neutral-300 hover:text-white border border-white/[0.06] hover:border-emerald-500 rounded text-[10px] font-medium transition-colors"
             >
               格式化并应用代码 (Apply JSON)
             </button>

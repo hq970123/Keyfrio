@@ -1,4 +1,5 @@
 import { GpuEffectSettings, Clip } from '../types/editor';
+import { renderEffectViaPixi } from './pixiGl';
 
 /**
  * PixiJS & WebGL Accelerated GPU Engine
@@ -53,6 +54,8 @@ export function renderGpuEffectOnCanvas(
   height: number,
   sourceCanvas?: HTMLCanvasElement | OffscreenCanvas
 ) {
+  if (renderEffectViaPixi(ctx, effectSettings, relTime, duration, width, height, sourceCanvas)) return;
+
   ctx.save();
 
   if (effectSettings.category === 'particle') {

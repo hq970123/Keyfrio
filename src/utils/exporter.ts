@@ -1,11 +1,13 @@
 import { Project, ExportSettings, ExportProgress } from '../types/editor';
 import { renderFrame } from './canvasRenderer';
 import { getAudioContext, getDecodedAudioBuffer } from './audio';
+import { ensureFontsForTracks } from './fontLoader';
 
 type ExportFormat = ExportSettings['format'];
 
 const EXPORT_MIME_TYPES: Record<ExportFormat, string[]> = {
   mp4: [
+    'video/mp4;codecs=avc1.640028,mp4a.40.2',
     'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
     'video/mp4;codecs=avc1.42E01E',
     'video/mp4',
@@ -31,6 +33,10 @@ export async function exportVideo(
   if (!mimeType) {
     throw new Error(`当前浏览器不支持 ${format.toUpperCase()} 导出，请选择其他格式或更换浏览器。`);
   }
+  // Make sure every Google Font used by text clips is fully loaded before
+  // frames are drawn, otherwise the export bakes in fallback typefaces.
+  await ensureFontsForTracks(project.tracks);
+
   const timelineEnd = project.tracks.reduce(
     (latest, track) => track.clips.reduce((trackEnd, clip) => Math.max(trackEnd, clip.start + clip.duration), latest),
     0

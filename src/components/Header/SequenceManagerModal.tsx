@@ -93,7 +93,7 @@ export const SequenceManagerModal: React.FC<SequenceManagerModalProps> = ({ isOp
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 kf-anim-fade-in">
       <div className="bg-neutral-900 border border-neutral-800 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col">
         {/* Modal Header */}
         <div className="p-4 border-b border-neutral-800 flex items-center justify-between">

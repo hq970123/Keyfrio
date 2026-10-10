@@ -109,14 +109,6 @@ export function createClip(partial: Partial<Clip> & { type: MediaType; trackId: 
   };
 }
 
-/** Deep-clone tracks for history snapshots (avoids shared references) */
-export function cloneTracks(tracks: Track[]): Track[] {
-  return tracks.map((t) => ({
-    ...t,
-    clips: t.clips.map((c) => ({ ...c, transform: { ...c.transform }, filter: { ...c.filter }, audio: { ...c.audio } })),
-  }));
-}
-
 /** Compute total project duration from the last clip end */
 export function computeTotalDuration(tracks: Track[], minDuration = 30): number {
   let max = 0;

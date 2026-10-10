@@ -546,7 +546,7 @@ export const AudioStudioModal: React.FC = () => {
   return (
     <div
       id="audiomass-studio-modal"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 kf-anim-fade-in"
     >
       <div className="relative w-full max-w-5xl h-[88vh] bg-neutral-900 border border-neutral-700/80 rounded-2xl flex flex-col shadow-2xl overflow-hidden">
         {/* Modal Header */}
@@ -748,7 +748,7 @@ export const AudioStudioModal: React.FC = () => {
                   <div className="flex items-center gap-1.5">
                     <button
                       onClick={handleCropSelection}
-                      className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded text-xs font-medium transition-colors"
+                      className="flex-1 flex items-center justify-center gap-1 px-2 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/30 rounded text-xs font-medium transition-colors"
                     >
                       <Scissors className="w-3 h-3" />
                       裁剪留选区
@@ -805,18 +805,18 @@ export const AudioStudioModal: React.FC = () => {
                     step="0.1"
                     value={fadeDuration}
                     onChange={(e) => setFadeDuration(parseFloat(e.target.value))}
-                    className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    className="w-full h-1.5 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
                   />
                   <div className="flex items-center gap-2 mt-1">
                     <button
                       onClick={() => handleApplyFade('in')}
-                      className="flex-1 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded text-xs font-medium transition-colors"
+                      className="flex-1 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/30 rounded text-xs font-medium transition-colors"
                     >
                       应用淡入
                     </button>
                     <button
                       onClick={() => handleApplyFade('out')}
-                      className="flex-1 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded text-xs font-medium transition-colors"
+                      className="flex-1 py-1 bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 border border-cyan-400/30 rounded text-xs font-medium transition-colors"
                     >
                       应用淡出
                     </button>

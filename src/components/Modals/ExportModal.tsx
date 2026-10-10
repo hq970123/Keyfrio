@@ -108,9 +108,9 @@ export const ExportModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 select-none">
-      <div className="bg-[#131419] border border-[#20222a] rounded-xl w-full max-w-lg shadow-2xl overflow-hidden text-neutral-200 text-xs">
+      <div className="bg-[var(--kf-surface-2)] border border-white/[0.06] rounded-xl w-full max-w-lg shadow-2xl overflow-hidden text-neutral-200 text-xs">
         {/* Header */}
-        <div className="h-11 px-3.5 border-b border-[#20222a] flex items-center justify-between bg-[#101116]">
+        <div className="h-11 px-3.5 border-b border-white/[0.06] flex items-center justify-between bg-[var(--kf-surface-1)]">
           <div className="flex items-center gap-2">
             <AppLogo className="w-5.5 h-5.5" />
             <div>
@@ -119,7 +119,7 @@ export const ExportModal: React.FC = () => {
           </div>
           <button
             onClick={handleCancel}
-            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-[#171822] transition-colors"
+            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-[var(--kf-surface-3)] transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -144,8 +144,8 @@ export const ExportModal: React.FC = () => {
                       onClick={() => setResolution(item.id as any)}
                       className={`p-2 rounded-lg border flex flex-col items-center gap-0.5 transition-all ${
                         resolution === item.id
-                          ? 'bg-blue-600/20 border-blue-500 text-white font-medium'
-                          : 'bg-[#171822] border-[#242633] text-neutral-400 hover:text-white'
+                          ? 'bg-cyan-500/20 border-cyan-400 text-white font-medium'
+                          : 'bg-[var(--kf-surface-3)] border-white/[0.06] text-neutral-400 hover:text-white'
                       }`}
                     >
                       <span className="text-[11px]">{item.label}</span>
@@ -164,8 +164,8 @@ export const ExportModal: React.FC = () => {
                       onClick={() => setFormat('webm')}
                       className={`p-1.5 rounded-lg border text-center transition-all text-[11px] ${
                         format === 'webm'
-                          ? 'bg-blue-600/20 border-blue-500 text-white font-medium'
-                          : 'bg-[#171822] border-[#242633] text-neutral-400'
+                          ? 'bg-cyan-500/20 border-cyan-400 text-white font-medium'
+                          : 'bg-[var(--kf-surface-3)] border-white/[0.06] text-neutral-400'
                       }`}
                     >
                       WebM (VP9)
@@ -196,8 +196,8 @@ export const ExportModal: React.FC = () => {
                         onClick={() => setFps(f)}
                         className={`p-1.5 rounded-lg border text-center transition-all text-[11px] ${
                           fps === f
-                            ? 'bg-blue-600/20 border-blue-500 text-white font-medium'
-                            : 'bg-[#171822] border-[#242633] text-neutral-400'
+                            ? 'bg-cyan-500/20 border-cyan-400 text-white font-medium'
+                            : 'bg-[var(--kf-surface-3)] border-white/[0.06] text-neutral-400'
                         }`}
                       >
                         {f} FPS
@@ -221,8 +221,8 @@ export const ExportModal: React.FC = () => {
                       onClick={() => setQuality(q.id as any)}
                       className={`p-1.5 rounded-lg border text-center transition-all ${
                         quality === q.id
-                          ? 'bg-blue-600/20 border-blue-500 text-white font-medium'
-                          : 'bg-[#171822] border-[#242633] text-neutral-400'
+                          ? 'bg-cyan-500/20 border-cyan-400 text-white font-medium'
+                          : 'bg-[var(--kf-surface-3)] border-white/[0.06] text-neutral-400'
                       }`}
                     >
                       <span className="block text-[11px]">{q.label}</span>
@@ -237,7 +237,7 @@ export const ExportModal: React.FC = () => {
           {/* Exporting Progress State */}
           {isExporting && progress && (
             <div className="py-6 flex flex-col items-center justify-center text-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-400 flex items-center justify-center animate-spin">
+              <div className="w-12 h-12 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 flex items-center justify-center animate-spin">
                 <Loader2 className="w-6 h-6" />
               </div>
 
@@ -251,9 +251,9 @@ export const ExportModal: React.FC = () => {
               </div>
 
               {/* Progress Bar */}
-              <div className="w-full bg-[#1c1d27] h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden">
                 <div
-                  className="bg-blue-500 h-full transition-all duration-200"
+                  className="bg-cyan-400 h-full transition-all duration-200"
                   style={{ width: `${progress.progress}%` }}
                 />
               </div>
@@ -274,12 +274,11 @@ export const ExportModal: React.FC = () => {
               <p className="text-neutral-400 text-[11px] max-w-xs">
                 浏览器已自动开始下载，也可点击下方按钮重新下载。
               </p>
-
               <div className="flex gap-2 mt-2">
                 <a
                   href={exportedBlobUrl}
                   download={`${project.name}.${format}`}
-                  className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium flex items-center gap-1.5 text-xs shadow-md shadow-blue-600/30"
+                  className="px-3.5 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-white rounded-lg font-medium flex items-center gap-1.5 text-xs shadow-md shadow-cyan-500/30"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>重新下载视频</span>
@@ -296,18 +295,18 @@ export const ExportModal: React.FC = () => {
         </div>
 
         {/* Footer */}
-        <div className="h-11 px-4 bg-[#101116] border-t border-[#20222a] flex items-center justify-end gap-2">
+        <div className="h-11 px-4 bg-[var(--kf-surface-1)] border-t border-white/[0.06] flex items-center justify-end gap-2">
           {!isExporting && !exportedBlobUrl && (
             <>
               <button
                 onClick={closeExportModal}
-                className="px-3 py-1 bg-[#171822] hover:bg-[#1f202d] text-neutral-300 rounded border border-[#242633] text-xs transition-colors"
+                className="px-3 py-1 bg-[var(--kf-surface-3)] hover:bg-white/[0.06] text-neutral-300 rounded border border-white/[0.06] text-xs transition-colors"
               >
                 取消
               </button>
               <button
                 onClick={handleStartExport}
-                className="px-3.5 py-1 bg-blue-600 hover:bg-blue-500 active:scale-95 text-white font-medium rounded text-xs shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                className="px-3.5 py-1 bg-cyan-500 hover:bg-cyan-400 active:scale-95 text-white font-medium rounded text-xs shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>开始导出</span>
@@ -318,7 +317,7 @@ export const ExportModal: React.FC = () => {
           {exportedBlobUrl && (
             <button
               onClick={closeExportModal}
-              className="px-4 py-1 bg-[#171822] hover:bg-[#1f202d] text-white font-medium rounded border border-[#242633] text-xs"
+              className="px-4 py-1 bg-[var(--kf-surface-3)] hover:bg-white/[0.06] text-white font-medium rounded border border-white/[0.06] text-xs"
             >
               完成并关闭
             </button>

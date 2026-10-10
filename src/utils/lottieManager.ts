@@ -1,6 +1,24 @@
-import lottie, { AnimationItem } from 'lottie-web';
+import type { AnimationItem } from 'lottie-web';
 import { Clip } from '../types/editor';
 import { LOTTIE_PRESETS } from '../constants/lottieSamples';
+
+// lottie-web is heavy and only needed when a lottie clip is on screen, so
+// it is loaded lazily via dynamic import(). Until it arrives, entries stay
+// in a pending state and drawLottieFrame returns false (placeholder path).
+type LottieModule = (typeof import('lottie-web'))['default'];
+let lottieModule: LottieModule | null = null;
+let lottieLoadPromise: Promise<void> | null = null;
+
+function ensureLottieLoading(): void {
+  if (lottieModule || lottieLoadPromise) return;
+  lottieLoadPromise = import('lottie-web')
+    .then((m) => {
+      lottieModule = m.default;
+    })
+    .catch(() => {
+      // Leave lottieModule null; pending entries keep drawing placeholders.
+    });
+}
 
 interface CachedLottie {
   anim: AnimationItem | null;
@@ -13,6 +31,7 @@ interface CachedLottie {
   lastLoadedKey: string;
   isReady: boolean;
   error?: string;
+  pendingLoad?: boolean;
 }
 
 const lottieCache = new Map<string, CachedLottie>();
@@ -33,15 +52,24 @@ export function getOrInitLottie(clip: Clip): CachedLottie {
 
   const existing = lottieCache.get(clipId);
   if (existing && existing.lastLoadedKey === currentKey) {
-    // If canvas element was not cached yet, find it
-    if (!existing.canvas && existing.container) {
-      existing.canvas = existing.container.querySelector('canvas');
+    if (existing.anim || existing.error) {
+      // If canvas element was not cached yet, find it
+      if (!existing.canvas && existing.container) {
+        existing.canvas = existing.container.querySelector('canvas');
+      }
+      return existing;
     }
-    return existing;
+    // Pending entry (lottie-web chunk not loaded yet)
+    if (!lottieModule) {
+      ensureLottieLoading();
+      return existing;
+    }
+    // Module has arrived: fall through and initialize this entry now.
+    existing.pendingLoad = false;
   }
 
   // Cleanup old animation if key changed
-  if (existing && existing.anim) {
+  if (existing && existing.anim && existing.lastLoadedKey !== currentKey) {
     try {
       existing.anim.destroy();
     } catch {
@@ -49,17 +77,24 @@ export function getOrInitLottie(clip: Clip): CachedLottie {
     }
   }
 
-  const container = document.createElement('div');
-  container.style.position = 'fixed';
-  container.style.top = '-9999px';
-  container.style.left = '-9999px';
-  container.style.width = '500px';
-  container.style.height = '500px';
-  container.style.opacity = '0';
-  container.style.pointerEvents = 'none';
-  document.body.appendChild(container);
+  const reuseEntry =
+    existing && existing.lastLoadedKey === currentKey ? existing : null;
 
-  const entry: CachedLottie = {
+  const container = reuseEntry
+    ? reuseEntry.container
+    : document.createElement('div');
+  if (!reuseEntry) {
+    container.style.position = 'fixed';
+    container.style.top = '-9999px';
+    container.style.left = '-9999px';
+    container.style.width = '500px';
+    container.style.height = '500px';
+    container.style.opacity = '0';
+    container.style.pointerEvents = 'none';
+    document.body.appendChild(container);
+  }
+
+  const entry: CachedLottie = reuseEntry ?? {
     anim: null,
     container,
     canvas: null,
@@ -71,6 +106,12 @@ export function getOrInitLottie(clip: Clip): CachedLottie {
     isReady: false,
   };
   lottieCache.set(clipId, entry);
+
+  if (!lottieModule) {
+    entry.pendingLoad = true;
+    ensureLottieLoading();
+    return entry;
+  }
 
   let animData: object | null = null;
 
@@ -92,7 +133,7 @@ export function getOrInitLottie(clip: Clip): CachedLottie {
     const url = clip.lottie?.url || clip.sourceUrl || '';
     // Load by URL path
     try {
-      const anim = lottie.loadAnimation({
+      const anim = lottieModule!.loadAnimation({
         container,
         renderer: 'canvas',
         loop: false,
@@ -135,7 +176,7 @@ export function getOrInitLottie(clip: Clip): CachedLottie {
   }
 
   try {
-    const anim = lottie.loadAnimation({
+    const anim = lottieModule!.loadAnimation({
       container,
       renderer: 'canvas',
       loop: false,

@@ -1,4 +1,4 @@
-# Keyfrio Architecture (v0.3 – Zustand Migration)
+# Keyfrio Architecture (v1 – Context mutations + Zustand mirrors)
 
 ## Why this change?
 
@@ -10,44 +10,26 @@ The original `EditorContext.tsx` (~115 KB) was a monolithic Context that mixed d
 2. **Pure domain functions** in `src/domain/`
 3. **Side-effects** in services / hooks, not stores
 4. **Immer** for nested immutable updates
-5. **Backward-compatible** migration via `StoreBridge`
+5. **EditorContext** is the sole state mutation owner
+6. **Zustand stores** are read-only mirrors synchronized one-way through `StoreBridge`
 
 ## Store map
 
 | Store | Responsibility |
 |-------|----------------|
-| `useProjectStore` | Project, tracks, clips, resolution, fps |
+| `useProjectStore` | Read-only project, tracks, duration mirror |
 | `usePlaybackStore` | currentTime, isPlaying, speed, loop, in/out |
 | `useSelectionStore` | selectedClipIds, activeTrackId |
 | `useUiStore` | view, sidebar, zoom, tools, modals |
-| `useHistoryStore` | undo / redo (max 50) |
 | `useAssetsStore` | media library, project list, offline counts |
 
-## Migration progress
+## Final architecture
 
-### Phase 1 ✅ Foundation
-- Zustand + Immer, six stores, domain helpers, ARCHITECTURE.md
-
-### Phase 2 ✅ Bridge + first components
-- `StoreBridge` (context → stores)
-- `SidebarTabs`, `Playhead`
-- `useHistoryActions`
-
-### Phase 3 ✅ Timeline core (this commit)
-| Component | Reads from stores | Writes |
-|-----------|-------------------|--------|
-| `Playhead` | playback + ui | — |
-| `SidebarTabs` | ui | context |
-| `TimelineRuler` | project + playback + ui | context (seek) |
-| `TimelineContainer` | project + playback + ui | context (addTrack) |
-| `TrackHeader` | ui + selection | context |
-| `TimelineToolbar` | project + playback + selection + ui | context |
-
-### Phase 4 – Next
-- `PreviewPlayer` playback loop
-- Inspector tabs
-- ClipItem / TrackRow
-- Move mutations into store actions → delete Context + Bridge
+- `EditorContext` is the sole state mutation owner, including project edits and its history stack.
+- `StoreBridge` performs one-way synchronization from Context into domain-sliced Zustand stores.
+- Zustand stores are read-only mirrors for fine-grained component subscriptions; they do not duplicate project mutation actions.
+- Pure logic has one implementation: track collision handling lives in `src/utils/trackCollision.ts`.
+- `projectFactory.ts` remains the shared factory for preset project construction and derived duration calculation.
 
 ## Performance tips
 
@@ -68,9 +50,8 @@ const { zoom, toolMode } = useUiStore(useShallow((s) => ({
 src/
   domain/
   stores/
-  hooks/useHistoryActions.ts
   components/StoreBridge.tsx
-  context/EditorContext.tsx   # legacy
+  context/EditorContext.tsx   # sole mutation owner
 ```
 
 ## Install after merge

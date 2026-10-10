@@ -93,9 +93,9 @@ export const AudioPanel: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
+    <div className="flex flex-col h-full text-neutral-200 text-xs select-none">
       {/* Header */}
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between">
+      <div className="p-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <span className="font-bold text-xs text-white flex items-center gap-1.5">
           <Music className="w-3.5 h-3.5 text-emerald-400" />
           音频与配音 (Audio)
@@ -107,7 +107,7 @@ export const AudioPanel: React.FC = () => {
 
       <div className="flex-1 overflow-y-auto p-2.5 flex flex-col gap-2.5">
         {/* Upload Audio Button */}
-        <label className="border border-dashed border-[#262834] hover:border-emerald-500/50 bg-[#161720] hover:bg-[#1a1b24] rounded-lg p-3 flex flex-col items-center justify-center text-center cursor-pointer transition-all">
+        <label className="border border-dashed border-white/[0.08] hover:border-emerald-500/50 bg-[var(--kf-surface-2)] hover:bg-[var(--kf-surface-3)] rounded-lg p-3 flex flex-col items-center justify-center text-center cursor-pointer transition-all">
           <input
             type="file"
             multiple
@@ -159,7 +159,7 @@ export const AudioPanel: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className="bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-emerald-500/50 rounded-md p-2 flex items-center justify-between transition-all"
+                    className="bg-[var(--kf-surface-3)] hover:bg-[#1f202d] border border-white/[0.06] hover:border-emerald-500/50 rounded-md p-2 flex items-center justify-between transition-all"
                   >
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       {/* Play Button */}
@@ -212,7 +212,7 @@ export const AudioPanel: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className="py-6 px-4 flex flex-col items-center justify-center text-center text-neutral-500 border border-dashed border-[#20222a] rounded-lg bg-[#14151c]/40 mt-1">
+          <div className="py-6 px-4 flex flex-col items-center justify-center text-center text-neutral-500 border border-dashed border-white/[0.06] rounded-lg bg-[#14151c]/40 mt-1">
             <FileAudio className="w-7 h-7 text-neutral-600 mb-1.5" />
             <span className="text-xs font-medium text-neutral-300">暂无导入的音频</span>
             <p className="text-[10px] text-neutral-500 mt-0.5">

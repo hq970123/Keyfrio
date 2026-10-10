@@ -190,9 +190,9 @@ export const OpenStockPanel: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
+    <div className="flex flex-col h-full text-neutral-200 text-xs select-none">
       {/* 1. Header with Title & Platform Overview */}
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between">
+      <div className="p-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex items-center gap-1.5 min-w-0">
           <Globe className="w-4 h-4 text-emerald-400 shrink-0" />
           <span className="font-bold text-xs text-white truncate">开源与商用素材库 (Open Stock)</span>
@@ -203,7 +203,7 @@ export const OpenStockPanel: React.FC = () => {
       </div>
 
       {/* 2. Platform Selector Tabs */}
-      <div className="p-2 bg-[#101116] border-b border-[#20222a] flex flex-col gap-1.5">
+      <div className="p-2 bg-[var(--kf-surface-1)] border-b border-white/[0.06] flex flex-col gap-1.5">
         <div className="text-[10px] font-semibold text-neutral-400 flex items-center justify-between">
           <span>选择媒体来源平台</span>
           <span className="text-[9px] text-neutral-500">点击即切</span>
@@ -223,12 +223,12 @@ export const OpenStockPanel: React.FC = () => {
                 }}
                 className={`p-1.5 rounded flex flex-col items-start text-left border transition-all relative overflow-hidden ${
                   isSelected
-                    ? 'bg-blue-600/20 border-blue-500 text-white shadow-sm'
-                    : 'bg-[#171822] border-[#252834] text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
+                    ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-sm'
+                    : 'bg-[var(--kf-surface-3)] border-[#252834] text-neutral-400 hover:text-neutral-200 hover:border-neutral-700'
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
-                  <span className={`font-bold text-[11px] truncate ${isSelected ? 'text-blue-400' : ''}`}>
+                  <span className={`font-bold text-[11px] truncate ${isSelected ? 'text-cyan-300' : ''}`}>
                     {p.name}
                   </span>
                   {p.requiresKey ? (
@@ -260,7 +260,7 @@ export const OpenStockPanel: React.FC = () => {
       </div>
 
       {/* 3. Platform Details & Key Status Bar */}
-      <div className="px-2.5 py-1.5 bg-[#171822] border-b border-[#20222a] flex items-center justify-between text-[10px]">
+      <div className="px-2.5 py-1.5 bg-[var(--kf-surface-3)] border-b border-white/[0.06] flex items-center justify-between text-[10px]">
         <div className="flex items-center gap-1.5 min-w-0">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
           <span className="text-neutral-300 font-medium truncate">
@@ -283,7 +283,7 @@ export const OpenStockPanel: React.FC = () => {
       </div>
 
       {/* 4. Search and Filter Bar */}
-      <div className="p-2.5 border-b border-[#20222a] flex flex-col gap-2 bg-[#14151c]">
+      <div className="p-2.5 border-b border-white/[0.06] flex flex-col gap-2 bg-[#14151c]">
         {/* Search Input */}
         <form
           onSubmit={(e) => {
@@ -298,7 +298,7 @@ export const OpenStockPanel: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`在 ${currentPlatformInfo.name} 中搜索素材...`}
-            className="w-full bg-[#1b1c26] border border-[#282a38] rounded-md pl-8 pr-16 py-1.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-blue-500"
+            className="w-full bg-[#1b1c26] border border-[#282a38] rounded-md pl-8 pr-16 py-1.5 text-xs text-neutral-200 placeholder-neutral-500 focus:outline-none focus:border-cyan-400"
           />
           {searchQuery && (
             <button
@@ -314,7 +314,7 @@ export const OpenStockPanel: React.FC = () => {
           )}
           <button
             type="submit"
-            className="absolute right-1 bg-blue-600 hover:bg-blue-500 text-white px-2 py-0.8 rounded text-[10px] font-medium"
+            className="absolute right-1 bg-cyan-500 hover:bg-cyan-400 text-white px-2 py-0.8 rounded text-[10px] font-medium"
           >
             搜索
           </button>
@@ -330,7 +330,7 @@ export const OpenStockPanel: React.FC = () => {
               }}
               className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors ${
                 mediaTypeFilter === 'all'
-                  ? 'bg-blue-600 text-white font-semibold'
+                  ? 'bg-cyan-500 text-white font-semibold'
                   : 'bg-[#1b1c26] text-neutral-400 hover:text-white border border-[#262837]'
               }`}
             >
@@ -345,7 +345,7 @@ export const OpenStockPanel: React.FC = () => {
                 }}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-colors ${
                   mediaTypeFilter === 'video'
-                    ? 'bg-blue-600 text-white font-semibold'
+                    ? 'bg-cyan-500 text-white font-semibold'
                     : 'bg-[#1b1c26] text-neutral-400 hover:text-white border border-[#262837]'
                 }`}
               >
@@ -362,7 +362,7 @@ export const OpenStockPanel: React.FC = () => {
                 }}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-colors ${
                   mediaTypeFilter === 'image'
-                    ? 'bg-blue-600 text-white font-semibold'
+                    ? 'bg-cyan-500 text-white font-semibold'
                     : 'bg-[#1b1c26] text-neutral-400 hover:text-white border border-[#262837]'
                 }`}
               >
@@ -379,7 +379,7 @@ export const OpenStockPanel: React.FC = () => {
                 }}
                 className={`px-2 py-0.5 rounded text-[10px] font-medium flex items-center gap-1 transition-colors ${
                   mediaTypeFilter === 'audio'
-                    ? 'bg-blue-600 text-white font-semibold'
+                    ? 'bg-cyan-500 text-white font-semibold'
                     : 'bg-[#1b1c26] text-neutral-400 hover:text-white border border-[#262837]'
                 }`}
               >
@@ -392,9 +392,9 @@ export const OpenStockPanel: React.FC = () => {
           <button
             onClick={() => handleSearch()}
             title="刷新搜索"
-            className="text-neutral-400 hover:text-white p-1 rounded hover:bg-[#202230]"
+            className="text-neutral-400 hover:text-white p-1 rounded hover:bg-[var(--kf-surface-4)]"
           >
-            <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin text-blue-400' : ''}`} />
+            <RefreshCw className={`w-3 h-3 ${isLoading ? 'animate-spin text-cyan-300' : ''}`} />
           </button>
         </div>
 
@@ -408,7 +408,7 @@ export const OpenStockPanel: React.FC = () => {
                 setSearchQuery(kw);
                 handleSearch(kw);
               }}
-              className="text-[9px] px-1.5 py-0.3 rounded bg-[#1c1e2a] hover:bg-blue-600/30 text-neutral-400 hover:text-blue-300 border border-[#282a3b] shrink-0 transition-colors"
+              className="text-[9px] px-1.5 py-0.3 rounded bg-[#1c1e2a] hover:bg-cyan-500/30 text-neutral-400 hover:text-cyan-200 border border-[#282a3b] shrink-0 transition-colors"
             >
               {kw}
             </button>
@@ -420,7 +420,7 @@ export const OpenStockPanel: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-2.5">
         {isLoading ? (
           <div className="flex flex-col items-center justify-center h-48 text-neutral-400 gap-2">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-cyan-300" />
             <span className="text-xs">正在从 {currentPlatformInfo.name} 检索开放媒体...</span>
           </div>
         ) : results.length === 0 ? (
@@ -453,7 +453,7 @@ export const OpenStockPanel: React.FC = () => {
                     <div
                       key={item.id}
                       onClick={() => handleAddToTimeline(item)}
-                      className="col-span-2 bg-[#171822] hover:bg-[#1f202e] border border-[#242636] hover:border-emerald-500 rounded-md p-2 flex items-center justify-between transition-all cursor-pointer group"
+                      className="col-span-2 bg-[var(--kf-surface-3)] hover:bg-[#1f202e] border border-[#242636] hover:border-emerald-500 rounded-md p-2 flex items-center justify-between transition-all cursor-pointer group"
                     >
                       <div className="flex items-center gap-2.5 min-w-0 flex-1">
                         {/* Audio Play Preview Button */}
@@ -493,7 +493,7 @@ export const OpenStockPanel: React.FC = () => {
                         className={`w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all ${
                           isAdded
                             ? 'bg-emerald-600 text-white'
-                            : 'bg-[#222432] text-neutral-300 group-hover:bg-blue-600 group-hover:text-white'
+                            : 'bg-[#222432] text-neutral-300 group-hover:bg-cyan-500 group-hover:text-white'
                         }`}
                       >
                         {isAdded ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
@@ -527,7 +527,7 @@ export const OpenStockPanel: React.FC = () => {
       {/* 6. API Key Settings Modal */}
       {showKeyModal && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-[#171822] border border-[#2b2e3e] rounded-xl max-w-sm w-full p-4 flex flex-col gap-3 shadow-2xl">
+          <div className="bg-[var(--kf-surface-3)] border border-[#2b2e3e] rounded-xl max-w-sm w-full p-4 flex flex-col gap-3 shadow-2xl">
             <div className="flex items-center justify-between border-b border-[#252838] pb-2.5">
               <div className="flex items-center gap-2">
                 <Key className="w-4 h-4 text-cyan-400" />

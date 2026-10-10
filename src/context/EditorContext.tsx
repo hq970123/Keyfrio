@@ -26,13 +26,20 @@ import {
 } from '../types/editor';
 import {
   ASPECT_RATIOS,
+  SAMPLE_VIDEOS,
   DEFAULT_TRANSFORM,
   DEFAULT_FILTER,
   DEFAULT_AUDIO,
   DEFAULT_TEXT,
 } from '../constants/samples';
 import { LOTTIE_PRESETS } from '../constants/lottieSamples';
-import { generateProceduralWaveform, playSynthesizedTone, fetchAndExtractWaveform } from '../utils/audio';
+import { buildDemoProject, buildTemplateProject } from '../domain/presetProjects';
+import {
+  generateProceduralWaveform,
+  playSynthesizedTone,
+  fetchAndExtractWaveform,
+  synthesizeBgmWithWaveform,
+} from '../utils/audio';
 import {
   isTrackOverlapping,
   findTrackWithoutOverlap,
@@ -42,6 +49,7 @@ import {
 import { findSnapTime } from '../utils/time';
 import { extractVideoMetadataAndFilmstrip, extractAudioMetadataAndWaveform, createFallbackThumbnail } from '../utils/mediaExtractor';
 import { syncMediaPlayback, pauseAllMedia } from '../utils/mediaPlayback';
+import { primeFontForStack } from '../utils/fontLoader';
 import {
   saveProjectToDB,
   loadProjectFromDB,
@@ -100,6 +108,7 @@ interface EditorContextType {
   isShortcutsModalOpen: boolean;
   isAiModalOpen: boolean;
   isAiCopilotDrawerOpen: boolean;
+  aiAvailable: boolean | null;
   isAudioStudioModalOpen: boolean;
   audioStudioTargetClipId: string | null;
   audioStudioTargetAsset: MediaAsset | null;
@@ -120,7 +129,7 @@ interface EditorContextType {
   openProjectManager: () => void;
   closeProjectManager: () => void;
   switchProject: (projectId: string) => Promise<void>;
-  createNewProject: (name?: string, aspect?: AspectRatio, fps?: number, customResolution?: Resolution, description?: string) => Promise<Project>;
+  createNewProject: (name?: string, aspect?: AspectRatio, fps?: number, customResolution?: Resolution, description?: string, templateId?: string) => Promise<Project>;
   duplicateProject: (projectId: string) => Promise<void>;
   renameProject: (projectId: string, newName: string) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
@@ -983,7 +992,8 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       aspect: AspectRatio = '16:9',
       fps: number = 30,
       customResolution?: Resolution,
-      description?: string
+      description?: string,
+      templateId?: string
     ) => {
       const videoTrack: Track = {
         id: `track-video-${Date.now()}`,
@@ -1024,6 +1034,12 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         tracks: [videoTrack, audioTrack],
         lastModified: Date.now(),
       };
+
+      if (templateId) {
+        const preset = buildTemplateProject(templateId, { name: newProj.name, aspect, fps, resolution: targetResolution });
+        newProj.tracks = preset.tracks;
+        newProj.duration = preset.duration;
+      }
 
       await saveProjectToDB(newProj);
       localStorage.setItem('opencut_active_project_id', newProj.id);
@@ -1225,6 +1241,13 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             setIsPlaying(false);
             return endBound;
           }
+        }
+        // Rewind (negative speed, e.g. J shuttle): clamp at start bound
+        if (nextTime <= startBound) {
+          if (loop && deltaSec < 0) {
+            return endBound;
+          }
+          return startBound;
         }
         return nextTime;
       });
@@ -2845,9 +2868,11 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   );
 
   const loadDemoProject = useCallback(() => {
-    const demo = createInitialProject();
+    const demo = buildDemoProject();
     setProject(demo);
     pushHistory(demo.tracks);
+    setSelectedClipIds([]);
+    setCurrentTime(0);
     setCurrentView('editor');
   }, [pushHistory]);
 
@@ -2871,7 +2896,25 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isShortcutsModalOpen, setIsShortcutsModalOpen] = useState<boolean>(false);
   const [isAiModalOpen, setIsAiModalOpen] = useState<boolean>(false);
   const [isAiCopilotDrawerOpen, setIsAiCopilotDrawerOpen] = useState<boolean>(false);
+  const [aiAvailable, setAiAvailable] = useState<boolean | null>(null);
   const [isAudioStudioModalOpen, setIsAudioStudioModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    fetch('/api/health')
+      .then((response) => response.json())
+      .then((data) => setAiAvailable(typeof data.aiAvailable === 'boolean' ? data.aiAvailable : false))
+      .catch(() => setAiAvailable(false));
+  }, []);
+
+  // Preload Google Fonts used by this project's text clips so the preview
+  // canvas renders the real faces instead of fallbacks.
+  useEffect(() => {
+    for (const track of project.tracks) {
+      for (const clip of track.clips) {
+        if (clip.text?.fontFamily) primeFontForStack(clip.text.fontFamily);
+      }
+    }
+  }, [project]);
   const [audioStudioTargetClipId, setAudioStudioTargetClipId] = useState<string | null>(null);
   const [audioStudioTargetAsset, setAudioStudioTargetAsset] = useState<MediaAsset | null>(null);
 
@@ -3002,12 +3045,68 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       else if (e.key === 'n' || e.key === 'N') {
         setSnappingEnabled((prev) => !prev);
       }
+      // J / K / L: Shuttle — rewind / pause / fast-forward
+      else if (e.key === 'j' || e.key === 'J') {
+        e.preventDefault();
+        setPlaybackSpeed(-1);
+        if (!isPlaying) togglePlay();
+      } else if (e.key === 'k' || e.key === 'K') {
+        e.preventDefault();
+        if (isPlaying) togglePlay();
+        setPlaybackSpeed(1);
+      } else if (e.key === 'l' || e.key === 'L') {
+        if (e.ctrlKey || e.metaKey) return; // Ctrl+L handled above
+        e.preventDefault();
+        setPlaybackSpeed(2);
+        if (!isPlaying) togglePlay();
+      }
+      // Home / End: Jump to start / end
+      else if (e.key === 'Home') {
+        e.preventDefault();
+        seek(0);
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        seek(totalDuration);
+      }
+      // Ctrl+E / Cmd+E: Open export modal
+      else if ((e.ctrlKey || e.metaKey) && (e.key === 'e' || e.key === 'E')) {
+        e.preventDefault();
+        openExportModal();
+      }
+      // ?: Open shortcuts cheatsheet
+      else if (e.key === '?' || (e.shiftKey && e.key === '/')) {
+        e.preventDefault();
+        openShortcutsModal();
+      }
+      // Ctrl + Plus/Minus: Zoom timeline
+      else if ((e.ctrlKey || e.metaKey) && (e.key === '+' || e.key === '=')) {
+        e.preventDefault();
+        setZoom((z) => Math.min(400, z * 1.25));
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === '-' || e.key === '_')) {
+        e.preventDefault();
+        setZoom((z) => Math.max(5, z / 1.25));
+      }
+      // Shift+Z: Zoom to fit timeline
+      else if (e.shiftKey && (e.key === 'z' || e.key === 'Z')) {
+        e.preventDefault();
+        if (totalDuration > 0) {
+          const fitZoom = Math.max(5, Math.min(400, 1200 / totalDuration));
+          setZoom(fitZoom);
+        }
+      }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [
     togglePlay,
+    isPlaying,
+    setPlaybackSpeed,
+    seek,
+    totalDuration,
+    openExportModal,
+    openShortcutsModal,
+    setZoom,
     splitClip,
     deleteSelectedClips,
     duplicateClip,
@@ -3139,13 +3238,19 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           case 'ADJUST_AUDIO': {
             if (payload.addBgm) {
               const audioTrack = project.tracks.find((t) => t.type === 'audio') || addTrack('audio', '背景音乐 (BGM)');
+              const acceptedTones = ['upbeat', 'cinematic', 'synthwave', 'lofi'];
+              const tone = acceptedTones.includes(payload.addBgm.type) ? payload.addBgm.type : 'upbeat';
+              const duration = Math.max(5, Math.min(30, totalDuration || 20));
+              const { blob, waveform } = synthesizeBgmWithWaveform(tone, duration);
               addClip(audioTrack.id, {
                 type: 'audio',
-                name: payload.addBgm.name || 'AI 推荐背景音乐.mp3',
+                name: payload.addBgm.name || 'AI 推荐背景音乐.wav',
                 start: 0,
-                duration: totalDuration || 20,
+                duration,
+                sourceUrl: URL.createObjectURL(blob),
+                sourceBlob: blob,
                 audio: { volume: payload.volume ?? 0.7, fadeIn: payload.fadeIn ?? 1, fadeOut: payload.fadeOut ?? 1.5, muted: false, pan: 0 },
-                audioWaveform: generateProceduralWaveform(80, 5),
+                audioWaveform: waveform,
               });
             }
             if (selectedClipId && payload.volume !== undefined) {
@@ -3178,25 +3283,24 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
             const importedVideos = userAssets.filter((a) => a.type === 'video');
             const importedAudios = userAssets.filter((a) => a.type === 'audio');
 
-            if (importedVideos.length > 0) {
-              let curTime = 0;
-              importedVideos.forEach((v, idx) => {
-                const dur = Math.min(v.duration, 8);
-                addClip(videoTrack.id, {
-                  name: v.name,
-                  type: 'video',
-                  start: curTime,
-                  duration: dur,
-                  sourceUrl: v.url,
-                  sourceBlob: v.blob,
-                  thumbnailUrl: v.thumbnail,
-                  thumbnails: v.thumbnails,
-                  filter: { ...DEFAULT_FILTER, brightness: 105, contrast: 110 },
-                  transition: idx > 0 ? { type: 'crossDissolve', duration: 0.8 } : undefined,
-                });
-                curTime += dur;
+            const videosToUse = importedVideos.length > 0 ? importedVideos : SAMPLE_VIDEOS.slice(0, 3);
+            let curTime = 0;
+            videosToUse.forEach((v, idx) => {
+              const dur = Math.min(v.duration, 8);
+              addClip(videoTrack.id, {
+                name: v.name,
+                type: 'video',
+                start: curTime,
+                duration: dur,
+                sourceUrl: v.url,
+                sourceBlob: 'blob' in v ? v.blob : undefined,
+                thumbnailUrl: 'thumbnail' in v ? v.thumbnail : undefined,
+                thumbnails: 'thumbnails' in v ? v.thumbnails : undefined,
+                filter: { ...DEFAULT_FILTER, brightness: 105, contrast: 110 },
+                transition: idx > 0 ? { type: 'crossDissolve', duration: 0.8 } : undefined,
               });
-            }
+              curTime += dur;
+            });
 
             if (importedAudios.length > 0) {
               const bgm = importedAudios[0];
@@ -3209,6 +3313,19 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 sourceBlob: bgm.blob,
                 audio: { volume: 0.75, fadeIn: 0.5, fadeOut: 1.5, muted: false, pan: 0 },
                 audioWaveform: bgm.audioWaveform,
+              });
+            } else {
+              const bgmDuration = Math.max(5, Math.min(30, curTime || 15));
+              const { blob, waveform } = synthesizeBgmWithWaveform('cinematic', bgmDuration);
+              addClip(audioTrack.id, {
+                name: 'AI 电影感背景音乐.wav',
+                type: 'audio',
+                start: 0,
+                duration: bgmDuration,
+                sourceUrl: URL.createObjectURL(blob),
+                sourceBlob: blob,
+                audio: { volume: 0.75, fadeIn: 0.5, fadeOut: 1.5, muted: false, pan: 0 },
+                audioWaveform: waveform,
               });
             }
 
@@ -3264,6 +3381,83 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [executeAiAction]
   );
 
+  // Stable action dispatchers, memoised apart from state so that
+  // action-only consumers don't re-render on every state change.
+  const editorActions = useMemo<EditorActions>(
+    () => ({
+      togglePlay,
+      seek,
+      stepFrame,
+      updateClip,
+      setShowGrid,
+      setShowSafeMargin,
+      setPlaybackSpeed,
+      setLoop,
+      setActiveSidebarTab,
+      addTrack,
+      updateTrack,
+      deleteTrack,
+      toggleTrackMute,
+      toggleTrackSolo,
+      toggleTrackLock,
+      toggleTrackHide,
+      selectClip,
+      toggleClipSelection,
+      setActiveTrackId,
+      moveClip,
+      splitClipAtTime,
+      addMediaAtPosition,
+      closeGapAt,
+      pasteClips,
+      trimClip,
+      deleteClip,
+      rippleDeleteClip,
+      duplicateClip,
+      splitClip,
+      setActiveSnapGuide,
+      openRelinkModal,
+      unlinkClips,
+      toggleLinkSelectedClips,
+      separateAudioFromVideo,
+    }),
+    [
+      togglePlay,
+      seek,
+      stepFrame,
+      updateClip,
+      setShowGrid,
+      setShowSafeMargin,
+      setPlaybackSpeed,
+      setLoop,
+      setActiveSidebarTab,
+      addTrack,
+      updateTrack,
+      deleteTrack,
+      toggleTrackMute,
+      toggleTrackSolo,
+      toggleTrackLock,
+      toggleTrackHide,
+      selectClip,
+      toggleClipSelection,
+      setActiveTrackId,
+      moveClip,
+      splitClipAtTime,
+      addMediaAtPosition,
+      closeGapAt,
+      pasteClips,
+      trimClip,
+      deleteClip,
+      rippleDeleteClip,
+      duplicateClip,
+      splitClip,
+      setActiveSnapGuide,
+      openRelinkModal,
+      unlinkClips,
+      toggleLinkSelectedClips,
+      separateAudioFromVideo,
+    ]
+  );
+
   return (
     <EditorContext.Provider
       value={{
@@ -3298,6 +3492,7 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         isShortcutsModalOpen,
         isAiModalOpen,
         isAiCopilotDrawerOpen,
+        aiAvailable,
         isAudioStudioModalOpen,
         audioStudioTargetClipId,
         audioStudioTargetAsset,
@@ -3433,7 +3628,9 @@ export const EditorProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         openNativeFilePicker,
       }}
     >
-      {children}
+      <EditorActionsContext.Provider value={editorActions}>
+        {children}
+      </EditorActionsContext.Provider>
     </EditorContext.Provider>
   );
 };
@@ -3442,6 +3639,63 @@ export const useEditor = () => {
   const context = useContext(EditorContext);
   if (!context) {
     throw new Error('useEditor must be used within an EditorProvider');
+  }
+  return context;
+};
+
+/**
+ * Stable action dispatchers, memoised independently from state.
+ *
+ * Components that read state via Zustand selectors and only need actions
+ * can use `useEditorActions()` instead of `useEditor()` to avoid
+ * re-rendering on every state change (e.g. 60fps currentTime ticks during
+ * playback). The functions are the same useCallbacks exposed by
+ * `useEditor()` — this context only changes when an action identity changes.
+ */
+export type EditorActions = Pick<
+  EditorContextType,
+  | 'togglePlay'
+  | 'seek'
+  | 'stepFrame'
+  | 'updateClip'
+  | 'setShowGrid'
+  | 'setShowSafeMargin'
+  | 'setPlaybackSpeed'
+  | 'setLoop'
+  | 'setActiveSidebarTab'
+  | 'addTrack'
+  | 'updateTrack'
+  | 'deleteTrack'
+  | 'toggleTrackMute'
+  | 'toggleTrackSolo'
+  | 'toggleTrackLock'
+  | 'toggleTrackHide'
+  | 'selectClip'
+  | 'toggleClipSelection'
+  | 'setActiveTrackId'
+  | 'moveClip'
+  | 'splitClipAtTime'
+  | 'addMediaAtPosition'
+  | 'closeGapAt'
+  | 'pasteClips'
+  | 'trimClip'
+  | 'deleteClip'
+  | 'rippleDeleteClip'
+  | 'duplicateClip'
+  | 'splitClip'
+  | 'setActiveSnapGuide'
+  | 'openRelinkModal'
+  | 'unlinkClips'
+  | 'toggleLinkSelectedClips'
+  | 'separateAudioFromVideo'
+>;
+
+const EditorActionsContext = createContext<EditorActions | null>(null);
+
+export const useEditorActions = () => {
+  const context = useContext(EditorActionsContext);
+  if (!context) {
+    throw new Error('useEditorActions must be used within an EditorProvider');
   }
   return context;
 };

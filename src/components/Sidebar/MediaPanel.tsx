@@ -16,10 +16,14 @@ import {
   HardDrive,
   Unlock,
   AlertTriangle,
+  ChevronDown,
+  ArrowUpDown,
 } from 'lucide-react';
 import { useEditor } from '../../context/EditorContext';
 import { MediaCard } from './MediaCard';
 import { isFileSystemAccessSupported } from '../../utils/fileSystem';
+import { SAMPLE_VIDEOS, SAMPLE_IMAGES, SAMPLE_AUDIOS } from '../../constants/samples';
+import { synthesizeBgmBlob, synthesizeSfxBlob, extractWaveformFromBlob } from '../../utils/audio';
 
 export const MediaPanel: React.FC = () => {
   const {
@@ -37,6 +41,8 @@ export const MediaPanel: React.FC = () => {
   } = useEditor();
 
   const [filterType, setFilterType] = useState<'all' | 'video' | 'image' | 'audio' | 'lottie'>('all');
+  const [sortKey, setSortKey] = useState<'recent' | 'name' | 'duration' | 'size'>('recent');
+  const [samplesOpen, setSamplesOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -84,15 +90,41 @@ export const MediaPanel: React.FC = () => {
     handleFileUpload(e.dataTransfer.files);
   };
 
+  const typeCounts = useMemo(() => {
+    const counts = { all: userAssets.length, video: 0, image: 0, audio: 0, lottie: 0 };
+    for (const a of userAssets) {
+      if (a.type === 'video') counts.video++;
+      else if (a.type === 'image') counts.image++;
+      else if (a.type === 'audio') counts.audio++;
+      else if (a.type === 'lottie') counts.lottie++;
+    }
+    return counts;
+  }, [userAssets]);
+
   const filteredAssets = useMemo(() => {
-    return userAssets.filter((a) => {
+    const filtered = userAssets.filter((a) => {
       if (filterType !== 'all' && a.type !== filterType) return false;
       if (searchQuery.trim() && !a.name.toLowerCase().includes(searchQuery.toLowerCase().trim())) {
         return false;
       }
       return true;
     });
-  }, [userAssets, filterType, searchQuery]);
+    const sorted = [...filtered];
+    switch (sortKey) {
+      case 'name':
+        sorted.sort((x, y) => x.name.localeCompare(y.name, 'zh-CN'));
+        break;
+      case 'duration':
+        sorted.sort((x, y) => (y.duration || 0) - (x.duration || 0));
+        break;
+      case 'size':
+        sorted.sort((x, y) => (y.size || 0) - (x.size || 0));
+        break;
+      default:
+        break; // 'recent' keeps import order
+    }
+    return sorted;
+  }, [userAssets, filterType, searchQuery, sortKey]);
 
   // Batch add all filtered assets to timeline
   const handleAddAllToTimeline = async () => {
@@ -101,30 +133,45 @@ export const MediaPanel: React.FC = () => {
     }
   };
 
+  const addSampleAudio = async (sample: (typeof SAMPLE_AUDIOS)[number]) => {
+    const blob = sample.toneType.startsWith('sfx-')
+      ? synthesizeSfxBlob(sample.toneType, sample.duration)
+      : synthesizeBgmBlob(sample.toneType, sample.duration);
+    const url = URL.createObjectURL(blob);
+    const audioWaveform = await extractWaveformFromBlob(blob);
+    await addMediaToTimeline({ name: sample.name, type: 'audio', url, duration: sample.duration, audioWaveform });
+  };
+
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
+    <div className="flex flex-col h-full text-xs select-none">
       {/* Header */}
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between">
-        <span className="font-bold text-xs text-white flex items-center gap-1.5">
-          <Film className="w-3.5 h-3.5 text-blue-400" />
-          素材库 (Media Library)
+      <div className="kf-panel-header">
+        <span className="flex items-center gap-2">
+          <Film className="w-3.5 h-3.5 text-cyan-300" />
+          素材库
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <button
             onClick={openRelinkModal}
-            className={`p-1 rounded text-[10px] border transition-colors flex items-center gap-1 ${
+            className={`kf-icon-btn p-1.5 !rounded-lg border ${
               needsPermissionCount > 0 || offlineAssetsCount > 0
-                ? 'bg-amber-500/20 text-amber-300 border-amber-500/40 hover:bg-amber-500/30'
-                : 'bg-[#1a1b22] text-neutral-400 border-[#242633] hover:text-white'
+                ? '!text-amber-300 !border-amber-500/40 !bg-amber-500/10'
+                : '!border-white/[0.06]'
             }`}
             title="素材重连与授权管理器"
           >
-            <HardDrive className="w-3 h-3" />
+            <HardDrive className="w-3.5 h-3.5" />
             {(needsPermissionCount > 0 || offlineAssetsCount > 0) && (
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
             )}
           </button>
-          <div className="flex gap-0.5 bg-[#1a1b22] p-0.5 rounded border border-[#242633]">
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-3 flex flex-col gap-3">
+        {/* Type filter row (with per-type counts) */}
+        {userAssets.length > 0 && (
+          <div className="flex gap-0.5 bg-black/30 p-0.5 rounded-lg border border-white/[0.06]">
             {(
               [
                 { id: 'all', label: '全部' },
@@ -136,21 +183,22 @@ export const MediaPanel: React.FC = () => {
               <button
                 key={item.id}
                 onClick={() => setFilterType(item.id)}
-                className={`px-1.5 py-0.5 rounded text-[10px] uppercase font-medium transition-colors ${
-                  filterType === item.id ? 'bg-[#00c9bd] text-[#081011] shadow-sm' : 'text-neutral-400 hover:text-white'
+                className={`flex-1 px-2 py-1 rounded-md text-[10px] font-medium transition-all cursor-pointer flex items-center justify-center gap-1 ${
+                  filterType === item.id
+                    ? 'bg-[var(--kf-accent-soft)] text-[var(--kf-accent)] shadow-[inset_0_0_0_1px_var(--kf-accent-line)]'
+                    : 'text-neutral-500 hover:text-neutral-200'
                 }`}
               >
                 {item.label}
+                <span className="font-mono text-[9px] opacity-70">{typeCounts[item.id]}</span>
               </button>
             ))}
           </div>
-        </div>
-      </div>
+        )}
 
-      <div className="flex-1 overflow-y-auto p-2.5 flex flex-col gap-3">
         {/* Offline / Need Permission Alert Block */}
         {(needsPermissionCount > 0 || offlineAssetsCount > 0) && (
-          <div className="p-2.5 rounded-lg bg-amber-950/40 border border-amber-500/30 flex flex-col gap-2">
+          <div className="p-3 rounded-xl bg-amber-500/[0.06] border border-amber-500/25 flex flex-col gap-2">
             <div className="flex items-center gap-2 text-amber-300">
               <AlertTriangle className="w-3.5 h-3.5 shrink-0" />
               <span className="font-semibold text-[11px]">
@@ -159,14 +207,14 @@ export const MediaPanel: React.FC = () => {
                   : `${offlineAssetsCount} 个素材处于离线状态`}
               </span>
             </div>
-            <p className="text-[10px] text-neutral-400 leading-normal">
+            <p className="text-[10px] text-neutral-500 leading-relaxed">
               浏览器安全策略要求在重新打开工程时对本地文件进行重新授权或扫描文件夹。
             </p>
             <div className="flex items-center gap-1.5">
               {needsPermissionCount > 0 && (
                 <button
                   onClick={() => requestAllFilePermissions()}
-                  className="px-2 py-1 rounded bg-amber-500 hover:bg-amber-400 text-black font-semibold text-[10px] flex items-center gap-1 shadow-xs"
+                  className="kf-btn !text-[10px] px-2.5 py-1.5 bg-amber-400 hover:bg-amber-300 text-black font-semibold"
                 >
                   <Unlock className="w-3 h-3" />
                   <span>授权访问</span>
@@ -174,9 +222,9 @@ export const MediaPanel: React.FC = () => {
               )}
               <button
                 onClick={openRelinkModal}
-                className="px-2 py-1 rounded bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border border-neutral-700 text-[10px] flex items-center gap-1"
+                className="kf-btn kf-btn-ghost !text-[10px] px-2.5 py-1.5"
               >
-                <FolderOpen className="w-3 h-3 text-blue-400" />
+                <FolderOpen className="w-3 h-3 text-cyan-300" />
                 <span>批量重连</span>
               </button>
             </div>
@@ -191,10 +239,10 @@ export const MediaPanel: React.FC = () => {
           }}
           onDragLeave={() => setIsDragging(false)}
           onDrop={handleDrop}
-          className={`border border-dashed rounded-lg p-3.5 flex flex-col items-center justify-center text-center cursor-pointer transition-all relative ${
+          className={`border border-dashed rounded-xl p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all relative ${
             isDragging
-              ? 'border-blue-500 bg-blue-500/10 scale-98'
-              : 'border-[#262834] hover:border-blue-500/50 bg-[#161720] hover:bg-[#1a1b24]'
+              ? 'border-cyan-400 bg-cyan-400/10 scale-[0.98]'
+              : 'border-white/10 hover:border-cyan-400/40 bg-white/[0.02] hover:bg-cyan-400/[0.04]'
           }`}
         >
           <input
@@ -204,17 +252,17 @@ export const MediaPanel: React.FC = () => {
             className="hidden"
             onChange={(e) => handleFileUpload(e.target.files)}
           />
-          <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center mb-1.5">
+          <div className="w-9 h-9 rounded-xl bg-cyan-400/10 border border-cyan-400/25 text-cyan-300 flex items-center justify-center mb-2">
             {isProcessing ? (
-              <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
+              <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <Upload className="w-4 h-4" />
             )}
           </div>
-          <span className="font-semibold text-xs text-neutral-200">
+          <span className="font-semibold text-xs text-neutral-100">
             {isProcessing ? processingMsg : '点击上传或拖拽本地素材'}
           </span>
-          <span className="text-[9px] text-neutral-500 mt-0.5">
+          <span className="text-[9px] text-neutral-600 mt-1">
             支持 MP4, WebM, MOV, MP3, WAV, PNG, JPG, SVG, Lottie JSON
           </span>
           {importError && <span role="alert" className="mt-1 text-[10px] text-red-400">{importError}</span>}
@@ -225,7 +273,7 @@ export const MediaPanel: React.FC = () => {
               <button
                 type="button"
                 onClick={handleNativePicker}
-                className="px-2 py-1 rounded bg-[#20222e] hover:bg-[#282b3a] border border-[#2e3142] text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1.5 transition-colors shadow-xs"
+                className="px-2 py-1 rounded bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] text-[10px] text-cyan-300 hover:text-cyan-200 font-medium flex items-center gap-1.5 transition-colors shadow-xs"
               >
                 <HardDrive className="w-3 h-3" />
                 <span>原生文件系统句柄导入 (支持持久重连)</span>
@@ -238,15 +286,15 @@ export const MediaPanel: React.FC = () => {
         <div className="grid grid-cols-3 gap-1.5">
           <button
             onClick={() => openRecordModal('screen')}
-            className="bg-[#171822] hover:bg-[#1e202c] border border-[#242633] p-1.5 rounded-md flex flex-col items-center gap-0.5 text-neutral-300 hover:text-white transition-colors"
+            className="bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] p-1.5 rounded-md flex flex-col items-center gap-0.5 text-neutral-300 hover:text-white transition-colors"
             title="录制电脑屏幕画面"
           >
-            <Monitor className="w-3.5 h-3.5 text-blue-400" />
+            <Monitor className="w-3.5 h-3.5 text-cyan-300" />
             <span className="text-[10px]">录制屏幕</span>
           </button>
           <button
             onClick={() => openRecordModal('camera')}
-            className="bg-[#171822] hover:bg-[#1e202c] border border-[#242633] p-1.5 rounded-md flex flex-col items-center gap-0.5 text-neutral-300 hover:text-white transition-colors"
+            className="bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] p-1.5 rounded-md flex flex-col items-center gap-0.5 text-neutral-300 hover:text-white transition-colors"
             title="录制高清摄像头实拍"
           >
             <Video className="w-3.5 h-3.5 text-rose-400" />
@@ -254,7 +302,7 @@ export const MediaPanel: React.FC = () => {
           </button>
           <button
             onClick={() => openRecordModal('audio')}
-            className="bg-[#171822] hover:bg-[#1e202c] border border-[#242633] p-1.5 rounded-md flex flex-col items-center gap-0.5 text-neutral-300 hover:text-white transition-colors"
+            className="bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] p-1.5 rounded-md flex flex-col items-center gap-0.5 text-neutral-300 hover:text-white transition-colors"
             title="录制麦克风旁白"
           >
             <Mic className="w-3.5 h-3.5 text-amber-400" />
@@ -272,13 +320,26 @@ export const MediaPanel: React.FC = () => {
                 placeholder="搜索导入的素材..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#161720] border border-[#242633] rounded pl-6 pr-2 py-1 text-[10px] text-neutral-200 placeholder-neutral-500 focus:outline-hidden focus:border-blue-500"
+                className="kf-input w-full pl-6 pr-2 py-1 text-[10px]"
               />
+            </div>
+            <div className="relative shrink-0" title="排序方式">
+              <ArrowUpDown className="w-3 h-3 text-neutral-500 absolute left-1.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <select
+                value={sortKey}
+                onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
+                className="kf-input pl-6 pr-1.5 py-1 text-[10px] cursor-pointer appearance-none"
+              >
+                <option value="recent">导入顺序</option>
+                <option value="name">名称</option>
+                <option value="duration">时长</option>
+                <option value="size">大小</option>
+              </select>
             </div>
             {filteredAssets.length > 0 && (
               <button
                 onClick={handleAddAllToTimeline}
-                className="px-2 py-1 bg-blue-600/20 hover:bg-blue-600/30 text-blue-300 border border-blue-500/30 rounded text-[10px] font-medium flex items-center gap-1 shrink-0"
+                className="kf-btn kf-btn-primary px-2 py-1 text-[10px] shrink-0"
                 title="批量将当前素材导入时间线"
               >
                 <Layers className="w-3 h-3" />
@@ -287,7 +348,7 @@ export const MediaPanel: React.FC = () => {
             )}
             <button
               onClick={clearUserAssets}
-              className="p-1 hover:bg-red-500/20 text-neutral-500 hover:text-red-400 rounded border border-transparent hover:border-red-500/30 transition-colors shrink-0"
+              className="kf-btn kf-btn-danger-ghost p-1 shrink-0"
               title="清空素材库"
             >
               <Trash2 className="w-3 h-3" />
@@ -298,9 +359,10 @@ export const MediaPanel: React.FC = () => {
         {/* User Imported Real Media Assets Grid */}
         {filteredAssets.length > 0 ? (
           <div className="flex flex-col gap-1.5">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-                已导入素材 ({filteredAssets.length})
+            <div className="kf-section-title">
+              已导入素材
+              <span className="font-mono normal-case tracking-normal text-[var(--kf-text-faint)]">
+                {filteredAssets.length}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
@@ -315,6 +377,7 @@ export const MediaPanel: React.FC = () => {
                   duration={asset.duration}
                   width={asset.width}
                   height={asset.height}
+                  size={asset.size}
                   isOffline={asset.isOffline}
                   needsPermission={asset.needsPermission}
                   onRelink={openRelinkModal}
@@ -336,14 +399,44 @@ export const MediaPanel: React.FC = () => {
           </div>
         ) : (
           /* Empty State */
-          <div className="py-8 px-4 flex flex-col items-center justify-center text-center text-neutral-500 border border-dashed border-[#20222a] rounded-lg bg-[#14151c]/50">
-            <FolderOpen className="w-8 h-8 text-neutral-600 mb-2" />
-            <span className="text-xs font-medium text-neutral-300">素材库为空</span>
-            <p className="text-[10px] text-neutral-500 mt-1 max-w-[200px] leading-relaxed">
-              请点击上方区域导入您的本地视频、音频或图片文件，或使用录屏/摄像头开始创作。
+          <div className="kf-empty !py-10">
+            <div className="w-12 h-12 rounded-2xl bg-cyan-400/[0.07] border border-cyan-400/20 flex items-center justify-center mb-3">
+              <FolderOpen className="w-5 h-5 text-cyan-300" />
+            </div>
+            <span className="text-xs font-semibold text-neutral-200">素材库为空</span>
+            <p className="text-[10px] text-neutral-500 mt-1.5 max-w-[210px] leading-relaxed">
+              点击上方区域导入本地视频、音频或图片，或使用录屏 / 摄像头开始创作。
             </p>
           </div>
         )}
+
+        {/* Sample Media (collapsible) */}
+        <div className="flex flex-col gap-1.5">
+          <button
+            type="button"
+            onClick={() => setSamplesOpen((v) => !v)}
+            className="kf-section-title w-full cursor-pointer text-left"
+            title={samplesOpen ? '收起示例素材' : '展开示例素材'}
+          >
+            示例素材
+            <span className="font-mono normal-case tracking-normal text-[var(--kf-text-faint)]">
+              {SAMPLE_VIDEOS.length + SAMPLE_IMAGES.length + SAMPLE_AUDIOS.length}
+            </span>
+            <ChevronDown
+              className={`w-3.5 h-3.5 shrink-0 text-neutral-500 transition-transform ${samplesOpen ? '' : '-rotate-90'}`}
+            />
+          </button>
+          {samplesOpen && (
+            <div className="grid grid-cols-2 gap-2">
+              {[...SAMPLE_VIDEOS, ...SAMPLE_IMAGES].map((asset) => (
+                <MediaCard key={asset.id} name={asset.name} type={asset.type} url={asset.url} thumbnail={asset.thumbnail} duration={asset.duration} onAdd={() => addMediaToTimeline({ name: asset.name, type: asset.type, url: asset.url, duration: asset.duration, thumbnail: asset.thumbnail })} badge="示例" />
+              ))}
+              {SAMPLE_AUDIOS.map((asset) => (
+                <MediaCard key={asset.id} name={asset.name} type="audio" url="" duration={asset.duration} onAdd={() => addSampleAudio(asset)} badge={asset.category} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

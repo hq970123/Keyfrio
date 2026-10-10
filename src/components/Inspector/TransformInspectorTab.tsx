@@ -72,10 +72,10 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
   return (
     <div className="flex flex-col gap-3 text-xs">
       {/* 1. Position & Coordinates */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Move className="w-3.5 h-3.5 text-blue-400" />
+            <Move className="w-3.5 h-3.5 text-cyan-300" />
             <span className="font-semibold text-neutral-200">空间位置 (Position)</span>
           </div>
           <button
@@ -96,7 +96,7 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
             max="80"
             value={transform.x}
             onChange={(e) => updateTransform({ x: parseInt(e.target.value) })}
-            className="flex-1 accent-blue-500 h-1 bg-neutral-800 rounded-lg cursor-pointer"
+            className="flex-1 accent-cyan-400 h-1 bg-neutral-800 rounded-lg cursor-pointer"
           />
           <div className="flex items-center gap-1">
             <input
@@ -118,7 +118,7 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
             max="80"
             value={transform.y}
             onChange={(e) => updateTransform({ y: parseInt(e.target.value) })}
-            className="flex-1 accent-blue-500 h-1 bg-neutral-800 rounded-lg cursor-pointer"
+            className="flex-1 accent-cyan-400 h-1 bg-neutral-800 rounded-lg cursor-pointer"
           />
           <div className="flex items-center gap-1">
             <input
@@ -133,13 +133,13 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
       </div>
 
       {/* 2. Scale & Sizing */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Maximize2 className="w-3.5 h-3.5 text-indigo-400" />
+            <Maximize2 className="w-3.5 h-3.5 text-violet-400" />
             <span className="font-semibold text-neutral-200">缩放比例 (Scale)</span>
           </div>
-          <span className="font-mono text-[11px] text-indigo-300 font-medium">
+          <span className="font-mono text-[11px] text-violet-300 font-medium">
             {Math.round((transform.scale || 1) * 100)}%
           </span>
         </div>
@@ -151,7 +151,7 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
           step="0.05"
           value={transform.scale || 1}
           onChange={(e) => updateTransform({ scale: parseFloat(e.target.value) })}
-          className="w-full accent-indigo-500 h-1 bg-neutral-800 rounded-lg cursor-pointer"
+          className="w-full accent-violet-500 h-1 bg-neutral-800 rounded-lg cursor-pointer"
         />
 
         {/* Quick Scale Presets */}
@@ -162,7 +162,7 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
               onClick={() => updateTransform({ scale: s })}
               className={`py-1 rounded text-[10px] font-mono transition-colors ${
                 Math.abs((transform.scale || 1) - s) < 0.04
-                  ? 'bg-indigo-600 text-white font-semibold'
+                  ? 'bg-violet-600 text-white font-semibold'
                   : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
               }`}
             >
@@ -173,7 +173,7 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
       </div>
 
       {/* 3. Rotation & Flip */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <RotateCcw className="w-3.5 h-3.5 text-sky-400" />
@@ -233,7 +233,7 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
       </div>
 
       {/* 4. Opacity & Visibility */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Eye className="w-3.5 h-3.5 text-emerald-400" />
@@ -272,7 +272,7 @@ export const TransformInspectorTab: React.FC<TransformInspectorTabProps> = ({ cl
       </div>
 
       {/* 5. Quick Layout Framing Presets */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <LayoutGrid className="w-3.5 h-3.5 text-amber-400" />
           <span className="font-semibold text-neutral-200">构图与画中画预设 (Framing)</span>

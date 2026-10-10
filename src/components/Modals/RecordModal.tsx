@@ -181,9 +181,9 @@ export const RecordModal: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 select-none">
-      <div className="bg-[#131419] border border-[#20222a] rounded-xl w-full max-w-lg shadow-2xl overflow-hidden text-neutral-200 text-xs">
+      <div className="bg-[var(--kf-surface-2)] border border-white/[0.06] rounded-xl w-full max-w-lg shadow-2xl overflow-hidden text-neutral-200 text-xs">
         {/* Header */}
-        <div className="h-10 px-3.5 border-b border-[#20222a] flex items-center justify-between bg-[#101116]">
+        <div className="h-10 px-3.5 border-b border-white/[0.06] flex items-center justify-between bg-[var(--kf-surface-1)]">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-red-600/20 text-red-400 flex items-center justify-center">
               <Radio className="w-3.5 h-3.5 animate-pulse" />
@@ -194,7 +194,7 @@ export const RecordModal: React.FC = () => {
           </div>
           <button
             onClick={handleClose}
-            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-[#171822] transition-colors"
+            className="p-1 text-neutral-400 hover:text-white rounded hover:bg-[var(--kf-surface-3)] transition-colors"
           >
             <X className="w-3.5 h-3.5" />
           </button>
@@ -202,11 +202,11 @@ export const RecordModal: React.FC = () => {
 
         {/* Mode Selector */}
         {!recordedBlob && !isRecording && (
-          <div className="grid grid-cols-3 p-2 bg-[#101116] border-b border-[#20222a] gap-1.5">
+          <div className="grid grid-cols-3 p-2 bg-[var(--kf-surface-1)] border-b border-white/[0.06] gap-1.5">
             <button
               onClick={() => setMode('screen')}
               className={`p-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all text-xs ${
-                mode === 'screen' ? 'bg-blue-600 text-white font-medium' : 'bg-[#171822] border border-[#242633] text-neutral-400'
+                mode === 'screen' ? 'bg-cyan-500 text-white font-medium' : 'bg-[var(--kf-surface-3)] border border-white/[0.06] text-neutral-400'
               }`}
             >
               <Monitor className="w-3.5 h-3.5" />
@@ -215,7 +215,7 @@ export const RecordModal: React.FC = () => {
             <button
               onClick={() => setMode('camera')}
               className={`p-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all text-xs ${
-                mode === 'camera' ? 'bg-red-600 text-white font-medium' : 'bg-[#171822] border border-[#242633] text-neutral-400'
+                mode === 'camera' ? 'bg-red-600 text-white font-medium' : 'bg-[var(--kf-surface-3)] border border-white/[0.06] text-neutral-400'
               }`}
             >
               <Video className="w-3.5 h-3.5" />
@@ -224,7 +224,7 @@ export const RecordModal: React.FC = () => {
             <button
               onClick={() => setMode('audio')}
               className={`p-1.5 rounded-lg flex items-center justify-center gap-1.5 transition-all text-xs ${
-                mode === 'audio' ? 'bg-amber-600 text-white font-medium' : 'bg-[#171822] border border-[#242633] text-neutral-400'
+                mode === 'audio' ? 'bg-amber-600 text-white font-medium' : 'bg-[var(--kf-surface-3)] border border-white/[0.06] text-neutral-400'
               }`}
             >
               <Mic className="w-3.5 h-3.5" />
@@ -235,7 +235,7 @@ export const RecordModal: React.FC = () => {
 
         {/* Video Preview or Visualizer */}
         <div className="p-3.5 flex flex-col items-center">
-          <div className="w-full h-52 bg-black rounded-lg overflow-hidden relative flex items-center justify-center border border-[#20222a]">
+          <div className="w-full h-52 bg-black rounded-lg overflow-hidden relative flex items-center justify-center border border-white/[0.06]">
             {mode !== 'audio' && !recordedUrl && (
               <video ref={videoPreviewRef} muted playsInline className="w-full h-full object-cover" />
             )}
@@ -300,7 +300,7 @@ export const RecordModal: React.FC = () => {
                     setRecordSeconds(0);
                     startStream(mode);
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-[#171822] hover:bg-[#1f202d] border border-[#242633] text-neutral-300 text-xs flex items-center gap-1.5"
+                  className="px-3 py-1.5 rounded-lg bg-[var(--kf-surface-3)] hover:bg-[#1f202d] border border-white/[0.06] text-neutral-300 text-xs flex items-center gap-1.5"
                 >
                   <RotateCcw className="w-3 h-3" />
                   <span>重新录制</span>

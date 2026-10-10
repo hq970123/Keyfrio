@@ -17,32 +17,42 @@ import {
   Zap,
   Activity,
 } from 'lucide-react';
-import { useEditor } from '../../context/EditorContext';
+import { useEditorActions } from '../../context/EditorContext';
+import {
+  useProjectStore,
+  usePlaybackStore,
+  useSelectionStore,
+  useUiStore,
+  useSelectedClip,
+} from '../../stores';
 import { renderFrame, getMediaBaseDimensions } from '../../utils/canvasRenderer';
 import { formatSMPTE, parseTimeToSeconds } from '../../utils/time';
 import { ScopesPanel } from './ScopesPanel';
 
 export const PreviewPlayer: React.FC = () => {
+  // Reads: fine-grained Zustand subscriptions (no re-render on unrelated state changes)
+  const project = useProjectStore((s) => s.project);
+  const totalDuration = useProjectStore((s) => s.totalDuration);
+  const currentTime = usePlaybackStore((s) => s.currentTime);
+  const isPlaying = usePlaybackStore((s) => s.isPlaying);
+  const playbackSpeed = usePlaybackStore((s) => s.playbackSpeed);
+  const loop = usePlaybackStore((s) => s.loop);
+  const selectedClipId = useSelectionStore((s) => s.selectedClipId);
+  const selectedClip = useSelectedClip();
+  const showGrid = useUiStore((s) => s.showGrid);
+  const showSafeMargin = useUiStore((s) => s.showSafeMargin);
+
+  // Writes: stable action dispatchers (no state subscription)
   const {
-    project,
-    currentTime,
-    isPlaying,
-    totalDuration,
     togglePlay,
     seek,
     stepFrame,
-    selectedClipId,
-    selectedClip,
     updateClip,
-    showGrid,
     setShowGrid,
-    showSafeMargin,
     setShowSafeMargin,
-    playbackSpeed,
     setPlaybackSpeed,
-    loop,
     setLoop,
-  } = useEditor();
+  } = useEditorActions();
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -132,35 +142,49 @@ export const PreviewPlayer: React.FC = () => {
     }
   }, [currentTime, isEditingTimecode]);
 
-  // Render canvas frame on state change, seek, or during playback animation loop
+  // 2D context is stable for the canvas lifetime; resolve once instead of per frame.
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
+
+  // Latest render inputs for the playback loop. Updated every render so the
+  // RAF loop (created once per play session) always draws the newest state
+  // without being torn down and recreated on each currentTime tick.
+  const frameStateRef = useRef({ project, currentTime, selectedClipId, showGrid, showSafeMargin });
+  frameStateRef.current = { project, currentTime, selectedClipId, showGrid, showSafeMargin };
+
+  const drawFrame = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    if (!ctxRef.current) {
+      ctxRef.current = canvas.getContext('2d');
+    }
+    const ctx = ctxRef.current;
+    if (!ctx) return;
+    const { project, currentTime, selectedClipId, showGrid, showSafeMargin } = frameStateRef.current;
+    renderFrame(ctx, project, currentTime, project.resolution, {
+      selectedClipId,
+      showGrid,
+      showSafeMargin,
+      isExporting: false,
+    });
+  }, []);
+
+  // Single-frame draw while idle (paused / scrubbed / project or overlay changed).
   useEffect(() => {
-    let animId: number;
+    if (isPlaying) return;
+    drawFrame();
+  }, [isPlaying, project, currentTime, selectedClipId, showGrid, showSafeMargin, drawFrame]);
 
-    const draw = () => {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          renderFrame(ctx, project, currentTime, project.resolution, {
-            selectedClipId,
-            showGrid,
-            showSafeMargin,
-            isExporting: false,
-          });
-        }
-      }
-
-      if (isPlaying) {
-        animId = requestAnimationFrame(draw);
-      }
+  // Continuous RAF loop, alive only while playing.
+  useEffect(() => {
+    if (!isPlaying) return;
+    let animId = 0;
+    const loop = () => {
+      drawFrame();
+      animId = requestAnimationFrame(loop);
     };
-
-    draw();
-
-    return () => {
-      if (animId) cancelAnimationFrame(animId);
-    };
-  }, [project, currentTime, isPlaying, selectedClipId, showGrid, showSafeMargin]);
+    animId = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(animId);
+  }, [isPlaying, drawFrame]);
 
   // Hit test handles and bounding box
   const hitTest = useCallback(
@@ -317,6 +341,25 @@ export const PreviewPlayer: React.FC = () => {
     }
   };
 
+  // F: toggle fullscreen preview
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement;
+      if (
+        target &&
+        (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)
+      ) {
+        return;
+      }
+      if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleFullscreen();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   const handleTimecodeSubmit = () => {
     setIsEditingTimecode(false);
     const parsed = parseTimeToSeconds(timecodeInput, project.fps);
@@ -380,7 +423,7 @@ export const PreviewPlayer: React.FC = () => {
       {/* Player Bottom Control Bar */}
       <div className="h-11 bg-[#17181f] border-t border-[#2a2c36] px-3 flex items-center justify-between text-xs text-neutral-300 shrink-0 select-none">
         {/* Left: Timecode / Position */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           {isEditingTimecode ? (
             <input
               type="text"
@@ -407,32 +450,32 @@ export const PreviewPlayer: React.FC = () => {
           <span className="text-neutral-500 font-mono text-[10px]">/ {formatSMPTE(totalDuration)}</span>
 
           <div
-            className="flex items-center gap-1 px-1.5 py-0.5 bg-cyan-950/60 border border-cyan-500/30 rounded text-[9px] text-cyan-300 font-mono"
+            className="kf-badge-accent kf-badge !text-[9px] font-mono"
             title="PixiJS GPU 硬件加速引擎：就绪"
           >
-            <Zap className="w-2.5 h-2.5 text-cyan-400 animate-pulse" />
-            <span className="font-semibold">PixiJS GPU</span>
+            <Zap className="w-2.5 h-2.5 animate-pulse" />
+            <span className="font-bold">GPU</span>
           </div>
         </div>
 
         {/* Center: Play / Pause / Step */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           {/* Jump to start */}
           <button
             onClick={() => seek(0)}
             title="回到片头 (Home)"
-            className="p-1 text-neutral-400 hover:text-white hover:bg-[#1c1d27] rounded transition-colors"
+            className="kf-icon-btn p-2"
           >
-            <SkipBack className="w-3.5 h-3.5" />
+            <SkipBack className="w-4 h-4" />
           </button>
 
           {/* Step back 1 frame */}
           <button
             onClick={() => stepFrame(-1)}
-            title="上一帧 (Left Arrow)"
-            className="p-1 text-neutral-400 hover:text-white hover:bg-[#1c1d27] rounded transition-colors"
+            title="上一帧 (←)"
+            className="kf-icon-btn p-2"
           >
-            <ChevronLeft className="w-3.5 h-3.5" />
+            <ChevronLeft className="w-4 h-4" />
           </button>
 
           {/* Primary Play/Pause Button */}
@@ -441,25 +484,25 @@ export const PreviewPlayer: React.FC = () => {
             title="播放 / 暂停 (Space)"
             className="w-7 h-7 rounded-full bg-[#00c9bd] hover:bg-[#00e0d2] text-[#081011] flex items-center justify-center shadow-[0_0_16px_rgba(0,212,200,0.24)] active:scale-95 transition-all mx-0.5 cursor-pointer"
           >
-            {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5 ml-0.5" />}
+            {isPlaying ? <Pause className="w-4 h-4 fill-current" /> : <Play className="w-4 h-4 ml-0.5 fill-current" />}
           </button>
 
           {/* Step forward 1 frame */}
           <button
             onClick={() => stepFrame(1)}
-            title="下一帧 (Right Arrow)"
-            className="p-1 text-neutral-400 hover:text-white hover:bg-[#1c1d27] rounded transition-colors"
+            title="下一帧 (→)"
+            className="kf-icon-btn p-2"
           >
-            <ChevronRight className="w-3.5 h-3.5" />
+            <ChevronRight className="w-4 h-4" />
           </button>
 
           {/* Jump to end */}
           <button
             onClick={() => seek(totalDuration)}
             title="跳到片尾 (End)"
-            className="p-1 text-neutral-400 hover:text-white hover:bg-[#1c1d27] rounded transition-colors"
+            className="kf-icon-btn p-2"
           >
-            <SkipForward className="w-3.5 h-3.5" />
+            <SkipForward className="w-4 h-4" />
           </button>
         </div>
 
@@ -469,7 +512,7 @@ export const PreviewPlayer: React.FC = () => {
           <select
             value={playbackSpeed}
             onChange={(e) => setPlaybackSpeed(parseFloat(e.target.value))}
-            className="bg-[#171822] border border-[#242633] text-neutral-300 text-[10px] rounded px-1.5 py-0.5 outline-none cursor-pointer"
+            className="kf-input text-neutral-300 text-[10px] font-mono rounded-lg px-1.5 py-1 outline-none cursor-pointer"
             title="播放倍速"
           >
             <option value="0.5">0.5x</option>
@@ -492,10 +535,8 @@ export const PreviewPlayer: React.FC = () => {
           {/* Scopes Overlay Toggle */}
           <button
             onClick={() => setShowScopes(!showScopes)}
-            title="FreeCut 实时视频示波器 (波形/RGB分量/矢量图/直方图)"
-            className={`p-1 rounded transition-colors ${
-              showScopes ? 'text-emerald-400 bg-emerald-500/15' : 'text-neutral-400 hover:text-white hover:bg-[#1c1d27]'
-            }`}
+            title="实时视频示波器 (波形/RGB分量/矢量图/直方图)"
+            className={`kf-icon-btn p-2 ${showScopes ? 'active' : ''}`}
           >
             <Activity className="w-3.5 h-3.5" />
           </button>
@@ -515,9 +556,7 @@ export const PreviewPlayer: React.FC = () => {
           <button
             onClick={() => setShowSafeMargin(!showSafeMargin)}
             title="安全区参考框 (90% / 80%)"
-            className={`p-1 rounded transition-colors ${
-              showSafeMargin ? 'text-pink-400 bg-pink-500/15' : 'text-neutral-400 hover:text-white hover:bg-[#1c1d27]'
-            }`}
+            className={`kf-icon-btn p-2 ${showSafeMargin ? 'active' : ''}`}
           >
             <Shield className="w-3.5 h-3.5" />
           </button>
@@ -526,7 +565,7 @@ export const PreviewPlayer: React.FC = () => {
           <button
             onClick={handleSnapshot}
             title="截图当前画幅 (PNG)"
-            className="p-1 text-neutral-400 hover:text-white hover:bg-[#1c1d27] rounded transition-colors"
+            className="kf-icon-btn p-2"
           >
             <Camera className="w-3.5 h-3.5" />
           </button>
@@ -535,7 +574,7 @@ export const PreviewPlayer: React.FC = () => {
           <button
             onClick={toggleFullscreen}
             title="全屏预览 (F)"
-            className="p-1 text-neutral-400 hover:text-white hover:bg-[#1c1d27] rounded transition-colors"
+            className="kf-icon-btn p-2"
           >
             {isFullscreen ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
           </button>

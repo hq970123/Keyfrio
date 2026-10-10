@@ -87,9 +87,9 @@ export const EffectsPanel: React.FC = () => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
+    <div className="flex flex-col h-full text-neutral-200 text-xs select-none">
       {/* Panel Header */}
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between">
+      <div className="p-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <div className="flex flex-col">
           <span className="font-bold text-xs text-white flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
@@ -106,7 +106,7 @@ export const EffectsPanel: React.FC = () => {
       </div>
 
       {/* Category Tabs */}
-      <div className="px-2 pt-2 pb-1 border-b border-[#20222a] flex gap-1">
+      <div className="px-2 pt-2 pb-1 border-b border-white/[0.06] flex gap-1">
         {[
           { id: 'all', label: '全部特效' },
           { id: 'particles', label: '🎆 粒子发生器' },
@@ -119,7 +119,7 @@ export const EffectsPanel: React.FC = () => {
             className={`flex-1 py-1 px-1 rounded text-[10px] font-medium transition-all text-center ${
               activeCategory === tab.id
                 ? 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/30'
-                : 'text-neutral-400 hover:text-neutral-200 hover:bg-[#1c1d27]'
+                : 'text-neutral-400 hover:text-neutral-200 hover:bg-[var(--kf-surface-4)]'
             }`}
           >
             {tab.label}
@@ -128,7 +128,7 @@ export const EffectsPanel: React.FC = () => {
       </div>
 
       {/* Search Input */}
-      <div className="p-2 border-b border-[#20222a]">
+      <div className="p-2 border-b border-white/[0.06]">
         <div className="relative">
           <Search className="w-3 h-3 text-neutral-500 absolute left-2 top-2" />
           <input
@@ -136,7 +136,7 @@ export const EffectsPanel: React.FC = () => {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="搜索特效、粒子、故障风、雪花..."
-            className="w-full bg-[#171822] border border-[#242633] rounded pl-6 pr-2 py-1 text-white text-[11px] outline-none"
+            className="w-full bg-[var(--kf-surface-3)] border border-white/[0.06] rounded pl-6 pr-2 py-1 text-white text-[11px] outline-none"
           />
         </div>
       </div>
@@ -166,7 +166,7 @@ export const EffectsPanel: React.FC = () => {
               {filteredParticles.map((preset) => (
                 <div
                   key={preset.id}
-                  className="group bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-cyan-500/60 rounded-lg p-2 flex items-center justify-between transition-all"
+                  className="group bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] hover:border-cyan-500/60 rounded-lg p-2 flex items-center justify-between transition-all"
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <div
@@ -240,7 +240,7 @@ export const EffectsPanel: React.FC = () => {
               {filteredFilters.map((preset) => (
                 <div
                   key={preset.id}
-                  className="group bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-purple-500/60 rounded-lg p-2 flex items-center justify-between transition-all"
+                  className="group bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] hover:border-purple-500/60 rounded-lg p-2 flex items-center justify-between transition-all"
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <div
@@ -304,7 +304,7 @@ export const EffectsPanel: React.FC = () => {
           <div className="flex flex-col gap-1.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider flex items-center gap-1">
-                <Palette className="w-3 h-3 text-indigo-400" />
+                <Palette className="w-3 h-3 text-cyan-400" />
                 电影级色彩预设 (Color Grading)
               </span>
               <span className="text-[9px] text-neutral-500">点击赋予选中片段</span>
@@ -315,7 +315,7 @@ export const EffectsPanel: React.FC = () => {
                 <button
                   key={preset.id}
                   onClick={() => handleApplyColorPreset(preset)}
-                  className="p-2 bg-[#171822] hover:bg-[#1f202d] border border-[#242633] hover:border-indigo-500 rounded-md flex flex-col gap-1.5 text-left transition-all group cursor-pointer"
+                  className="p-2 bg-[var(--kf-surface-3)] hover:bg-[var(--kf-surface-4)] border border-white/[0.06] hover:border-cyan-500 rounded-md flex flex-col gap-1.5 text-left transition-all group cursor-pointer"
                 >
                   <div
                     className="w-full h-10 rounded overflow-hidden border border-white/10 relative flex items-end p-1"
@@ -330,7 +330,7 @@ export const EffectsPanel: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center text-[9px] text-neutral-400">
                     <span>饱和 {preset.filter.saturate}%</span>
-                    <span className="text-indigo-400 group-hover:underline">点击应用</span>
+                    <span className="text-cyan-400 group-hover:underline">点击应用</span>
                   </div>
                 </button>
               ))}

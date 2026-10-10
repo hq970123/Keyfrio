@@ -36,13 +36,13 @@ export const SpeedInspectorTab: React.FC<SpeedInspectorTabProps> = ({ clip, onUp
   return (
     <div className="flex flex-col gap-3 text-xs">
       {/* 1. Speed Slider & Numeric Readout */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2.5">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
-            <Gauge className="w-3.5 h-3.5 text-blue-400" />
+            <Gauge className="w-3.5 h-3.5 text-cyan-300" />
             <span className="font-semibold text-neutral-200">播放速度 (Playback Speed)</span>
           </div>
-          <span className="font-mono text-sm font-bold text-blue-400">
+          <span className="font-mono text-sm font-bold text-cyan-300">
             {currentSpeed.toFixed(2)}x
           </span>
         </div>
@@ -54,7 +54,7 @@ export const SpeedInspectorTab: React.FC<SpeedInspectorTabProps> = ({ clip, onUp
           step="0.05"
           value={currentSpeed}
           onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-          className="w-full accent-blue-500 h-1 bg-neutral-800 rounded-lg cursor-pointer"
+          className="w-full accent-cyan-400 h-1 bg-neutral-800 rounded-lg cursor-pointer"
         />
 
         {/* Speed Quick Presets */}
@@ -65,7 +65,7 @@ export const SpeedInspectorTab: React.FC<SpeedInspectorTabProps> = ({ clip, onUp
               onClick={() => handleSpeedChange(s)}
               className={`py-1 rounded font-mono text-[10px] transition-colors ${
                 Math.abs(currentSpeed - s) < 0.04
-                  ? 'bg-blue-600 text-white font-bold shadow-xs'
+                  ? 'bg-cyan-500 text-white font-bold shadow-xs'
                   : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200'
               }`}
             >
@@ -76,13 +76,13 @@ export const SpeedInspectorTab: React.FC<SpeedInspectorTabProps> = ({ clip, onUp
       </div>
 
       {/* 2. Duration Impact Preview */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
         <div className="flex items-center gap-1.5">
           <Clock className="w-3.5 h-3.5 text-amber-400" />
           <span className="font-semibold text-neutral-200">时间线占用时长</span>
         </div>
 
-        <div className="flex items-center justify-between bg-[#101116] p-2 rounded-lg border border-[#20222a] text-[11px]">
+        <div className="flex items-center justify-between bg-[var(--kf-surface-1)] p-2 rounded-lg border border-white/[0.06] text-[11px]">
           <div className="flex flex-col">
             <span className="text-[10px] text-neutral-500">原素材时长 (1.0x):</span>
             <span className="font-mono text-neutral-300">{originalDuration.toFixed(2)} 秒</span>
@@ -90,13 +90,13 @@ export const SpeedInspectorTab: React.FC<SpeedInspectorTabProps> = ({ clip, onUp
           <div className="text-neutral-500 font-bold">➔</div>
           <div className="flex flex-col text-right">
             <span className="text-[10px] text-neutral-500">当前时间线时长:</span>
-            <span className="font-mono text-blue-400 font-semibold">{currentDuration.toFixed(2)} 秒</span>
+            <span className="font-mono text-cyan-300 font-semibold">{currentDuration.toFixed(2)} 秒</span>
           </div>
         </div>
       </div>
 
       {/* 3. Audio Pitch Preservation */}
-      <div className="bg-[#171822] border border-[#242633] p-3 rounded-xl flex flex-col gap-2">
+      <div className="bg-[var(--kf-surface-3)] border border-white/[0.06] p-3 rounded-xl flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1.5">
             <Music2 className="w-3.5 h-3.5 text-emerald-400" />

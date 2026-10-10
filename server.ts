@@ -3,6 +3,7 @@ import path from "path";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI, Type, Modality } from "@google/genai";
 import dotenv from "dotenv";
+import { registerRemotionRoutes } from "./server/remotionService";
 
 dotenv.config();
 
@@ -31,6 +32,9 @@ function getGeminiClient(): GoogleGenAI | null {
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok", aiAvailable: Boolean(process.env.GEMINI_API_KEY) });
 });
+
+// Remotion template rendering (server-side): template list, render jobs
+registerRemotionRoutes(app);
 
 // AI Copilot: Conversational Video Editing Assistant with Executable Actions
 app.post("/api/ai/copilot", async (req, res) => {

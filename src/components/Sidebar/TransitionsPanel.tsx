@@ -49,14 +49,14 @@ const TRANSITIONS: {
     name: '向左擦除 (Wipe Left)',
     desc: '由右向左平移推拉揭示下一幕',
     icon: MoveLeft,
-    color: 'text-blue-400 bg-blue-500/10 border-blue-500/20',
+    color: 'text-cyan-300 bg-cyan-400/10 border-cyan-400/20',
   },
   {
     type: 'wipeRight',
     name: '向右擦除 (Wipe Right)',
     desc: '由左向右平稳擦除过渡',
     icon: MoveRight,
-    color: 'text-indigo-400 bg-indigo-500/10 border-indigo-500/20',
+    color: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20',
   },
   {
     type: 'wipeUp',
@@ -105,8 +105,8 @@ export const TransitionsPanel: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#131419] text-neutral-200 text-xs select-none">
-      <div className="p-2.5 border-b border-[#20222a] flex items-center justify-between">
+    <div className="flex flex-col h-full text-neutral-200 text-xs select-none">
+      <div className="p-2.5 border-b border-white/[0.06] flex items-center justify-between">
         <div>
           <span className="font-bold text-xs text-white flex items-center gap-1.5">
             <Blend className="w-3.5 h-3.5 text-pink-400" />
@@ -129,8 +129,8 @@ export const TransitionsPanel: React.FC = () => {
             <button
               key={trans.type}
               onClick={() => handleApplyTransition(trans.type)}
-              className={`p-2.5 bg-[#171822] hover:bg-[#1f202d] border rounded-lg flex items-center justify-between text-left transition-all group cursor-pointer ${
-                isSelected ? 'border-pink-500 bg-pink-500/10 shadow-xs' : 'border-[#242633] hover:border-pink-500/40'
+              className={`p-2.5 bg-[var(--kf-surface-3)] hover:bg-[#1f202d] border rounded-lg flex items-center justify-between text-left transition-all group cursor-pointer ${
+                isSelected ? 'border-pink-500 bg-pink-500/10 shadow-xs' : 'border-white/[0.06] hover:border-pink-500/40'
               }`}
             >
               <div className="flex items-center gap-2.5 min-w-0">

@@ -1,4 +1,5 @@
 import { Project, MediaAsset, Track, Clip, ProjectSummary } from '../types/editor';
+import { globalOpfsStorage } from "./opfsStorage";
 
 const DB_NAME = 'opencut_studio_db';
 const DB_VERSION = 1;
@@ -42,6 +43,7 @@ export interface StoredAssetRecord {
   name: string;
   type: string;
   blob?: Blob;
+  storage?: 'opfs' | 'idb';
   duration: number;
   thumbnail?: string;
   thumbnails?: string[];
@@ -57,18 +59,33 @@ export interface StoredAssetRecord {
   createdAt: number;
 }
 
+function opfsAssetFileName(id: string): string {
+  return `asset_${id}.bin`;
+}
+
 // Save or update an asset in IndexedDB
 export async function saveAssetToDB(asset: MediaAsset): Promise<void> {
   const db = await openDB();
+  let opfsSaved = false;
+  if (asset.blob) {
+    try {
+      if (globalOpfsStorage.checkSupport()) {
+        opfsSaved = await globalOpfsStorage.saveFile(opfsAssetFileName(asset.id), asset.blob);
+      }
+    } catch {
+      opfsSaved = false;
+    }
+  }
+
   return new Promise((resolve, reject) => {
     const tx = db.transaction(STORE_ASSETS, 'readwrite');
     const store = tx.objectStore(STORE_ASSETS);
-
     const record: StoredAssetRecord = {
       id: asset.id,
       name: asset.name,
       type: asset.type,
-      blob: asset.blob,
+      blob: opfsSaved ? undefined : asset.blob,
+      storage: asset.blob ? (opfsSaved ? 'opfs' : 'idb') : undefined,
       duration: asset.duration || 5,
       thumbnail: asset.thumbnail,
       thumbnails: asset.thumbnails,
@@ -98,20 +115,43 @@ export async function loadAllAssetsFromDB(): Promise<MediaAsset[]> {
     const store = tx.objectStore(STORE_ASSETS);
     const req = store.getAll();
 
-    req.onsuccess = () => {
+    req.onsuccess = async () => {
       const records: StoredAssetRecord[] = req.result || [];
-      const assets: MediaAsset[] = records.map((r) => {
+      const assets = await Promise.all(records.map(async (r) => {
+        let blob = r.blob;
+        if (r.storage === 'opfs') {
+          try {
+            blob = await globalOpfsStorage.getFile(opfsAssetFileName(r.id)) || undefined;
+          } catch {
+            blob = undefined;
+          }
+        } else if (r.blob) {
+          // Migrate old records without delaying the current load.
+          void (async () => {
+            try {
+              if (!globalOpfsStorage.checkSupport()) return;
+              const saved = await globalOpfsStorage.saveFile(opfsAssetFileName(r.id), r.blob!);
+              if (!saved) return;
+              const migratedRecord: StoredAssetRecord = { ...r, storage: 'opfs' };
+              delete migratedRecord.blob;
+              const migrationTx = db.transaction(STORE_ASSETS, 'readwrite');
+              migrationTx.objectStore(STORE_ASSETS).put(migratedRecord);
+            } catch {
+              // Legacy data remains available in IndexedDB if migration fails.
+            }
+          })();
+        }
+
         let url = '';
         let isOffline = false;
-        if (r.blob) {
+        if (blob) {
           try {
-            url = URL.createObjectURL(r.blob);
+            url = URL.createObjectURL(blob);
           } catch {
             url = '';
             isOffline = true;
           }
-        } else if (r.fileHandle) {
-          // Has file handle but needs permission check
+        } else if (r.storage === 'opfs' || r.fileHandle) {
           isOffline = true;
         }
 
@@ -120,7 +160,7 @@ export async function loadAllAssetsFromDB(): Promise<MediaAsset[]> {
           name: r.name,
           type: r.type as any,
           url: url || r.thumbnail || '',
-          blob: r.blob,
+          blob,
           duration: r.duration,
           thumbnail: r.thumbnail,
           thumbnails: r.thumbnails,
@@ -134,9 +174,9 @@ export async function loadAllAssetsFromDB(): Promise<MediaAsset[]> {
           fileHandle: r.fileHandle,
           filePath: r.filePath,
           isOffline,
-          needsPermission: Boolean(r.fileHandle && !r.blob),
+          needsPermission: Boolean(r.fileHandle && !blob),
         };
-      });
+      }));
       resolve(assets);
     };
     req.onerror = () => reject(req.error);
@@ -150,6 +190,10 @@ export async function deleteAssetFromDB(assetId: string): Promise<void> {
     const tx = db.transaction(STORE_ASSETS, 'readwrite');
     const store = tx.objectStore(STORE_ASSETS);
     const req = store.delete(assetId);
+    req.onsuccess = () => {
+      // Also remove the OPFS-backed blob, if any (records stored inline have none).
+      globalOpfsStorage.deleteFile(opfsAssetFileName(assetId)).catch(() => {});
+    };
     req.onerror = () => reject(req.error);
     waitForTransaction(tx).then(resolve, reject);
   });
